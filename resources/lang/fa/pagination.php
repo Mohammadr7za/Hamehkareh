@@ -1,5 +1,5 @@
-<?php 
+<?php
 return [
-  'previous' => 'previous',
-  'next' => 'próxima',
+  'previous' => 'قبل',
+  'next' => 'بعد',
 ];

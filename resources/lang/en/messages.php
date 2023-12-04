@@ -77,6 +77,8 @@
         'sequence' => 'Sequence',
         'color' => 'Color',
         'description' => 'Description',
+        //
+
         'check_delete_msg' => "Sorry, You can't delete because it is already used in somewhere",
         'item' => 'Item',
         'sequence_form_title' => ':form Sequence',

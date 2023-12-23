@@ -29,7 +29,7 @@ class UserController extends Controller
     public function register(UserRequest $request)
     {
         $input = $request->all();
-                
+
         $password = $input['password'];
         $input['display_name'] = $input['first_name']." ".$input['last_name'];
         $input['user_type'] = isset($input['user_type']) ? $input['user_type'] : 'user';
@@ -41,7 +41,7 @@ class UserController extends Controller
         }
         $user = User::create($input);
         $user->assignRole($input['user_type']);
-        
+
         if($user->user_type == 'provider' || $user->user_type == 'user'){
             $wallet = array(
                 'title' => $user->display_name,
@@ -64,7 +64,7 @@ class UserController extends Controller
 
         unset($input['password']);
         $message = trans('messages.save_form',['form' => $input['user_type'] ]);
-    
+
         $user->api_token = $user->createToken('auth_token')->plainTextToken;
         $response = [
             'message' => $message,
@@ -74,9 +74,9 @@ class UserController extends Controller
     }
 
     public function login()
-    {      
+    {
         if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
-            
+
             $user = Auth::user();
             if(request('loginfrom') === 'vue-app'){
                 if($user->user_type != 'user'){
@@ -98,7 +98,7 @@ class UserController extends Controller
             $success['api_token'] = $user->createToken('auth_token')->plainTextToken;
             $success['profile_image'] = getSingleMedia($user,'profile_image',null);
             $is_verify_provider = false;
-        
+
             if($user->user_type == 'provider')
             {
                 $is_verify_provider = verify_provider_document($user->id);
@@ -122,7 +122,69 @@ class UserController extends Controller
                     Wallet::create($wallet);
                 }
             }
-            $success['is_verify_provider'] = (int) $is_verify_provider; 
+            $success['is_verify_provider'] = (int) $is_verify_provider;
+            unset($success['media']);
+            unset($user['roles']);
+            $success['player_ids'] = $user->playerids->pluck('player_id');
+            unset($user->playerids);
+
+            return response()->json([ 'data' => $success ], 200 );
+        }
+        else{
+            $message = trans('auth.failed');
+            return comman_message_response($message,406);
+        }
+    }
+    public function loginWithMobile()
+    {
+        if(Auth::attempt(['contact_number' => request('mobile'), 'password' => request('password')])){
+
+            $user = Auth::user();
+            if(request('loginfrom') === 'vue-app'){
+                if($user->user_type != 'user'){
+                    $message = trans('auth.not_able_login');
+                    return comman_message_response($message,400);
+                }
+            }
+            $user->save();
+            if(request('player_id') != null){
+                $data = [
+                    'user_id' => $user->id,
+                    'player_id' => request('player_id'),
+                ];
+                UserPlayerIds::create($data);
+
+            }
+            $success = $user;
+            $success['user_role'] = $user->getRoleNames();
+            $success['api_token'] = $user->createToken('auth_token')->plainTextToken;
+            $success['profile_image'] = getSingleMedia($user,'profile_image',null);
+            $is_verify_provider = false;
+
+            if($user->user_type == 'provider')
+            {
+                $is_verify_provider = verify_provider_document($user->id);
+                $success['subscription'] = get_user_active_plan($user->id);
+
+                if(is_any_plan_active($user->id) == 0 && $success['is_subscribe'] == 0 ){
+                    $success['subscription'] = user_last_plan($user->id);
+                }
+                $success['is_subscribe'] = is_subscribed_user($user->id);
+                $success['provider_id'] = admin_id();
+
+            }
+            if($user->user_type == 'provider' || $user->user_type == 'user'){
+                $wallet = Wallet::where('user_id',$user->id)->first();
+                if( $wallet == null){
+                    $wallet = array(
+                        'title' => $user->display_name,
+                        'user_id' => $user->id,
+                        'amount' => 0
+                    );
+                    Wallet::create($wallet);
+                }
+            }
+            $success['is_verify_provider'] = (int) $is_verify_provider;
             unset($success['media']);
             unset($user['roles']);
             $success['player_ids'] = $user->playerids->pluck('player_id');
@@ -157,7 +219,7 @@ class UserController extends Controller
             if($user_type == 'handyman' && $status == 1){
                 $user_list = $user_list->whereNotNull('provider_id')->where('user_type' ,'handyman');
             }
-            
+
         }
         if($request->has('provider_id'))
         {
@@ -207,7 +269,7 @@ class UserController extends Controller
             ],
             'data' => $items,
         ];
-        
+
         return comman_custom_response($response);
     }
 
@@ -219,7 +281,7 @@ class UserController extends Controller
         $message = __('messages.detail');
         if(empty($user)){
             $message = __('messages.user_not_found');
-            return comman_message_response($message,400);   
+            return comman_message_response($message,400);
         }
 
         $service = [];
@@ -252,9 +314,9 @@ class UserController extends Controller
 
         if($user == "") {
             $message = __('messages.user_not_found');
-            return comman_message_response($message,406);   
+            return comman_message_response($message,406);
         }
-           
+
         $hashedPassword = $user->password;
 
         $match = Hash::check($request->old_password, $hashedPassword);
@@ -270,7 +332,7 @@ class UserController extends Controller
 			$user->fill([
                 'password' => Hash::make($request->new_password)
             ])->save();
-            
+
             $message = __('messages.password_change');
             return comman_message_response($message,200);
         }
@@ -282,7 +344,7 @@ class UserController extends Controller
     }
 
     public function updateProfile(Request $request)
-    {   
+    {
         $user = \Auth::user();
         if($request->has('id') && !empty($request->id)){
             $user = User::where('id',$request->id)->first();
@@ -309,9 +371,9 @@ class UserController extends Controller
                     'player_id' => request('player_id'),
                 ];
                 UserPlayerIds::create($data);
-    
+
             }
-           
+
         }
         $message = __('messages.updated');
         $user_data['profile_image'] = getSingleMedia($user_data,'profile_image',null);
@@ -357,7 +419,7 @@ class UserController extends Controller
             ? response()->json(['message' => __($response), 'status' => true], 200)
             : response()->json(['message' => __($response), 'status' => false], 406);
     }
-    
+
     public function socialLogin(Request $request)
     {
         $input = $request->all();
@@ -368,7 +430,7 @@ class UserController extends Controller
             $user_data = User::where('email',$input['email'])->first();
 
         }
-      
+
         if( $user_data != null ) {
             if( !isset($user_data->login_type) || $user_data->login_type  == '' ){
                 if($request->login_type === 'google'){
@@ -389,9 +451,9 @@ class UserController extends Controller
                 $key = 'username';
                 $value = $request->username;
             }
-            
+
             $trashed_user_data = User::where($key,$value)->whereNotNull('login_type')->withTrashed()->first();
-            
+
             if ($trashed_user_data != null && $trashed_user_data->trashed())
             {
                 if($request->login_type === 'google'){
@@ -418,7 +480,7 @@ class UserController extends Controller
             }
 
             $password = !empty($input['accessToken']) ? $input['accessToken'] : $input['email'];
-            
+
             $input['user_type']  = "user";
             $input['display_name'] = $input['first_name']." ".$input['last_name'];
             $input['password'] = Hash::make($password);
@@ -433,11 +495,11 @@ class UserController extends Controller
 
             }
             $user->assignRole($input['user_type']);
-    
+
             $user_data = User::where('id',$user->id)->first();
             $message = trans('messages.save_form',['form' => $input['user_type'] ]);
         }
-    
+
         $user_data['api_token'] = $user_data->createToken('auth_token')->plainTextToken;
         $user_data['profile_image'] = $user_data->social_image;
         $response = [
@@ -488,7 +550,7 @@ class UserController extends Controller
             $messagedata = __('messages.something_wrong');
             return comman_message_response($messagedata);
         }
-      
+
     }
     public function handymanAvailable(Request $request){
         $user_id =  $request->id;
@@ -590,9 +652,9 @@ class UserController extends Controller
         return comman_message_response($message,200);
     }
     public function addUser(UserRequest $request)
-    {   
+    {
         $input = $request->all();
-                
+
         $password = $input['password'];
         $input['display_name'] = $input['first_name']." ".$input['last_name'];
         $input['user_type'] = isset($input['user_type']) ? $input['user_type'] : 'user';
@@ -615,7 +677,7 @@ class UserController extends Controller
         return comman_custom_response($response);
     }
     public function editUser(UserRequest $request)
-    {   
+    {
         if($request->has('id') && !empty($request->id)){
             $user = User::where('id',$request->id)->first();
         }
@@ -631,7 +693,7 @@ class UserController extends Controller
         }
 
         $user_data = User::find($user->id);
-        
+
         $message = __('messages.updated');
         $user_data['profile_image'] = getSingleMedia($user_data,'profile_image',null);
         $user_data['user_role'] = $user->getRoleNames();
@@ -655,5 +717,5 @@ class UserController extends Controller
         ];
         return comman_custom_response( $response );
     }
-    
+
 }

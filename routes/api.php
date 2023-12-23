@@ -42,6 +42,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('register',[API\User\UserController::class, 'register']);
 Route::post('login',[API\User\UserController::class,'login']);
+Route::post('login-with-mobile',[API\User\UserController::class,'loginWithMobile']);
 Route::post('forgot-password',[ API\User\UserController::class,'forgotPassword']);
 Route::post('social-login',[ API\User\UserController::class, 'socialLogin' ]);
 Route::post('contact-us', [ API\User\UserController::class, 'contactUs' ] );
@@ -157,7 +158,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('user-favourite-provider',[ API\ProviderFavouriteController::class, 'getUserFavouriteProvider' ]);
     Route::post('download-invoice',[API\CommanController::class,'downloadInvoice']);
     Route::get('user-wallet-balance',[API\User\UserController::class,'userWalletBalance']);
-    
+
 
 
     Route::get('configurations', [ API\DashboardController::class, "configurations"]);

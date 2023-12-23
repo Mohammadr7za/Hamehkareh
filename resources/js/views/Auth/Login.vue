@@ -31,7 +31,7 @@
                     <div v-if="$v.password.$error" class="invalid-feedback-data">
                         {{__('auth.login_password')}} {{__('messages.is_required')}}
                     </div>
-                     
+
                 </div>
                 <div class="col-12 mb-2 text-center">
                     <button
@@ -134,6 +134,6 @@ export default {
 }
 
 .form-group > input[type="password"]{
-  padding-right: 3rem;  
+  padding-right: 3rem;
 }
 </style>

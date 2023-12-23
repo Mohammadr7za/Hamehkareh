@@ -14,20 +14,20 @@ class AppSettingsTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('app_settings')->delete();
-        
+
         \DB::table('app_settings')->insert(array (
-            0 => 
+            0 =>
             array (
                 'id' => 1,
-                'site_name' => 'Handyman Service',
+                'site_name' => 'همه کاره',
                 'site_email' => NULL,
                 'site_logo' => NULL,
                 'site_favicon' => NULL,
                 'site_description' => NULL,
-                'site_copyright' => '© 2023 All Rights Reserved by <a href="https://iqonic.design" target="_blank">IQONIC Design</a>',
+                'site_copyright' => 'تمامی حقوق محفوظ می باشد.',
                 'facebook_url' => NULL,
                 'instagram_url' => NULL,
                 'youtube_url' => NULL,
@@ -39,7 +39,7 @@ class AppSettingsTableSeeder extends Seeder
                 'helpline_number' => NULL,
             ),
         ));
-        
-        
+
+
     }
 }

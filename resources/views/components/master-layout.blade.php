@@ -10,7 +10,7 @@
 
     @include('partials._head')
 </head>
-<body class="" id="app">
+<body class="" id="app" dir="rtl" style="direction: rtl">
 @include('partials._body')
 </body>
 </html>

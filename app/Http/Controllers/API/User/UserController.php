@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\User;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Service;
@@ -66,6 +67,37 @@ class UserController extends Controller
         $message = trans('messages.save_form',['form' => $input['user_type'] ]);
 
         $user->api_token = $user->createToken('auth_token')->plainTextToken;
+        $response = [
+            'message' => $message,
+            'data' => $user
+        ];
+        return comman_custom_response($response);
+    }
+    public function requestOtp(UserRequest $request)
+    {
+        $input = $request->all();
+
+        $password = $input['password'];
+        $input['display_name'] = $input['first_name']." ".$input['last_name'];
+        $input['user_type'] = 'user';
+        $input['password'] = Hash::make($password);
+        $input['otp_token'] = 1234;
+        $input['otp_token_expire_time'] = Carbon::now()->addMinutes(3);
+        $input['status'] = 0;
+
+        $user = User::create($input);
+        $user->assignRole($input['user_type']);
+
+        if($user->user_type == 'provider' || $user->user_type == 'user'){
+            $wallet = array(
+                'title' => $user->display_name,
+                'user_id' => $user->id,
+                'amount' => 0
+            );
+            $result = Wallet::create($wallet);
+        }
+        $message = trans('messages.save_form',['form' => $input['user_type'] ]);
+
         $response = [
             'message' => $message,
             'data' => $user
@@ -136,6 +168,68 @@ class UserController extends Controller
         }
     }
     public function loginWithMobile()
+    {
+        if(Auth::attempt(['contact_number' => request('mobile'), 'password' => request('password')])){
+
+            $user = Auth::user();
+            if(request('loginfrom') === 'vue-app'){
+                if($user->user_type != 'user'){
+                    $message = trans('auth.not_able_login');
+                    return comman_message_response($message,400);
+                }
+            }
+            $user->save();
+            if(request('player_id') != null){
+                $data = [
+                    'user_id' => $user->id,
+                    'player_id' => request('player_id'),
+                ];
+                UserPlayerIds::create($data);
+
+            }
+            $success = $user;
+            $success['user_role'] = $user->getRoleNames();
+            $success['api_token'] = $user->createToken('auth_token')->plainTextToken;
+            $success['profile_image'] = getSingleMedia($user,'profile_image',null);
+            $is_verify_provider = false;
+
+            if($user->user_type == 'provider')
+            {
+                $is_verify_provider = verify_provider_document($user->id);
+                $success['subscription'] = get_user_active_plan($user->id);
+
+                if(is_any_plan_active($user->id) == 0 && $success['is_subscribe'] == 0 ){
+                    $success['subscription'] = user_last_plan($user->id);
+                }
+                $success['is_subscribe'] = is_subscribed_user($user->id);
+                $success['provider_id'] = admin_id();
+
+            }
+            if($user->user_type == 'provider' || $user->user_type == 'user'){
+                $wallet = Wallet::where('user_id',$user->id)->first();
+                if( $wallet == null){
+                    $wallet = array(
+                        'title' => $user->display_name,
+                        'user_id' => $user->id,
+                        'amount' => 0
+                    );
+                    Wallet::create($wallet);
+                }
+            }
+            $success['is_verify_provider'] = (int) $is_verify_provider;
+            unset($success['media']);
+            unset($user['roles']);
+            $success['player_ids'] = $user->playerids->pluck('player_id');
+            unset($user->playerids);
+
+            return response()->json([ 'data' => $success ], 200 );
+        }
+        else{
+            $message = trans('auth.failed');
+            return comman_message_response($message,406);
+        }
+    }
+    public function confirmOtp()
     {
         if(Auth::attempt(['contact_number' => request('mobile'), 'password' => request('password')])){
 

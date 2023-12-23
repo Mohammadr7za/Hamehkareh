@@ -41,7 +41,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('register',[API\User\UserController::class, 'register']);
+Route::post('request_otp',[API\User\UserController::class, 'requestOtp']);
 Route::post('login',[API\User\UserController::class,'login']);
+Route::post('confirm-otp',[API\User\UserController::class,'confirmOtp']);
 Route::post('login-with-mobile',[API\User\UserController::class,'loginWithMobile']);
 Route::post('forgot-password',[ API\User\UserController::class,'forgotPassword']);
 Route::post('social-login',[ API\User\UserController::class, 'socialLogin' ]);

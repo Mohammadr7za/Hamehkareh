@@ -107,6 +107,7 @@ return [
     'uploaded' => ':attribute بارگذاری نشد.',
     'url' => 'قالب :attribute نامعتبر است.',
     'uuid' => ':attribute باید یک UUID معتبر باشد.',
+    'uuid1' => ':attribute باید یک UUID معتبر باشد.',
 
     'custom' => [
         'attribute-name' => [

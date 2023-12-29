@@ -81,7 +81,7 @@ return [
     |
     */
 
-    'locale' => env('DEFAULT_LANGUAGE','en'),
+    'locale' => env('DEFAULT_LANGUAGE','fa'),
 
     /*
     |--------------------------------------------------------------------------
@@ -94,7 +94,7 @@ return [
     |
     */
 
-    'fallback_locale' => 'en',
+    'fallback_locale' => 'fa',
 
     /*
     |--------------------------------------------------------------------------
@@ -234,4 +234,9 @@ return [
 
     ],
 
+    'available_locales' => [
+        'Persian' => 'fa',
+//        'Russian' => 'ru',
+//        'French' => 'fr',
+    ],
 ];

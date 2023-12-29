@@ -14,6 +14,8 @@
     'forgot_password' => 'رمز عبور را فراموش کرده اید؟',
     'signup' => 'ثبت نام',
     'get_start' => 'شروع کنید',
+    'enter_mobile' => 'شماره همراه را وارد کنید.',
+    'mobile' => 'شماره همراه',
     'confirm' => 'تأیید',
     'email' => 'ایمیل',
     'login_password' => 'گذرواژه',

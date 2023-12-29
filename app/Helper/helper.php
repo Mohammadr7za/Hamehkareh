@@ -65,7 +65,7 @@ function checkMenuRoleAndPermission($menu)
             if(auth()->user()->can($menu->data('permission')) ) {
                 return true;
             }
-          
+
         }
     }
 
@@ -249,7 +249,7 @@ function saveBookingActivity($data)
                 $assigned_handyman = handymanNames($data['booking']->handymanAdded);
                 $data['activity_message'] = __('messages.booking_assigned',['name' => $assigned_handyman]);
                 $data['activity_type'] = __('messages.assigned_booking');
-                
+
                 $activity_data = [
                     'handyman_id' => $data['booking']->handymanAdded->pluck('handyman_id'),
                     'handyman_name' => $data['booking']->handymanAdded,
@@ -435,7 +435,7 @@ function getPriceFormat($price){
 }
 
 function currency_data(){
-  
+
     $currency_symbol = \App\Models\Setting::where('type','CURRENCY')->where('key','CURRENCY_COUNTRY_ID')->with('country')->first();
     $symbol = '$';
     if(!empty($currency_symbol))
@@ -1104,7 +1104,7 @@ function get_plan_expiration_date($plan_start_date = '',$plan_type = '',$left_da
 }
 function get_user_active_plan($user_id){
     $get_provider_plan  =  \App\Models\ProviderSubscription::where('user_id',$user_id)->where('status',config('constant.SUBSCRIPTION_STATUS.ACTIVE'))->first();
-    $activeplan = null; 
+    $activeplan = null;
     if(!empty($get_provider_plan)){
         $activeplan = new App\Http\Resources\API\ProviderSubscribeResource($get_provider_plan);
     }
@@ -1128,7 +1128,7 @@ function check_days_left_plan($old_plan,$new_plan){
 function user_last_plan($user_id){
     $user_subscribed = \App\Models\ProviderSubscription::where('user_id',$user_id)
                     ->where('status',config('constant.SUBSCRIPTION_STATUS.INACTIVE'))->orderBy('id','desc')->first();
-    $inactivePlan = null; 
+    $inactivePlan = null;
     if(!empty($user_subscribed)){
         $inactivePlan = new App\Http\Resources\API\ProviderSubscribeResource($user_subscribed);
     }
@@ -1148,7 +1148,7 @@ function default_earning_type(){
     return $earningtype;
 }
 function saveWalletHistory($data){
- 
+
     $admin = \App\Models\AppSetting::first();
     date_default_timezone_set( $admin->time_zone ?? 'UTC');
     $data['datetime'] = date('Y-m-d H:i:s');
@@ -1309,7 +1309,7 @@ function sendNotification($type,$user,$data){
     curl_setopt($ch, CURLOPT_POST, TRUE);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-    
+
     $response = curl_exec($ch);
     curl_close($ch);
     $childData = array(
@@ -1329,7 +1329,7 @@ function sendNotification($type,$user,$data){
         )
     );
 
-   
+
   }
   function saveRequestJobActivity($data)
 {
@@ -1371,7 +1371,7 @@ function sendNotification($type,$user,$data){
     curl_setopt($ch, CURLOPT_POST, TRUE);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-    
+
     $response = curl_exec($ch);
     curl_close($ch);
 
@@ -1397,7 +1397,7 @@ function saveJobActivity($data)
         case "user_accept_bid":
                 $data['activity_message'] = __('messages.bid_accepted_message',['name' => $data['bid_data']->customer->display_name,]);
                 $data['activity_type'] =  __('messages.bid_accepted_title');
-                
+
                 $activity_data = [
                     'post_request_id' => $data['bid_data']->post_request_id,
                     'customer_id' => $data['bid_data']->customer_id,
@@ -1500,7 +1500,7 @@ function bookingstatus($status){
 
             break;
 
-        
+
         case 'Ongoing':
             $html = '<span class="badge badge-warning">'.$status.'</span>';
 
@@ -1515,7 +1515,7 @@ function bookingstatus($status){
             $html = '<span class="badge badge-dark text-white">'.$status.'</span>';
 
             break;
-        
+
         case 'Cancelled':
             $html = '<span class="badge badge-light">'.$status.'</span>';
 
@@ -1530,7 +1530,7 @@ function bookingstatus($status){
             $html = '<span class="badge badge-success">'.$status.'</span>';
 
             break;
-        
+
         default:
             $html = '<span class="badge badge-danger">'.$status.'</span>';
             break;
@@ -1549,8 +1549,8 @@ function today_cash_total($user_id,$to='',$from='',$type = ''){
         })
         ->whereDate('datetime', '>=', $from)
         ->whereDate('datetime', '<=', $to)
-        ->sum('total_amount');  
-    
+        ->sum('total_amount');
+
     }
 
     if (auth()->user()->hasAnyRole(['provider'])) {
@@ -1569,9 +1569,9 @@ function today_cash_total($user_id,$to='',$from='',$type = ''){
 function total_cash($user_id){
     $amount = 0;
 
-   
+
     if (auth()->user()->hasAnyRole(['handyman'])) {
-       
+
         $amount = \App\Models\PaymentHistory::where('receiver_id', $user_id)
         ->where(function ($query) {
             $query->where('action', 'handyman_approved_cash')

@@ -23,11 +23,11 @@
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <div class="form-group">
-                                            <label class="text-secondary">{{__('auth.email')}} <span
+                                            <label class="text-secondary">{{__('auth.mobile')}} <span
                                                     class="text-danger">*</span></label>
-                                            <input id="email" name="email" value="{{old('email')}}" class="form-control"
-                                                   type="email"
-                                                   placeholder="{{ __('auth.enter_email',['name' => __('auth.email')]) }}"
+                                            <input id="contact_number" name="contact_number" value="{{old('contact_number')}}" class="form-control"
+                                                   type="text"
+                                                   placeholder="{{ __('auth.enter_mobile',['name' => __('auth.mobile')]) }}"
                                                    required autofocus>
                                             <small class="help-block with-errors text-danger"></small>
                                         </div>
@@ -50,10 +50,10 @@
                                 </div>
                                 <button type="submit"
                                         class="btn btn-primary btn-block mt-2">{{ __('auth.login') }}</button>
-                                <div class="col-lg-12 mt-3">
-                                    <p class="mb-0 text-center">{{__('auth.dont_have_account')}} <a
-                                            href="{{route('auth.register')}}">{{__('auth.signup')}}</a></p>
-                                </div>
+{{--                                <div class="col-lg-12 mt-3">--}}
+{{--                                    <p class="mb-0 text-center">{{__('auth.dont_have_account')}} <a--}}
+{{--                                            href="{{route('auth.register')}}">{{__('auth.signup')}}</a></p>--}}
+{{--                                </div>--}}
                             </form>
                         </div>
                     </div>

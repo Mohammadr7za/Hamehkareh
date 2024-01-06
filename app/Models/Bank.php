@@ -13,7 +13,7 @@ class Bank extends Model implements HasMedia
     use HasFactory,InteractsWithMedia,SoftDeletes;
     protected $table = 'banks';
     protected $fillable = [
-        'provider_id', 'bank_name', 'branch_name','account_no','ifsc_no' , 'mobile_no','aadhar_no','pan_no','status'
+        'provider_id', 'bank_name', 'branch_name','account_no','ifsc_no' , 'mobile_no','aadhar_no','pan_no','status','stripe_account'
     ];
 
     protected $casts = [
@@ -23,6 +23,15 @@ class Bank extends Model implements HasMedia
     public function providers(){
         return $this->belongsTo('App\Models\User','provider_id','id')->withTrashed();
     }
+    public function scopeMyBank($query){
+        $user = auth()->user();
+        if($user->hasRole('admin') || $user->hasRole('demo_admin')) {
+            $query =  $query;
+        }
 
+        if($user->hasRole('provider')) {
+            $query = $query->where('provider_id', $user->id);
+        }
+    }
 
 }

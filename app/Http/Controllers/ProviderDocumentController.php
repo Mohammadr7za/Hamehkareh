@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ProviderDocument;
 use App\Models\Service;
-use App\DataTables\ProviderDocumentDataTable;
 use App\Http\Requests\ProviderDocumentRequest;
 use Yajra\DataTables\DataTables;
 
@@ -16,7 +15,7 @@ class ProviderDocumentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(ProviderDocumentDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -24,14 +23,14 @@ class ProviderDocumentController extends Controller
         $pageTitle = trans('messages.list_form_title',['form' => trans('messages.providerdocument')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('providerdocument.index', compact('pageTitle','auth_user','assets','filter'));
+        return view('providerdocument.index', compact('pageTitle','auth_user','assets','filter'));
     }
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        
-        $query = ProviderDocument::query();
-       
+
+        $query = ProviderDocument::query()->myDocument();
+
         $filter = $request->filter;
 
         if (isset($filter)) {
@@ -42,8 +41,8 @@ class ProviderDocumentController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->withTrashed();
         }
-        
-        
+
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="providerdocument" onclick="dataTableRowCheck('.$row->id.',this)">';
@@ -66,15 +65,31 @@ class ProviderDocumentController extends Controller
                 </div>';
 
             })
-            ->editColumn('provider_id' , function ($query){
-                return ($query->provider_id != null && isset($query->providers)) ? '<a class="btn-link btn-link-hover" href='.route('providerdocument.create', ['id' => $query->id]).'>'.$query->providers->display_name.'</a>' : '';
+
+            // ->editColumn('provider_id', function($query){
+            //     if (auth()->user()->can('providerdocument edit')) {
+            //         $link =  ($query->provider_id != null && isset($query->providers)) ? '<a class="btn-link btn-link-hover" href='.route('providerdocument.create', ['id' => $query->id]).'>'.$query->providers->display_name.'</a>' : '';
+            //     } else {
+            //         $link = ($query->provider_id != null && isset($query->providers))
+            //           ? $query->providers->display_name: '';
+            //     }
+            //     return $link;
+            // })
+
+            ->editColumn('provider_id', function ($query) {
+                return view('providerdocument.user', compact('query'));
             })
+
+            // ->editColumn('provider_id' , function ($query){
+
+            //     return ($query->provider_id != null && isset($query->providers)) ? '<a class="btn-link btn-link-hover" href='.route('providerdocument.create', ['id' => $query->id]).'>'.$query->providers->display_name.'</a>' : '';
+            // })
             ->editColumn('document_id' , function ($query){
                 return ($query->document_id != null && isset($query->document)) ? $query->document->name : '';
             })
             ->filterColumn('provider_id',function($query,$keyword){
                 $query->whereHas('providers',function ($q) use($keyword){
-                    $q->where('display_name','like','%'.$keyword.'%');
+                    $q->where('first_name','like','%'.$keyword.'%');
                 });
             })
             ->addColumn('action', function($provider_document){
@@ -109,11 +124,11 @@ class ProviderDocumentController extends Controller
                 ProviderDocument::whereIn('id', $ids)->restore();
                 $message = 'Bulk Provider Document Restored';
                 break;
-                
+
             case 'permanently-delete':
                 ProviderDocument::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Provider Document Permanently Deleted';
-                break;    
+                break;
 
             default:
                 return response()->json(['status' => false,'is_verified' => false, 'message' => 'Action Invalid']);
@@ -135,12 +150,12 @@ class ProviderDocumentController extends Controller
 
         $provider_document = ProviderDocument::find($id);
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.providerdocument')]);
-        
+
         if( $provider_document == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.providerdocument')]);
              $provider_document = new ProviderDocument;
         }
-        
+
         return view('providerdocument.create', compact('pageTitle' ,'provider_document' ,'auth_user' ));
     }
 
@@ -172,7 +187,7 @@ class ProviderDocumentController extends Controller
         if($request->is('api/*')) {
             return comman_message_response($message);
 		}
-        return redirect(route('providerdocument.index'))->withSuccess($message);        
+        return redirect(route('providerdocument.index'))->withSuccess($message);
     }
 
     /**
@@ -224,9 +239,9 @@ class ProviderDocumentController extends Controller
             return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
         $provider_document = ProviderDocument::find($id);
-        
-        if( $provider_document!='') { 
-        
+
+        if( $provider_document!='') {
+
             $provider_document->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.providerdocument')] );
         }
@@ -251,5 +266,5 @@ class ProviderDocumentController extends Controller
         }
         return comman_custom_response(['message'=> $msg , 'status' => true]);
     }
-    
+
 }

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ProviderAddressMapping;
 use App\Models\Service;
-use App\DataTables\ProviderAddressDataTable;
 use Yajra\DataTables\DataTables;
 
 
@@ -16,7 +15,7 @@ class ProviderAddressMappingController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(ProviderAddressDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -24,14 +23,14 @@ class ProviderAddressMappingController extends Controller
         $pageTitle = trans('messages.list_form_title',['form' => trans('messages.provider_address')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('provideraddress.index', compact('pageTitle','auth_user','assets','filter'));
+        return view('provideraddress.index', compact('pageTitle','auth_user','assets','filter'));
     }
 
 
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = ProviderAddressMapping::query();
+        $query = ProviderAddressMapping::query()->myAddress();
         $filter = $request->filter;
 
         if (isset($filter)) {
@@ -42,7 +41,7 @@ class ProviderAddressMappingController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->newQuery();
         }
-        
+
         return $datatable->eloquent($query)
         ->addColumn('check', function ($row) {
             return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
@@ -56,9 +55,29 @@ class ProviderAddressMappingController extends Controller
                 </div>
             </div>';
         })
-        ->editColumn('provider_id', function($query) {
-            return ($query->provider_id != null && isset($query->providers)) ? '<a class="btn-link btn-link-hover" href='.route('provideraddress.create', ['id' => $query->id]).'>'.$query->providers->display_name.'</a>' : '-';
+       // ->editColumn('provider_id', function($query) {
+        //     return ($query->provider_id != null && isset($query->providers)) ? '<a class="btn-link btn-link-hover" href='.route('provideraddress.create', ['id' => $query->id]).'>'.$query->providers->display_name.'</a>' : '-';
+        // })
+
+        // ->editColumn('provider_id', function($query){
+        //     if (auth()->user()->can('provideraddress edit')) {
+        //         $link = ($query->provider_id != null && isset($query->providers)) ? '<a class="btn-link btn-link-hover" href='.route('provideraddress.create', ['id' => $query->id]).'>'.$query->providers->display_name.'</a>' : '-';
+        //     } else {
+        //         $link = ($query->provider_id != null && isset($query->providers)) ? $query->providers->display_name : '-';
+        //     }
+        //     return $link;
+        // })
+
+        ->editColumn('provider_id', function ($query) {
+            return view('provideraddress.user', compact('query'));
         })
+
+        ->filterColumn('provider_id',function($query,$keyword){
+            $query->whereHas('providers',function ($q) use($keyword){
+                $q->where('first_name','like','%'.$keyword.'%');
+            });
+        })
+
         ->addColumn('action', function($provideraddress){
             return view('provideraddress.action',compact('provideraddress'))->render();
         })
@@ -106,13 +125,27 @@ class ProviderAddressMappingController extends Controller
 
         $provideraddress = ProviderAddressMapping::find($id);
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.provider_address')]);
-        
+
         if($provideraddress == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.provider_address')]);
             $provideraddress = new ProviderAddressMapping;
         }
-        
+
         return view('provideraddress.create', compact('pageTitle' ,'provideraddress' ,'auth_user' ));
+    }
+
+    public function getLatLong(Request $request)
+    {
+        $address = $request->input('address');
+        $result = app('geocoder')->geocode($address)->get();
+        $lat = null;
+        $long = null;
+        if ($result->isNotEmpty()) {
+            $coordinates = $result->first()->getCoordinates();
+            $lat = $coordinates->getLatitude();
+            $long = $coordinates->getLongitude();
+        }
+        return response()->json(['latitude' => $lat, 'longitude' => $long]);
     }
 
     /**
@@ -139,7 +172,7 @@ class ProviderAddressMappingController extends Controller
             return comman_message_response($message);
 		}
 
-        return redirect(route('provideraddress.index'))->withSuccess($message);   
+        return redirect(route('provideraddress.index'))->withSuccess($message);
     }
 
     /**
@@ -192,9 +225,9 @@ class ProviderAddressMappingController extends Controller
         }
         $provideraddress = ProviderAddressMapping::find($id);
         $msg = __('messages.msg_fail_to_delete',['item' => __('messages.provider_address')] );
-        
-        if( $provideraddress!='') { 
-        
+
+        if( $provideraddress!='') {
+
             $provideraddress->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.provider_address')] );
         }

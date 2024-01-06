@@ -10,8 +10,6 @@ use App\Models\Setting;
 use App\Models\BookingRating;
 use App\Models\CouponServiceMapping;
 use App\Models\ProviderServiceAddressMapping;
-use App\DataTables\ServiceDataTable;
-use App\DataTables\UserServiceDataTable;
 use App\Http\Requests\ServiceRequest;
 use Yajra\DataTables\DataTables;
 
@@ -22,7 +20,7 @@ class ServiceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(ServiceDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -30,15 +28,13 @@ class ServiceController extends Controller
         $pageTitle = __('messages.list_form_title',['form' => __('messages.service')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->with([
-            'packageid'=>$request->packageid,
-            'postjobid'=>$request->postjobid])->render('service.index', compact('pageTitle','auth_user','assets','filter'));  
+        return view('service.index', compact('pageTitle','auth_user','assets','filter'));
     }
 
     // get datatable data
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = Service::query();
+        $query = Service::query()->myService();
 
         $filter = $request->filter;
 
@@ -57,8 +53,14 @@ class ServiceController extends Controller
 
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="service" onclick="dataTableRowCheck('.$row->id.',this)">';
             })
+
             ->editColumn('name', function($query){
-                return '<a class="btn-link btn-link-hover" href='.route('service.create', ['id' => $query->id]).'>'.$query->name.'</a>';
+                if (auth()->user()->can('service edit')) {
+                    $link =  '<a class="btn-link btn-link-hover" href='.route('service.create', ['id' => $query->id]).'>'.$query->name.'</a>';
+                } else {
+                    $link = $query->name;
+                }
+                return $link;
             })
             ->editColumn('category_id' , function ($query){
                 return ($query->category_id != null && isset($query->category)) ? $query->category->name : '-';
@@ -68,8 +70,11 @@ class ServiceController extends Controller
                     $q->where('name','like','%'.$keyword.'%');
                 });
             })
+              // ->editColumn('provider_id' , function ($query){
+            //     return ($query->provider_id != null && isset($query->providers)) ? $query->providers->display_name : '';
+            // })
             ->editColumn('provider_id' , function ($query){
-                return ($query->provider_id != null && isset($query->providers)) ? $query->providers->display_name : '';
+                return view('service.service', compact('query'));
             })
             ->filterColumn('provider_id',function($query,$keyword){
                 $query->whereHas('providers',function ($q) use($keyword){
@@ -79,7 +84,7 @@ class ServiceController extends Controller
             ->editColumn('price' , function ($query){
                 return getPriceFormat($query->price).'-'.ucFirst($query->type);
             })
-            
+
             ->editColumn('discount' , function ($query){
                 return $query->discount ? $query->discount .'%' : '-';
             })
@@ -90,12 +95,12 @@ class ServiceController extends Controller
                 $disabled = $query->trashed() ? 'disabled': '';
                 return '<div class="custom-control custom-switch custom-switch-text custom-switch-color custom-control-inline">
                     <div class="custom-switch-inner">
-                        <input type="checkbox" class="custom-control-input  change_status" data-type="subcategory_status" '.($query->status ? "checked" : "").'  '.$disabled.' value="'.$query->id.'" id="'.$query->id.'" data-id="'.$query->id.'">
+                        <input type="checkbox" class="custom-control-input  change_status" data-type="service_status" '.($query->status ? "checked" : "").'  '.$disabled.' value="'.$query->id.'" id="'.$query->id.'" data-id="'.$query->id.'">
                         <label class="custom-control-label" for="'.$query->id.'" data-on-label="" data-off-label=""></label>
                     </div>
                 </div>';
             })
-           
+
             ->rawColumns(['action', 'status', 'check','name'])
             ->toJson();
     }
@@ -108,7 +113,7 @@ class ServiceController extends Controller
 
         $message = 'Bulk Action Updated';
 
-        
+
         switch ($actionType) {
             case 'change-status':
                 $branches = Service::whereIn('id', $ids)->update(['status' => $request->status]);
@@ -124,7 +129,7 @@ class ServiceController extends Controller
                 Service::whereIn('id', $ids)->restore();
                 $message = 'Bulk Service Restored';
                 break;
-                
+
             case 'permanently-delete':
                 Service::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Service Permanently Deleted';
@@ -141,7 +146,7 @@ class ServiceController extends Controller
 
 
     /* user service list */
-    public function getUserServiceList(UserServiceDataTable $dataTable,Request $request)
+    public function getUserServiceList(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -149,8 +154,8 @@ class ServiceController extends Controller
         $pageTitle = __('messages.list_form_title',['form' => __('messages.service')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('service.user_service_list', compact('pageTitle','auth_user','assets','filter'));
-        
+        return view('service.user_service_list', compact('pageTitle','auth_user','assets','filter'));
+
     }
 
     /**
@@ -161,23 +166,35 @@ class ServiceController extends Controller
     public function create(Request $request)
     {
         $id = $request->id;
-        
+
         $auth_user = authSession();
 
         $servicedata = Service::find($id);
 
-       
+        $visittype = config('constant.VISIT_TYPE');
 
-        $settingdata = Setting::where('type','=','ADVANCED_PAYMENT_SETTING')->first();
-         
+        $settingdata = Setting::where('type','=','OTHER_SETTING')->first();
+
+        $advancedPaymentSetting=0;
+
+          if($settingdata) {
+    
+              $settings = json_decode($settingdata->value, true);
+    
+              $advancedPaymentSetting = $settings['advanced_payment_setting'];
+    
+          } 
+
+        //$digitalservicedata = Setting::where('type','=','DIGITAL_SERVICE_SETTING')->first();
+
         $pageTitle = __('messages.update_form_title',['form'=> __('messages.service')]);
-        
+
         if($servicedata == null){
             $pageTitle = __('messages.add_button_form',['form' => __('messages.service')]);
             $servicedata = new Service;
         }
-        
-        return view('service.create', compact('pageTitle' ,'servicedata' ,'auth_user' , 'settingdata'));
+
+        return view('service.create', compact('pageTitle' ,'servicedata' ,'auth_user' , 'advancedPaymentSetting','visittype'));
     }
 
     /**
@@ -191,15 +208,15 @@ class ServiceController extends Controller
         if(demoUserPermission()){
             return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
-       
+
         $services = $request->all();
-      
+
         $services['service_type'] = !empty($request->service_type) ? $request->service_type : 'service';
         $services['provider_id'] = !empty($request->provider_id) ? $request->provider_id : auth()->user()->id;
         if(auth()->user()->hasRole('user')){
             $services['service_type'] = 'user_post_service';
         }
-        
+
         if($request->id == null && default_earning_type() === 'subscription'){
            $exceed =  get_provider_plan_limit($services['provider_id'],'service');
            if(!empty($exceed)){
@@ -215,7 +232,7 @@ class ServiceController extends Controller
              }
            }
         }
-     
+
         if($request->id == null){
             $services['added_by'] =  !empty($request->added_by) ? $request->added_by :auth()->user()->id;
         }
@@ -236,10 +253,13 @@ class ServiceController extends Controller
                 }
             }
         }
+
         if(!$request->is('api/*')) {
             $services['is_featured'] = 0;
             $services['is_slot'] = 0;
+            //$services['digital_service'] = 0;
             $services['is_enable_advance_payment'] = 0;
+
             if($request->has('is_featured')){
                 $services['is_featured'] = 1;
             }
@@ -249,9 +269,11 @@ class ServiceController extends Controller
             if($request->has('is_slot')){
                 $services['is_slot'] = 1;
             }
+            // if($request->has('digital_service')){
+            //     $services['digital_service'] = 1;
+            // }
+
         }
-      
-       
         if(!empty($request->advance_payment_amount)){
             $services['advance_payment_amount'] = $request->advance_payment_amount;
         }
@@ -307,7 +329,7 @@ class ServiceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(ServiceDataTable $dataTable, Request $request, $id)
+    public function show(Request $request, $id)
     {
         $auth_user = authSession();
         $tabpage = 'all-plan';
@@ -317,7 +339,7 @@ class ServiceController extends Controller
             return redirect(route('provider.index'))->withError($msg);
         }
         $pageTitle = __('messages.view_form_title', ['form' => __('messages.provider')]);
-        
+
         return view('service.view', compact('pageTitle','providerdata', 'auth_user', 'tabpage'));
     }
 
@@ -361,7 +383,7 @@ class ServiceController extends Controller
         }
         $service = Service::find($id);
         $msg= __('messages.msg_fail_to_delete',['item' => __('messages.service')] );
-        
+
         if($service!='') {
             $service->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.service')] );

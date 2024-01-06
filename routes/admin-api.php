@@ -27,6 +27,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('get-category-list',[API\CategoryController::class,'getCategoryList']);
 
     Route::get('get-service-list',[API\ServiceController::class,'getServiceList']);
+    Route::post('service-delete/{id}',[App\Http\Controllers\ServiceController::class,'destroy']);
     Route::post('service-action',[ App\Http\Controllers\ServiceController::class, 'action' ]);
     Route::post('get-service-detail', [ API\ServiceController::class, 'getServiceDetail' ] );
     
@@ -56,7 +57,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('coupon-save', [ App\Http\Controllers\CouponController::class, 'store' ] );
     Route::post('coupon-delete/{id}', [ App\Http\Controllers\CouponController::class, 'destroy' ] );
     Route::post('coupon-action',[ App\Http\Controllers\CouponController::class, 'action' ]);
-    Route::get('coupon-list',[API\CommanController::class,'getCouponList']);
+    Route::get('get-coupon-list',[API\CommanController::class,'getCouponList']);
     Route::get('get-coupon-service',[API\CommanController::class,'getCouponService']);
 
 
@@ -94,5 +95,35 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('tax-save', [ App\Http\Controllers\TaxController::class, 'store' ] );
     Route::post('tax-delete/{id}', [ App\Http\Controllers\TaxController::class, 'destroy' ] );
     Route::get('get-tax-list',[ API\CommanController::class, 'getTaxList' ]);
+
+    Route::get('get-ratings-list', [ API\BookingController::class, 'getRatingsList' ] );
+    Route::post('rating-delete/{id}', [ API\BookingController::class, 'deleteRatingsList' ] );
+
+    Route::get('wallet-list',[API\WalletController::class,'getwalletlist']);
+    Route::post('wallet-save',[API\WalletController::class,'store']);
+    Route::get('get-handyman-payout-list', [ API\PayoutController::class, 'handymanPayoutList' ] );
+    Route::post('handyman-payout-delete/{id}', [ App\Http\Controllers\HandymanPayoutController::class, 'destroy' ] );
+
+    Route::get('get-post-job-list',[ API\PostJobRequestController::class, 'getPostRequestList' ]);
+    Route::post('delete-get-post-job/{id}',[ App\Http\Controllers\PostJobRequestController::class, 'destroy' ]);
+
+    Route::get('get-payment-list',[API\PaymentController::class, 'paymentList']);
+
+    Route::post('wallet-delete/{id}',[App\Http\Controllers\WalletController::class,'destroy']);
+
+
+    Route::get('get-slider-list',[ API\SliderController::class, 'getSliderList' ]);
+    Route::post('slider-save',[ App\Http\Controllers\SliderController::class, 'store' ]);
+
+    Route::get('get-handymanrating-list',[ API\BookingController::class, 'getHandymanRatingList' ]);
+    Route::post('handymanrating-delete/{id}',[ App\Http\Controllers\HandymanRatingController::class, 'destroy' ]);
+
+    Route::get('get-user-ratings-list', [ API\BookingController::class, 'getUserRatings' ] );
+    Route::post('user-ratings-delete/{id}', [ App\Http\Controllers\BookingRatingController::class, 'destroy' ] );
+
+    Route::get('get-cash-payment-history',[API\PaymentController::class, 'getCashPaymentHistory']);
+
+    Route::get('get-cash-payment',[API\PaymentController::class, 'getCashPayment']);
+    Route::post('cash-payment-delete/{id}',[App\Http\Controllers\PaymentController::class, 'destroy']);
 
 });

@@ -964,8 +964,59 @@ class PermissionTableSeeder extends Seeder
                 'created_at' => '2022-04-01 04:46:07',
                 'updated_at' => '2022-04-01 04:46:07',
             ),
+
+            105 => 
+            array (
+                'id' => 106,
+                'name' => 'service add on ',
+                'guard_name' => 'web',
+                'parent_id' => NULL,
+                'created_at' => '2022-04-01 04:46:07',
+                'updated_at' => '2022-04-01 04:46:07',
+            ),
+
+            106 => 
+            array (
+                'id' => 107,
+                'name' => 'service add on add',
+                'guard_name' => 'web',
+                'parent_id' => 106,
+                'created_at' => '2022-04-01 04:46:07',
+                'updated_at' => '2022-04-01 04:46:07',
+            ),
+
+            107 => 
+            array (
+                'id' => 108,
+                'name' => 'service add on edit',
+                'guard_name' => 'web',
+                'parent_id' => 106,
+                'created_at' => '2022-04-01 04:46:07',
+                'updated_at' => '2022-04-01 04:46:07',
+            ),
+
+            108 => 
+            array (
+                'id' => 109,
+                'name' => 'service add on delete',
+                'guard_name' => 'web',
+                'parent_id' => 106,
+                'created_at' => '2022-04-01 04:46:07',
+                'updated_at' => '2022-04-01 04:46:07',
+            ),
+
+            109 => 
+            array (
+                'id' => 110,
+                'name' => 'service add on list',
+                'guard_name' => 'web',
+                'parent_id' => 106,
+                'created_at' => '2022-04-01 04:46:07',
+                'updated_at' => '2022-04-01 04:46:07',
+            ),
+
         ));
         
-        
+       
     }
 }

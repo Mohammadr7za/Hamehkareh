@@ -22,7 +22,7 @@
                         <div class="row">
                             <div class="form-group col-md-4">
                                 {{ Form::label('name', __('messages.name').' <span class="text-danger">*</span>', ['class' => 'form-control-label'], false) }}
-                                {{ Form::text('name', old('name'), ['placeholder' => __('messages.name'), 'class' => 'form-control', 'required', 'pattern' => '[A-Za-z\s&,]+', 'title' => 'Please enter alphabetic characters and spaces only']) }}
+                                {{ Form::text('name', old('name'), ['placeholder' => __('messages.name'), 'class' => 'form-control', 'title' => 'Please enter alphabetic characters and spaces only']) }}
                                 <small class="help-block with-errors text-danger"></small>
                             </div>
 
@@ -93,8 +93,8 @@
 
 
                             <div class="form-group col-md-4">
-                                {{ Form::label('duration', __('messages.duration').' (hours) <span class="text-danger">*</span>', ['class' => 'form-control-label'], false) }}
-                                {{ Form::text('duration', old('duration'), ['placeholder' => __('messages.duration'), 'class' => 'form-control min-datetimepicker-time', 'required']) }}
+                                {{ Form::label('duration', __('messages.duration').' (hours) ', ['class' => 'form-control-label'], false) }}
+                                {{ Form::text('duration', old('duration'), ['placeholder' => __('messages.duration'), 'class' => 'form-control min-datetimepicker-time']) }}
                                 <small class="help-block with-errors text-danger"></small>
                             </div>
 
@@ -102,6 +102,12 @@
                                 {{ Form::label('status',__('messages.status').' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
                                 {{ Form::select('status',['1' => __('messages.active') , '0' => __('messages.inactive') ],old('status'),[ 'class' =>'form-control select2js','required']) }}
                             </div>
+                            
+                            <div class="form-group col-md-4">
+                                    {{ Form::label('visit_type', __('messages.visit_type').' ',['class'=>'form-control-label'],false) }}
+                                    <br />
+                                    {{ Form::select('visit_type',$visittype,old('visit_type'),[ 'id' => 'visit_type' ,'class' =>'form-control select2js','required']) }}
+                                </div>
 
                             <div class="form-group col-md-4">
                                 <label class="form-control-label" for="service_attachment">{{ __('messages.image') }}
@@ -175,17 +181,32 @@
                                 {{ Form::label('description',__('messages.description'), ['class' => 'form-control-label']) }}
                                 {{ Form::textarea('description', null, ['class'=>"form-control textarea" , 'rows'=>3  , 'placeholder'=> __('messages.description') ]) }}
                             </div>
-
-                            <div class="form-group col-md-6">
+                            <div class="form-group col-md-3">
+                                <div class="custom-control custom-switch">
+                                    {{ Form::checkbox('is_slot', $servicedata->is_slot, null, ['class' => 'custom-control-input', 'id' => 'is_slot' ]) }}
+                                    <label class="custom-control-label"
+                                        for="is_slot">{{ __('messages.slot') }}</label>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3">
                                 <div class="custom-control custom-switch">
                                     {{ Form::checkbox('is_featured', $servicedata->is_featured, null, ['class' => 'custom-control-input', 'id' => 'is_featured' ]) }}
                                     <label class="custom-control-label"
                                         for="is_featured">{{ __('messages.set_as_featured') }}</label>
                                 </div>
                             </div>
-                            @if(!empty( $settingdata) && $settingdata->value == 1)
-                            <div class="form-group col-md-6" id="is_enable_advance">
-                                <div class="custom-control custom-checkbox custom-control-inline">
+                            <!-- @if(!empty( $digitalservicedata) && $digitalservicedata->value == 1)
+                            <div class="form-group col-md-3">
+                                <div class="custom-control custom-switch">
+                                    {{ Form::checkbox('digital_service', $servicedata->digital_service, null, ['class' => 'custom-control-input', 'id' => 'digital_service' ]) }}
+                                    <label class="custom-control-label"
+                                        for="digital_service">{{ __('messages.digital_service') }}</label>
+                                </div>
+                            </div>
+                            @endif -->
+                            @if(!empty( $advancedPaymentSetting) && $advancedPaymentSetting == 1)
+                            <div class="form-group col-md-3" id="is_enable_advance">
+                                <div class="custom-control custom-switch">
                                     {{ Form::checkbox('is_enable_advance_payment', $servicedata->is_enable_advance_payment , null, ['class' => 'custom-control-input' , 'id' => 'is_enable_advance_payment' ]) }}
                                     <label class="custom-control-label"
                                         for="is_enable_advance_payment">{{ __('messages.enable_advanced_payment')  }}

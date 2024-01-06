@@ -21,7 +21,7 @@
                     <div class="row">
                         <div class="form-group col-md-4">
                             {{ Form::label('name',trans('messages.name').' <span class="text-danger">*</span>',['class'=>'form-control-label'], false ) }}
-                            {{ Form::text('name',old('name'),['placeholder' => trans('messages.name'),'class' =>'form-control','required','pattern' => '[A-Za-z\s]+']) }}
+                            {{ Form::text('name',old('name'),['placeholder' => trans('messages.name'),'class' =>'form-control','required']) }}
                             <small class="help-block with-errors text-danger"></small>
                         </div>
                         @if(auth()->user()->hasAnyRole(['admin','demo_admin']))
@@ -52,7 +52,7 @@
                             ]) }}
                         </div>
                         <div class="form-group col-md-4 d-none" id="select_subcategory">
-                            {{ Form::label('name', __('messages.select_name',[ 'select' => __('messages.subcategory') ]).' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
+                            {{ Form::label('name', __('messages.select_name',[ 'select' => __('messages.subcategory') ]).'',['class'=>'form-control-label'],false) }}
                             <br />
                             {{ Form::select('subcategory_id', [optional($servicepackage->subcategory)->id => optional($servicepackage->subcategory)->name], optional($servicepackage->subcategory)->id, [
                                 'class' => 'select2js form-group subcategory',                                    
@@ -185,6 +185,16 @@
                     getService(provider_id,category_id)
                 })
 
+                   $(document).on('change', '#package_type', function() {
+
+                    var provider_id=$('#provider_id').val();
+
+                    $('#service_id').empty();
+                    getService(provider_id)
+                })
+
+
+
                 $(document).on('change', '#category_id', function() {
                     var category_id = $(this).val();
                     var provider_id = $('#provider_id').val();
@@ -247,6 +257,7 @@
                     data : { '_token': $('meta[name=csrf-token]').attr('content'),provider_id : provider_id,category_id:category_id,subcategory_id:subcategory_id },
                    
                     success: function(result) {
+                        console.log(result)
                         $('#service_id').select2({
                             width: '100%',
                             placeholder: "{{ trans('messages.select_name',['select' => trans('messages.subcategory')]) }}",

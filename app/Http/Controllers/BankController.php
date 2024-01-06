@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\BankDataTable;
 use App\Models\Bank;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -16,7 +15,7 @@ class BankController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(BankDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -24,13 +23,13 @@ class BankController extends Controller
         $pageTitle = trans('messages.list_form_title', ['form' => trans('messages.bank')]);
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('bank.index', compact('pageTitle', 'auth_user', 'assets','filter'));
+        return view('bank.index', compact('pageTitle', 'auth_user', 'assets','filter'));
     }
 
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = Bank::query();
+        $query = Bank::query()->myBank();
         $filter = $request->filter;
 
         if (isset($filter)) {
@@ -41,7 +40,7 @@ class BankController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->withTrashed();
         }
-        
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
@@ -55,11 +54,19 @@ class BankController extends Controller
                     </div>
                 </div>';
             })
+            // ->editColumn('provider_id', function ($query) {
+            //     $name = ($query->provider_id != null && isset($query->providers)) ? $query->providers->display_name : '-';
+
+            //     return '<a class="btn-link btn-link-hover" href='.route('provider.show', $query->providers->id).'>'.$name.'</a>';
+
+            // })
             ->editColumn('provider_id', function ($query) {
-                $name = ($query->provider_id != null && isset($query->providers)) ? $query->providers->display_name : '-';
-
-                return '<a class="btn-link btn-link-hover" href='.route('provider.show', $query->providers->id).'>'.$name.'</a>';
-
+                return view('bank.user', compact('query'));
+            })
+            ->filterColumn('provider_id',function($query,$keyword){
+                $query->whereHas('providers',function ($q) use($keyword){
+                    $q->where('display_name','like','%'.$keyword.'%');
+                });
             })
             ->addColumn('action', function ($bank) {
                 return view('bank.action', compact('bank'))->render();
@@ -92,7 +99,7 @@ class BankController extends Controller
                 Bank::whereIn('id', $ids)->restore();
                 $message = 'Bulk Bank Restored';
                 break;
-                
+
             case 'permanently-delete':
                 Bank::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Bank Permanently Deleted';
@@ -117,7 +124,7 @@ class BankController extends Controller
         $auth_user = authSession();
 
         $bankdata = Bank::find($id);
-        // dd($bankdata);
+
         $pageTitle = trans('messages.update_form_title', ['form' => trans('messages.bank')]);
 
         if ($bankdata == null) {
@@ -165,7 +172,12 @@ class BankController extends Controller
         if ($result->wasRecentlyCreated) {
             $message = trans('messages.save_form', ['form' => trans('messages.bank')]);
         }
-        return redirect(route('bank.index'))->withSuccess($message);
+        if($request->has('provider_id')){
+            return redirect(route('providerpayout.create',$data['provider_id']))->withSuccess($message);
+        }else{
+            return redirect(route('bank.index'))->withSuccess($message);
+        }
+
     }
 
     /**
@@ -174,7 +186,7 @@ class BankController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(BankDataTable $dataTable,$id)
+    public function show($id)
     {
         $auth_user = authSession();
         $providerdata = User::with('providerbank')->where('user_type','provider')->where('id',$id)->first();
@@ -184,10 +196,9 @@ class BankController extends Controller
             return redirect(route('provider.index'))->withError($msg);
         }
         $pageTitle = __('messages.view_form_title',['form'=> __('messages.provider')]);
-        return $dataTable
-        ->with('provider_id',$id)
-        ->render('bank.view', compact('pageTitle' ,'providerdata' ,'auth_user' ));
+        return view('bank.view', compact('pageTitle' ,'providerdata' ,'auth_user' ));
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -228,7 +239,7 @@ class BankController extends Controller
         }
         $bank = Bank::find($id);
         $msg= __('messages.msg_fail_to_delete',['item' => __('messages.bank')] );
-        
+
         if($bank!='') {
             $bank->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.bank')] );

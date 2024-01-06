@@ -14,7 +14,6 @@ use App\Models\Coupon;
 use App\Models\Documents;
 use App\Models\Slider;
 use App\Models\Blog;
-use App\DataTables\CategoryDataTable;
 use App\Http\Requests\CategoryRequest;
 use App\Models\ProviderType;
 use Yajra\DataTables\DataTables;
@@ -57,9 +56,16 @@ class CategoryController extends Controller
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="category" onclick="dataTableRowCheck('.$row->id.',this)">';
             })
-            ->editColumn('name', function($query){
-                return '<a class="btn-link btn-link-hover" href='.route('category.create', ['id' => $query->id]).'>'.$query->name.'</a>';
+
+            ->editColumn('name', function($query){                
+                if (auth()->user()->can('category edit')) {
+                    $link = '<a class="btn-link btn-link-hover" href='.route('category.create', ['id' => $query->id]).'>'.$query->name.'</a>';
+                } else {
+                    $link = $query->name; 
+                }
+                return $link;
             })
+           
             ->addColumn('action', function ($data) {
                 return view('category.action', compact('data'))->render();
             })

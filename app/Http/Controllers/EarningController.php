@@ -21,16 +21,20 @@ class EarningController extends Controller
         $auth_user = authSession();
         $providers = User::with('providertype')->where('user_type','provider')->get();
         $earningData = array();
+
         foreach ($providers as $provider) {
             $provider_commission = optional($provider->providertype)->commission;
             $provider_type = optional($provider->providertype)->type;
 
-            $bookings = Booking::where('provider_id',$provider->id)->whereNotNull('payment_id')->get();
+            $bookings = Booking::where('provider_id', $provider->id)
+            ->where('status', 'completed')
+            ->whereNotNull('payment_id')
+            ->get();
 
             $booking_data = get_provider_commission($bookings);
 
             $providerEarning = ProviderPayout::where('provider_id',$provider->id)->sum('amount') ?? 0;
-
+  
             $provider_earning = calculate_commission($booking_data['total_amount'],$provider_commission,$provider_type,'provider', $providerEarning,$bookings->count());
 
             $admin_earning  = calculate_commission($booking_data['total_amount'],$provider_commission,$provider_type, '', $providerEarning,$bookings->count());
@@ -41,30 +45,66 @@ class EarningController extends Controller
                 $adminearning = $admin_earning['number_format'];
 
             }else{
-                $totalearning = format_number_field($booking_data['total_amount']);
-                $adminearning =$admin_earning['number_format'];
-                $providerearning = $provider_earning['number_format'] <= 0 ? ($providerEarning) : $provider_earning['number_format'];
+                $totalearning = getPriceFormat($booking_data['total_amount']);
+                $adminearning =$admin_earning['value'];
+
+                if($provider_earning['number_format']<=0){
+
+                    $providerearning=0;
+
+                }else{
+
+                    $providerearning=getPriceFormat($provider_earning['number_format']);
+
+                }
+
+             //  $providerearning = $provider_earning['number_format'] <= 0 ? getPriceFormat($providerEarning) : $provider_earning['value'];   
+           
             }
             $earningData[] = [
                 'provider_id' => $provider->id,
                 'provider_name' => $provider->display_name,
-                'commission' => format_commission($provider) == 0 ? '0' : format_commission($provider),
+                'email' => $provider->email,
+                'commission' => optional($provider->providertype)->commission,
                 'commission_type' => optional($provider->providertype)->type,
                 'total_bookings' => $bookings->count(),
-                'total_earning' => $totalearning,
-                'taxes' => format_number_field($booking_data['tax']),
-                'admin_earning' => $adminearning,
-                'provider_earning' => $providerearning,
-                'provider_earning_formate' => $provider_earning['number_format'],
+                'total_earning' =>round($totalearning, 2),
+                'taxes' =>  round($booking_data['tax'], 2),
+                'admin_earning' => round($adminearning, 2),
+                'provider_earning' => round($providerearning, 2),
+                'provider_earning_formate' =>round($provider_earning['number_format'],2),
             ];
 
+
         }
-        if ($request->ajax()) {
+
+
+        if($request->ajax()) {
             return Datatables::of($earningData)
             ->addIndexColumn()
+
+            // ->addColumn('provider_name', function ($query) {
+            //     return view('earning.user', compact('query'));
+            // })
+
+
+            // ->addColumn('provider_name', function($row){
+            //     $provider_id = $row['provider_id'];
+            //     $provider_name = $row['provider_name'];
+            //     $providername = "<a href=". route('earning.show',$provider_id) ." class='btn-link btn-link-hover'>$provider_name</a>";
+            //     return $providername;
+            // })
+            ->addColumn('provider_name', function($row){
+                $provider_id = $row['provider_id'];
+                $provider_name = $row['provider_name'];
+                $email = $row['email'];
+                return view('earning.user', compact('row','provider_id','provider_name','email'));
+            })
+
             ->addColumn('action', function($row) {
                 $btn = '-';
                 $provider_id = $row['provider_id'];
+
                 if($row['provider_earning_formate'] > 0){
                     $btn = "<a href=". route('providerpayout.create',$provider_id) ."><i class='fas fa-money-bill-alt earning-icon'></i></a>";
                 }
@@ -72,7 +112,7 @@ class EarningController extends Controller
                 return $btn;
                 //return $earningData;
             })
-            ->rawColumns(['action'])
+            ->rawColumns(['provider_name','action'])
             ->make(true);
         }
         if($request->is('api/*')) {
@@ -167,5 +207,15 @@ foreach ($handyman  as $item) {
             ->rawColumns(['action','total_earning'])
             ->make(true);
         }
+    }
+
+  
+    public function show($id)
+    {
+        //
+        $pageTitle = __('messages.list_form_title',['form' => __('messages.providerpayout_list')] );
+        $auth_user = authSession();
+        $assets = ['datatable'];
+        return view('providerpayout.view', compact('pageTitle','auth_user','assets','id'));
     }
 }

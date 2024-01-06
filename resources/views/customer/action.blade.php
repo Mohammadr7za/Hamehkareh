@@ -4,6 +4,7 @@
 {{ Form::open(['route' => ['user.destroy', $user->id], 'method' => 'delete','data--submit'=>'user'.$user->id]) }}
 <div class="d-flex justify-content-end align-items-center">
     @if(!$user->trashed())
+    <a class="mr-2" href="{{ route('user.getchangepassword',['id' => $user->id]) }}" title="{{ __('messages.change_password',['form' => __('messages.user') ]) }}"><i class="fa fa-lock text-success "></i></a>
         <!-- @if($auth_user->can('user view'))
         <a class="mr-2" href="{{ route('user.show',$user->id) }}"><i class="far fa-eye text-secondary"></i></a>
         @endif -->

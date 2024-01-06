@@ -32,8 +32,13 @@
         <small class="help-block with-errors text-danger"></small>
     </div>
     <div class="form-group col-md-12">
-        {{ Form::label('paypal_url',trans('messages.paypal_url').' <span class="text-danger">*</span>',['class'=>'form-control-label'], false ) }}
-        {{ Form::text('paypal_url',old('paypal_url'),['id'=>'paypal_url','placeholder' => trans('messages.paypal_url'),'class' =>'form-control','required']) }}
+        {{ Form::label('paypal_client_id',trans('messages.paypal_client_id').' <span class="text-danger">*</span>',['class'=>'form-control-label'], false ) }}
+        {{ Form::text('paypal_client_id',old('paypal_client_id'),['id'=>'paypal_client_id','placeholder' => trans('messages.paypal_client_id'),'class' =>'form-control','required']) }}
+        <small class="help-block with-errors text-danger"></small>
+    </div>
+    <div class="form-group col-md-12">
+        {{ Form::label('paypal_secret_key',trans('messages.paypal_secret_key').' <span class="text-danger">*</span>',['class'=>'form-control-label'], false ) }}
+        {{ Form::text('paypal_secret_key',old('paypal_secret_key'),['id'=>'paypal_secret_key','placeholder' => trans('messages.paypal_secret_key'),'class' =>'form-control','required']) }}
         <small class="help-block with-errors text-danger"></small>
     </div>
  </div>
@@ -77,7 +82,7 @@ function getConfig(type){
         },
         success:function(response){
             var obj = '';
-            var paypal_url=title = '';
+            var paypal_client_id=paypal_secret_key=title = '';
 
             if(response){
             
@@ -92,10 +97,12 @@ function getConfig(type){
                 }
                 
                 if(obj !== null){
-                    var paypal_url = obj.paypal_url;
+                    var paypal_client_id = obj.paypal_client_id;
+                    var paypal_secret_key = obj.paypal_secret_key;
                 }
 
-                $('#paypal_url').val(paypal_url)
+                $('#paypal_client_id').val(paypal_client_id)
+                $('#paypal_secret_key').val(paypal_secret_key)
                 $('#title').val(title)
             
             }

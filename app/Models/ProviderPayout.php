@@ -10,11 +10,11 @@ class ProviderPayout extends Model
     use HasFactory;
     protected $table = 'provider_payouts';
     protected $fillable = [
-        'provider_id', 'payment_method', 'description','amount'
+        'provider_id', 'payment_method', 'description','amount','status','paid_date','bank_id',
     ];
     protected $casts = [
         'provider_id'     => 'integer',
-        'amount'    => 'integer',
+        'amount'    => 'double',
     ];
     public function providers(){
         return $this->belongsTo(User::class, 'provider_id','id');

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Slider;
 use App\Models\Service;
-use App\DataTables\SliderDataTable;
 use App\Http\Requests\SliderRequest;
 use Yajra\DataTables\DataTables;
 class SliderController extends Controller
@@ -15,7 +14,7 @@ class SliderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(SliderDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -23,7 +22,7 @@ class SliderController extends Controller
         $pageTitle = trans('messages.list_form_title',['form' => trans('messages.slider')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('slider.index', compact('pageTitle','auth_user','assets','filter'));
+        return view('slider.index', compact('pageTitle','auth_user','assets','filter'));
     }
 
     public function index_data(DataTables $datatable,Request $request)
@@ -44,9 +43,16 @@ class SliderController extends Controller
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="slider" onclick="dataTableRowCheck('.$row->id.',this)">';
             })
-            ->editColumn('title', function($query){
-                return '<a class="btn-link btn-link-hover" href='.route('slider.create', ['id' => $query->id]).'>'.$query->title.'</a>';
+            
+            ->editColumn('title', function($query){                
+                if (auth()->user()->can('slider edit')) {
+                    $link = '<a class="btn-link btn-link-hover" href='.route('slider.create', ['id' => $query->id]).'>'.$query->title.'</a>';
+                } else {
+                    $link = $query->title; 
+                }
+                return $link;
             })
+
             ->editColumn('status' , function ($query){
                 $disabled = $query->deleted_at ? 'disabled': '';
                 return '<div class="custom-control custom-switch custom-switch-text custom-switch-color custom-control-inline">
@@ -162,7 +168,9 @@ class SliderController extends Controller
 		if($result->wasRecentlyCreated){
 			$message = __('messages.save_form',[ 'form' => __('messages.slider') ] );
 		}
-
+        if($request->is('api/*')) {
+            return comman_message_response($message);
+		}
 		return redirect(route('slider.index'))->withSuccess($message);
     }
 

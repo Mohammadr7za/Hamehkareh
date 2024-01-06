@@ -143,15 +143,23 @@ class CommanController extends Controller
                 $per_page = $service->count();
             }
         }
-        $service = $service->where('status',1)->paginate($per_page);
-        if($request->has('is_rating')){
-            $service = $service->filter(function($data)  use($request) {
-                $rating_array = explode(" ",$request->is_rating);
-                return $data->serviceRating->avg('rating'); 
-            });
-            $service->whereBetween('rating', [1, 2]);
-        }
+
+        if ($request->has('is_rating') && $request->is_rating != '') {
+            $isRatings = array_map('floatval', explode(',', $request->is_rating));
         
+            $service->whereHas('serviceRating', function ($q) use ($isRatings) {
+                $conditions = implode(' OR ', array_fill(0, count($isRatings), '(AVG(rating) >= ? AND AVG(rating) <= ?)'));
+        
+                $q->select('service_id', \DB::raw('AVG(rating) as average_rating'))
+                    ->groupBy('service_id')
+                    ->havingRaw($conditions, array_reduce($isRatings, function ($carry, $item) {
+                        return array_merge($carry, [$item, $item + 0.9]);
+                    }, []));
+            });
+        }
+
+        $service = $service->where('status',1)->paginate($per_page);
+     
         $items = ServiceResource::collection($service);
         $userservices  = null;
         if($request->customer_id != null){

@@ -5,7 +5,7 @@ $auth_user= authSession();
 {{ Form::open(['route' => ['payment.destroy',$payment->id], 'method' => 'delete','data--submit'=>'payment'.$payment->id]) }}
 <div class="d-flex justify-content-end align-items-center">
 @if(auth()->user()->hasAnyRole(['admin']))
-    <a class="mr-3" href="{{ route('payment.destroy', $payment->id) }}" data--submit="payment{{$payment->id}}" 
+    <a class="ml-6" href="{{ route('payment.destroy', $payment->id) }}" data--submit="payment{{$payment->id}}" 
         data--confirmation='true' 
         data--ajax="true"
         data-datatable="reload"

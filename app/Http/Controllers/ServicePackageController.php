@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\DataTables\ServicePackageDataTable;
+
 use Illuminate\Http\Request;
 use App\Models\ServicePackage;
 use App\Models\PackageServiceMapping;
 use Yajra\DataTables\DataTables;
+use App\Models\BookingPackageMapping;
 
 class ServicePackageController extends Controller
 {
@@ -15,7 +16,7 @@ class ServicePackageController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(ServicePackageDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -23,7 +24,7 @@ class ServicePackageController extends Controller
         $pageTitle = __('messages.list_form_title',['form' => __('messages.service_package')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('servicepackage.index', compact('pageTitle','auth_user','assets','filter'));
+        return view('servicepackage.index', compact('pageTitle','auth_user','assets','filter'));
     }
 
     public function index_data(DataTables $datatable,Request $request)
@@ -53,9 +54,17 @@ class ServicePackageController extends Controller
                 </div>
             </div>';
         })
-            ->editColumn('name', function ($query) {
-                return '<a class="btn-link btn-link-hover"  href='.route('servicepackage.service',$query->id).'>'.$query->name.'</a>';
+            
+
+            ->editColumn('name', function($query){                
+                if (auth()->user()->can('service list')) {
+                    $link ='<a class="btn-link btn-link-hover"  href='.route('servicepackage.service',$query->id).'>'.$query->name.'</a>';
+                } else {
+                    $link = $query->name; 
+                }
+                return $link;
             })
+
             ->editColumn('category_id', function ($query) {
                 return ($query->category_id != null && isset($query->category)) ? $query->category->name : '-';
             })
@@ -265,6 +274,14 @@ class ServicePackageController extends Controller
         $servicepackage = ServicePackage::where('id',$id)->first();
         $msg = __('messages.not_found_entry',['name' => __('messages.service_package')] );
         if($request->type === 'forcedelete'){
+            $bookingPackageMappings = $servicepackage->bookingPackageMappings;
+            foreach ($bookingPackageMappings as $bookingPackageMapping) {
+                $booking = $bookingPackageMapping->bookings; 
+                if ($booking) {
+                    $booking->delete(); 
+                }
+                $bookingPackageMapping->delete();
+            }
             $servicepackage->forceDelete();
             $msg = __('messages.msg_forcedelete',['name' => __('messages.service_package')] );
         }

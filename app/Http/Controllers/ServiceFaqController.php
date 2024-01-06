@@ -1,9 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\DataTables\ServiceFaqDataTable;
 use App\Models\ServiceFaq;
-
+use Yajra\DataTables\DataTables;
 use Illuminate\Http\Request;
 
 class ServiceFaqController extends Controller
@@ -13,13 +12,43 @@ class ServiceFaqController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(ServiceFaqDataTable $dataTable)
+    public function index(Request $request)
     {
+        
         $pageTitle = trans('messages.list_form_title',['form' => trans('messages.servicefaq')] );
         $auth_user = authSession();
         $assets = ['datatable'];
         $service_id = request()->id;
-        return $dataTable->with('id', request()->id)->render('servicefaq.index', compact('pageTitle','auth_user','assets','service_id'));
+        return view('servicefaq.index', compact('pageTitle','auth_user','assets','service_id'));
+    }
+
+    public function index_data(DataTables $datatable,Request $request)
+    {
+
+        $query = ServiceFaq::where('service_id',$request->service_id);
+        
+        
+        return $datatable ->eloquent($query)
+        ->addColumn('check', function ($row) {
+            return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="category" onclick="dataTableRowCheck('.$row->id.',this)">';
+        })
+        ->editColumn('status' , function ($servicefaq){
+            return '<div class="custom-control custom-switch custom-switch-text custom-switch-color custom-control-inline">
+                <div class="custom-switch-inner">
+                    <input type="checkbox" class="custom-control-input bg-success change_status" data-type="servicefaq_status" '.($servicefaq->status ? "checked" : "").'  value="'.$servicefaq->id.'" id="'.$servicefaq->id.'" data-id="'.$servicefaq->id.'">
+                    <label class="custom-control-label" for="'.$servicefaq->id.'" data-on-label="" data-off-label=""></label>
+                </div>
+            </div>';
+        })
+        ->editColumn('service_id' , function ($servicefaq){
+            return optional($servicefaq->service)->name;
+        })
+        ->addColumn('action', function($servicefaq){
+            return view('servicefaq.action',compact('servicefaq'))->render();
+        })
+        ->addIndexColumn()
+        ->rawColumns(['check','action','status'])
+            ->toJson();
     }
 
     /**

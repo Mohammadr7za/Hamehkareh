@@ -33,7 +33,7 @@
                                             'class' => 'select2js form-group service',
                                             'required',
                                             'data-placeholder' => __('messages.select_name',[ 'select' => __('messages.service') ]),
-                                            'data-ajax--url' => route('ajax-list', ['type' => 'service']),
+                                            'data-ajax--url' => route('ajax-list', ['type' => 'service-list']),
                                         ])
                                     }}
                                 </div>

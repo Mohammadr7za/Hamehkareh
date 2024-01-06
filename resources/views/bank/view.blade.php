@@ -55,7 +55,5 @@
         </div>
     </main>
     {{ Form::close() }}
-    @section('bottom_script')
-    {{ $dataTable->scripts() }}
-    @endsection
+   
 </x-master-layout>

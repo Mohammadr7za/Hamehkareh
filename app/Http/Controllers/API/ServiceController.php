@@ -19,11 +19,23 @@ use App\Http\Resources\API\UserFavouriteResource;
 use App\Http\Resources\API\ProviderTaxResource;
 use App\Models\ProviderServiceAddressMapping;
 use App\Models\ProviderTaxMapping;
+use App\Models\Category;
+use App\Models\ServiceAddon;
+use App\Http\Resources\API\ServiceAddonResource;
+
 class ServiceController extends Controller
 {
     public function getServiceList(Request $request){
 
         $service = Service::where('service_type','service')->with(['providers','category','serviceRating'])->orderBy('created_at','desc');
+
+    
+
+        $category = Category::onlyTrashed()->get();
+        $category = $category->pluck('id');
+        $service = $service->whereNotIn('category_id',$category);
+        
+        
         if(auth()->user() !== null && auth()->user()->hasRole('admin')){
             $service = $service->withTrashed();
         }elseif(auth()->user() !== null && auth()->user()->hasRole('provider')){
@@ -51,12 +63,18 @@ class ServiceController extends Controller
         if($request->has('is_discount')){
             $service->where('discount','>',0)->orderBy('discount','desc');
         }
-        if($request->has('is_rating') && $request->is_rating != ''){
-            $service->whereHas('serviceRating', function($q) use ($request) {
-                $q->select('service_id',\DB::raw('round(AVG(rating),0) as total_rating'))->groupBy('service_id');
+        if($request->has('is_rating') && $request->is_rating != '') {
+            $isRating = (int) $request->is_rating;
+        
+            $service->whereHas('serviceRating', function($q) use ($isRating) {
+                $q->select('service_id', \DB::raw('round(AVG(rating), 1) as total_rating'))
+                  ->groupBy('service_id')
+                  ->havingRaw('total_rating >= ? AND total_rating < ?', [$isRating, $isRating + 1]);
                 return $q;
             });
         }
+
+
         if($request->has('is_price_min') && $request->is_price_min != '' || $request->has('is_price_max') && $request->is_price_max != ''){
             $service->whereBetween('price', [$request->is_price_min, $request->is_price_max]); 
         }
@@ -147,13 +165,13 @@ class ServiceController extends Controller
        
         if(auth()->user() !== null){
             if(auth()->user()->hasRole('admin')){
-                $service = Service::where('service_type','service')->withTrashed()->with('providers','category','serviceRating')->findorfail($id);
+                $service = Service::where('service_type','service')->withTrashed()->with('providers','category','serviceRating','serviceAddon')->findorfail($id);
             }
             else{
-                $service = Service::where('service_type','service')->with('providers','category','serviceRating')->findorfail($id);
+                $service = Service::where('service_type','service')->with('providers','category','serviceRating','serviceAddon')->findorfail($id);
             }
         }else{
-            $service = Service::where('service_type','service')->where('status',1)->with('providers','category','serviceRating')->find($id);
+            $service = Service::where('service_type','service')->where('status',1)->with('providers','category','serviceRating','serviceAddon')->find($id);
         }
        
         if(empty($service)){
@@ -198,6 +216,8 @@ class ServiceController extends Controller
         $tax = ProviderTaxMapping::with('taxes')->where('provider_id',$service->provider_id)->get();
         $taxes = ProviderTaxResource::collection($tax);
         $servicefaq =  ServiceFaq::where('service_id',$id)->get();
+        $serviceAddon = ServiceAddon::where('service_id',$id)->where('status',1)->get();
+        $serviceaddon =  ServiceAddonResource::collection($serviceAddon);
         $response = [
             'service_detail'    => $service_detail,
             'provider'          => new UserResource(optional($service->providers)),
@@ -206,7 +226,8 @@ class ServiceController extends Controller
             'coupon_data'       => $coupon_data,
             'taxes'             => $taxes,
             'related_service'   => $related_service,
-            'service_faq'        => $servicefaq
+            'service_faq'       => $servicefaq,
+            'serviceaddon'      => $serviceaddon
         ];
 
         return comman_custom_response($response);

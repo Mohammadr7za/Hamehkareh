@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\SubCategory;
-use App\DataTables\SubCategoryDataTable;
 use App\Http\Requests\SubCategoryRequest;
 use Facade\Ignition\QueryRecorder\Query;
 use Yajra\DataTables\DataTables;
@@ -47,9 +46,17 @@ class SubCategoryController extends Controller
 
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="subcategory" onclick="dataTableRowCheck('.$row->id.', this)">';
             })
-            ->editColumn('name', function($query){
-                return '<a class="btn-link btn-link-hover" href='.route('subcategory.create', ['id' => $query->id]).'>'.$query->name.'</a>';
+
+
+            ->editColumn('name', function($query){                
+                if (auth()->user()->can('subcategory edit')) {
+                    $link = '<a class="btn-link btn-link-hover" href='.route('subcategory.create', ['id' => $query->id]).'>'.$query->name.'</a>';
+                } else {
+                    $link = $query->name; 
+                }
+                return $link;
             })
+
             ->editColumn('category_id' , function ($query){
                 return ($query->category_id != null && isset($query->category)) ? $query->category->name : '-';
             })

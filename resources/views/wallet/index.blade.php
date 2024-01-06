@@ -107,7 +107,7 @@
                     {
                         data: 'user_id',
                         name: 'user_id',
-                        title: "{{__('messages.provider')}}"
+                        title: "{{__('messages.name')}}"
                     },
                     {
                         data: 'amount',

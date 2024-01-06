@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Permission\Traits\HasRoles;
 
 class Category extends BaseModel implements HasMedia 
 {
-    use HasFactory, InteractsWithMedia,SoftDeletes;
+    use HasFactory,HasRoles,InteractsWithMedia,SoftDeletes;
     protected $table = 'categories';
     protected $fillable = [
         'name', 'description', 'is_featured', 'status' , 'color'
@@ -25,7 +26,7 @@ class Category extends BaseModel implements HasMedia
     }
     public function scopeList($query)
     {
-        return $query->orderBy('deleted_at', 'asc');
+        return $query->orderBy('updated_at', 'desc');
     }
     
     

@@ -86,7 +86,7 @@
         <div class="form-group">
             <label for="" class="col-sm-6 form-control-label">{{ __('messages.helpline_number') }}</label>
             <div class="col-sm-12">
-                {{ Form::text('helpline_number', null, ['class'=>"form-control" ,'placeholder'=> __('messages.helpline_number') ]) }}
+                {{ Form::text('helpline_number', null, ['class'=>"form-control helpline_number" ,'placeholder'=> __('messages.helpline_number') ]) }}
             </div>
         </div>
     </div>
@@ -240,4 +240,19 @@
             $('.language_option').select2("destroy").select2();
         });
     })
+
+    $(document).on('keyup', '.helpline_number', function() {
+        var contactNumberInput = document.getElementById('helpline_number');
+        var inputValue = contactNumberInput.value;
+        inputValue = inputValue.replace(/[^0-9+\- ]/g, '');
+        if (inputValue.length > 15) {
+            inputValue = inputValue.substring(0, 15);
+        } 
+        contactNumberInput.value = inputValue;
+        if (inputValue.match(/^[0-9+\- ]+$/)) {
+            $('.helpline_number').text('');
+        } else {
+            $('.helpline_number').text('Please enter a valid mobile number');
+        }
+    });
 </script>

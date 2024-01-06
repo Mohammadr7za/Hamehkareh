@@ -89,7 +89,8 @@
                     {
                         data: 'booking_id',
                         name: 'booking_id',
-                        title: "{{__('messages.service')}}"
+                        title: "{{__('messages.service')}}",
+                         orderable: false,
                     },
                     {
                         data: 'customer_id',

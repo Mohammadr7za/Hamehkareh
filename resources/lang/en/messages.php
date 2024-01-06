@@ -32,10 +32,6 @@
         'delete_form_message' => 'Are you sure you want to delete this :form?',
         'add_button_form' => 'Add New :form',
         'cancel'=>'Cancel',
-   //
-
-
-
         'save_form' => ':form has been save successfully',
         'update_form' => ':form has been updated successfully',
         'delete_form' => ':form has been deleted successfully',
@@ -77,8 +73,6 @@
         'sequence' => 'Sequence',
         'color' => 'Color',
         'description' => 'Description',
-        //
-
         'check_delete_msg' => "Sorry, You can't delete because it is already used in somewhere",
         'item' => 'Item',
         'sequence_form_title' => ':form Sequence',
@@ -96,7 +90,6 @@
         'login_success'=>'You have successfully logged in.',
         'dashboard_no' => 'Dashboard :No',
         'main' => 'Main',
-
         'valid_password' => 'Current password do not match.',
         'active' => 'Active',
         'inactive' => 'Inactive',
@@ -131,6 +124,7 @@
         'start_at' => 'Start at',
         'end_at' => 'End at',
         'msg_deleted' => ':name has been deleted successfully',
+        'wallet_deleted' => 'Wallet has been deleted successfully',
         'slider' => 'Slider',
         'assign' => 'Assign',
         'reason' => 'Reason',
@@ -141,10 +135,6 @@
         'paypal' => 'Paypal',
         'mail_setting' => 'Mail Setting',
         'currency' => 'Currency',
-
-
-
-
         'mailsetting' =>
         array (
             'MAIL_MAILER' => 'Mail Mailer',
@@ -179,7 +169,6 @@
         'view_all' => 'View all',
         'you_unread_notification' => 'You have :number unread notifications',
         'mark_all_as_read' => 'Mark All as Read',
-
         'booking_detail'=>'Booking Details',
         'by'=>'By',
         'duration'=>'Duration',
@@ -317,6 +306,7 @@
         'payment_settings' => 'Payment Settings',
         'stripe' => 'Stripe',
         'razor' => 'RazorPay',
+        'razorx' => 'RazorPayX',
         'flutterwave' => 'FlutterWave',
         'paystack' => 'PayStack',
         'cod' => 'Cash on delivery',
@@ -412,7 +402,9 @@
         'cancelled_plan' => 'Your :plan successfully cancelled',
         'all' => 'All',
         'earning_setting' => 'Earning Setting',
-        'advance_payment_setting' => 'Advance Payment Setting',
+        'advance_payment_setting' => 'Service Advance Payment Setting',
+        'digital_service' => 'Enable Digital Service',
+        'service_setting' => 'Service Setting',
         'advance_payment_on'   => 'Enable Payment',
         'earning_type_provider' => 'Select Earning Type For Provider',
         'amount' => 'Amount',
@@ -516,8 +508,6 @@
         'incomming_bid_title' => ':name requested',
         'bid_accepted_message' => 'Your bid accepted by :name',
         'bid_accepted_title' => 'Accpeted your bid',
-
-
         'collect_cash' => 'Collect Cash From Provider',
         'bank_name' => 'Bank Name',
         'branch_name' => 'Branch Name',
@@ -543,7 +533,6 @@
         'sadad_domain' => 'SADAD Domain',
         'provider_playstore_url' => 'Play Store Url Provider',
         'provider_appstore_url' => 'App Store Url Provider',
-
         'search_for_your_area' => 'Search for your area',
         'search' => 'Search',
         'help_support' => 'Help and Support',
@@ -602,7 +591,7 @@
         'handyman_ratings' => 'Handyman Ratings',
         'ratings' => 'Ratings',
         'user_wallet_setting' => 'User Wallet Setting',
-        'enable_user_wallet' => 'Enable User Wallet',
+        'enable_user_wallet' => 'User Wallet',
         'services' => 'Services',
         'approve_successfully' => 'Approve Successfully',
         'unassigned_list_form_title' =>'Unassigned :form',
@@ -615,7 +604,7 @@
         'history' => 'History',
         'data_not_found' => "Data Not Found",
         'assign_service'=>"Assign Service To Provider",
-        'wallet_top_up' => 'Wallet top-up with :value',
+        'wallet_top_up' => 'Wallet top-up',
         'joining_date' => 'Joining Date',
         'id' => 'ID',
         'total_views' => "Total Views",
@@ -634,10 +623,70 @@
         'approve' => "Approve",
         'is_verified' => "Is Verified",
         'approvecash' => "Approve Cash",
-        'required' => "Required",
-        'wallet_added' => 'Wallet added with amout :value',
+        'required' => "Required",        
+        'wallet_added' => 'Wallet Added ',
+        'wallet_amount' => 'Wallet Payout :value',
+        'wallet_refund' => 'Refund From Booking #:Value',
+        'paid_for_booking' => 'Paid For Booking #:Value',
         'servicename' => "Service Name",
-        "remaining_amount" => 'Remaining Amount'
-
+        "remaining_amount" => 'Remaining Amount',
+        'enable_user_wallet' => 'User Wallet',
+        'razorpay_message' => ':razorpay_message!',
+        'queue_message'=>'Your request is in the queue due to an insufficient balance',
+        'razorx_account'=>'RazorpayX Account Number',
+        'razorx_url'=>'RazorpayX url',
+        'razorx_key'=>'RazorpayX Key',
+        'razorx_secret'=>'RazorpayX Secret',
+        'select_bank'=>'Select Bank',
+        'rezorpayx_details'=>"RazorpayX details Can't be null!",
+        'payment_gateway'=>"Payment Gateway",
+        'stripe_details'=>"Please check Stripe Credentials",
+        'stripe_message'=>':stripe_message',
+        'paypal_client_id' => 'Paypal Client Id',
+        'paypal_secret_key' => 'Paypal Secret Key',
+        'credit'=>'Credit',
+        'debit'=>'Debit',
+        'providerpayout_list' => 'Provider Payout',
+        'messages' => 'Messages',
+        'day' => 'Day',
+        'slot' => 'Time Slot',
+        'wallet_credited' => 'Wallet is Credited',
+        'already_provider_wallet' => 'A provider wallet already exists. Add a new amount to the wallet.',
+        'login_form' => 'Your account is already exists.',
+        'deactivate' => 'Your account is deactivate.',  
+        'text'   => 'Text',
+        'digital_service' => 'Digital Service',
+        'service_addon' => 'Service Addon',
+        'confirmed' => 'The :name confirmation does not match.',
+        'password'=>'Password',
+        'visit_type'=>'Visit Type',
+        'on_site' => 'On Site',
+        'online'=>'Online',
+        'add_ons' => 'Add Ons',
+        'other_setting' => 'Other Setting',
+        'app_config_setting' => 'App Configuration Setting',
+        'enable_google_login' => 'Google Login',
+        'enable_apple_login' => 'Apple Login',
+        'enable_social_login' => 'Social Login',
+        'enable_post_job_request'=>'Post Job Request',
+        'enable_blog' => 'Blog',
+        'enable_maintenance_mode'=>'Maintenance Mode',
+        'enable_user_app_force_update'=>'Force Update for User App',
+        'minimum_version_code'=>'Minimum Version Code',
+        'why_choose_me'=>'Why Choose Me',
+        'user_app_minimum_version'=>'User App Minimum Version code',
+        'user_app_latest_version'=>'User App Latest Version code',
+        'enable_provider_app_force_update'=>'Force Update for Provider App',
+        'provider_app_minimum_version'=>'Provider App Minimum Version code',
+        'provider_app_latest_version'=>'Provider App Latest Version code',
+        'enable_admin_app_force_update'=>'Force Update for Admin App',
+        'admin_app_minimum_version'=>'Admin App Minimum Version code',
+        'admin_app_latest_version'=>'Admin App Latest Version code',
+        'maintenance_mode_secret_code'=>'Secret key for Maintenance Mode',
+        'airtel_money'=>'Airtel Money',
+        'client_id'=>'Client ID',
+        'secret_key'=>'Secret Key',
+        'enable_otp_login'=>'OTP Login'
+        
     )
     ?>

@@ -9,7 +9,8 @@ class PaymentHistory extends Model
 {
     use HasFactory;
     protected $table = 'payment_histories';
-    protected $fillable = [ 'payment_id', 'booking_id', 'action', 'text', 'type', 'sender_id', 'receiver_id', 'datetime', 'status','total_amount',
+    protected $fillable = [ 'payment_id', 'booking_id',
+        'action', 'text', 'type', 'sender_id', 'receiver_id', 'datetime', 'status','total_amount',
         'txn_id','other_transaction_detail','parent_id'
         ];
 
@@ -17,6 +18,7 @@ class PaymentHistory extends Model
         'payment_id'    => 'integer',
         'booking_id'   => 'integer',
         'sender_id'      => 'integer',
+        'parent_id'      => 'integer',
         'total_amount'  => 'double',
         'receiver_id'  => 'integer',
     ];

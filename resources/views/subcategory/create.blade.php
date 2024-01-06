@@ -21,7 +21,7 @@
                             <div class="row">
                                 <div class="form-group col-md-4">
                                     {{ Form::label('name',trans('messages.name').' <span class="text-danger">*</span>',['class'=>'form-control-label'], false ) }}
-                                    {{ Form::text('name',old('name'),['placeholder' => trans('messages.name'),'class' =>'form-control','pattern' => '[A-Za-z\s]+','required']) }}
+                                    {{ Form::text('name',old('name'),['placeholder' => trans('messages.name'),'class' =>'form-control','required']) }}
                                     <small class="help-block with-errors text-danger"></small>
                                 </div>
 

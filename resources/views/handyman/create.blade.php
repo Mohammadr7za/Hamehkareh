@@ -203,22 +203,23 @@
             })
 
         })
-
         $(document).on('keyup', '.contact_number', function() {
-		
-        var contactNumberInput = document.getElementById('contact_number');
-        contactNumberInput.addEventListener('input', function() {
-            var regex = /^[0-9 - +]+$/;
-            //var regex = /^[+-]?[0-9]+$/;
-            //var regex = /^[+ -]?[0-9]+$/;
-            if (!regex.test(contactNumberInput.value)) {
-              
-				$('#contact_number_err').text('Please enter a valid mobile number');
+            var contactNumberInput = document.getElementById('contact_number');
+            var inputValue = contactNumberInput.value;
+            inputValue = inputValue.replace(/[^0-9+\- ]/g, '');
+            if (inputValue.length > 15) {
+                inputValue = inputValue.substring(0, 15);
+                $('#contact_number_err').text('Contact number should not exceed 15 characters');
             } else {
-				$('#contact_number_err').text('');
+                $('#contact_number_err').text('');
+            }
+            contactNumberInput.value = inputValue;
+            if (inputValue.match(/^[0-9+\- ]+$/)) {
+                $('#contact_number_err').text('');
+            } else {
+                $('#contact_number_err').text('Please enter a valid mobile number');
             }
         });
-    })
 
 
         function stateName(country, state = "") {

@@ -7,7 +7,13 @@ use App\Models\ProviderPayout;
 use App\Models\Booking;
 use App\Models\User;
 use App\Models\Wallet;
-use App\DataTables\PayoutHistoryDataTable;
+use App\Models\Bank;
+use App\Models\PaymentGateway;
+use Razorpay\Api\Api;
+use Razorpay\Api\Errors\SignatureVerificationError;
+use Razorpay\Api\Errors;
+use Carbon\Carbon;
+
 use App\Http\Requests\ProviderPayout as ProviderPayoutRequest;
 use Yajra\DataTables\DataTables;
 
@@ -18,12 +24,12 @@ class ProviderPayoutController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(PayoutHistoryDataTable $dataTable)
+    public function index()
     {
         $pageTitle = trans('messages.payout_history' );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('providerpayout.index', compact('pageTitle','auth_user','assets'));
+        return view('providerpayout.index', compact('pageTitle','auth_user','assets'));
     }
 
     public function index_data(DataTables $datatable,Request $request)
@@ -50,8 +56,18 @@ class ProviderPayoutController extends Controller
         ->editColumn('description', function($payout) {
             return !empty($payout->description) ? $payout->description : '-';
         })
-        ->editColumn('provider_id', function($payout) {
-            return ($payout->providers != null && isset($payout->providers)) ? $payout->providers->display_name : '-';
+        // ->editColumn('provider_id', function($payout) {
+        //     return ($payout->providers != null && isset($payout->providers)) ? $payout->providers->display_name : '-';
+        // })
+
+        ->editColumn('provider_id', function ($payout) {
+            return view('providerpayout.user', compact('payout'));
+        })
+
+        ->filterColumn('provider_id',function($payout,$keyword){
+            $payout->whereHas('providers',function ($q) use($keyword){
+                $q->where('first_name','like','%'.$keyword.'%');
+            });
         })
         ->editColumn('amount', function($payout) {
             return ($payout->amount != null && isset($payout->amount)) ? getPriceFormat($payout->amount) : '-';
@@ -102,6 +118,7 @@ class ProviderPayoutController extends Controller
      */
     public function create($id)
     {
+
         $auth_user = authSession();
         $pageTitle = trans('messages.add_button_form',['form' => trans('messages.provider_payout')]);
         $payoutdata = new ProviderPayout;
@@ -130,8 +147,10 @@ class ProviderPayoutController extends Controller
 
         $payoutdata->amount_formate = $provider_earning['value'];
 
-        $payoutdata->amount = number_format((float)$provider_earning['number_format'],2,'.','');
+        $provider_earning_value = number_format((float)$provider_earning['number_format'], 2, '.', '');
 
+        $payoutdata->amount =(double)$provider_earning_value;
+    
         $payoutdata->provider_id = $id;
 
         return view('providerpayout.create', compact('pageTitle' ,'payoutdata' ,'auth_user' ));
@@ -148,14 +167,100 @@ class ProviderPayoutController extends Controller
         if(demoUserPermission()){
             return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
-        $data = $request->except('_token');
+
+             $data = $request->except('_token');
+
+             $payout_status='';
+
+             $payment_gateway=$data['payment_gateway'];
+
+             $provider_id=$data['provider_id'];
+
+            if($data['payment_method'] === 'bank'){
+
+              switch($payment_gateway){
+
+               case 'razorpayx':
+                
+                 $response=providerpayout_rezopayX($data);
+
+                 if($response==''){
+
+                    return redirect()->back()->withErrors(trans('messages.rezorpayx_details'))->withInput();
+
+                  }
+
+                 $payout_details = json_decode($response,True);
+                 $payout = $payout_details;
+                  
+                if($error=$payout['error']['description']  ==''){
+
+                    $payout_id=$payout['id'] ;
+                    // $payout_status=$payout['status'];
+                    // $data['bank_id']=$data['bank'];
+                    //$data['status']=$payout_status;
+                    $data['paid_date']=Carbon::now();
+
+                  }else {
+
+                     $razorpay_message=$payout['error']['description'];
+
+                     return  redirect()->back()->withErrors(trans('messages.razorpay_message',['razorpay_message' => $razorpay_message]))->withInput();
+                
+                   }  
+               break;
+
+               case 'stripe':
+
+                $response=providerpayout_stripe($data);
+
+               if($response==''){
+
+                  return redirect()->back()->withErrors(trans('messages.stripe_details'))->withInput();
+
+                 }else{
+
+                 $status = $response->status;
+
+               if($status==400){
+
+                 $error_message = $response->code;
+
+                 return  redirect()->back()->withErrors(trans('messages.stripe_message',['stripe_message' => $error_message]))->withInput();
+
+                }else{
+
+        
+
+                 $payout_id=$response['id'];
+
+                   $status='';
+
+                   if($payout_id!=''){
+                       
+                        $status="paid";
+                    }
+
+                     $data['bank_id']=$data['bank'];
+                     $data['status']=$status;
+                     $data['paid_date']=Carbon::now();
+
+                 }
+               }
+
+                break;
+
+            }
+             
+         }
 
         $result = ProviderPayout::create($data);
+     
         $activity_data = [
             'type' => 'provider_payout',
             'activity_type' => 'payout',
             'user_id' => $result->provider_id,
-            'amount' => $result->amount,
+            'amount' => $result->amount,   
         ];
         savePayoutActivity($activity_data);
 
@@ -172,6 +277,7 @@ class ProviderPayoutController extends Controller
                     $wallet->save();
                     $activity_data = [
                         'activity_type' => 'wallet_payout_transfer',
+                        'transfer_amount' => $payout_amount ,
                         'wallet' => $wallet,
                     ];
             
@@ -179,10 +285,18 @@ class ProviderPayoutController extends Controller
                 }
             }
         }
+
         if ( request()->is('api*')){
           $message = __('messages.created_success',['form' => 'Provider Payout']);
           return comman_message_response($message);
         }
+
+     if($payout_status=='queued'){
+
+        return redirect()->route('earning')->with('success', __('messages.queue_message',['form' => 'Provider Payout']));
+
+       }
+
         return redirect()->route('earning')->with('success', __('messages.created_success',['form' => 'Provider Payout']));
 
     }
@@ -196,7 +310,50 @@ class ProviderPayoutController extends Controller
     public function show($id)
     {
         //
+        $pageTitle = __('messages.list_form_title',['form' => __('messages.providerpayout_list')] );
+        $auth_user = authSession();
+        $assets = ['datatable'];
+        return view('providerpayout.view', compact('pageTitle','auth_user','assets','id'));
     }
+
+
+    public function ProviderPayout_index_data(DataTables $datatable,$id)
+    {
+        $query = ProviderPayout::where('provider_id',$id);
+       
+        if (auth()->user()->hasAnyRole(['admin'])) {
+            $query->newquery();
+        }
+        
+        return $datatable ->eloquent($query)
+        ->editColumn('payment_method', function($payout) {
+            return !empty($payout->payment_method) ? $payout->payment_method : 'cash';
+        })
+        ->addColumn('bank_name', function($payout) {
+           
+        if($payout->payment_method == 'bank'){
+            $bank = Bank::where('id',$payout->bank_id)->value('bank_name');
+            return $bank;
+        }
+        else{
+            return '-';
+        }
+        
+        })
+        ->editColumn('provider_id', function($payout) {
+            return ($payout->providers != null && isset($payout->providers)) ? $payout->providers->display_name : '-';
+        })
+        ->editColumn('amount', function($payout) {
+            return ($payout->amount != null && isset($payout->amount)) ? getPriceFormat($payout->amount) : '-';
+        })
+        ->editColumn('created_at', function($payout) {
+            return $payout->created_at;
+        })
+        ->addIndexColumn()
+        ->rawColumns(['bank_name'])
+        ->toJson();
+    }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -243,3 +400,5 @@ class ProviderPayoutController extends Controller
     }
     
 }
+
+ 

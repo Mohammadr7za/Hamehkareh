@@ -128,8 +128,76 @@
 
                     <div class="form-group col-md-12">
                         {{ Form::label('address',__('messages.address'), ['class' => 'form-control-label']) }}
-                        {{ Form::textarea('address', null, ['class'=>"form-control textarea" , 'rows'=>3  , 'placeholder'=> __('messages.address') ]) }}
+                        {{ Form::textarea('address', null, ['class'=>"form-control textarea" , 'rows'=>2  , 'placeholder'=> __('messages.address') ]) }}
                     </div>
+
+                  @if($user_data->user_type =='provider')   
+
+                     <div class="form-group col-md-12 mt-4">
+                     <h4>{{ __('messages.why_choose_me') }}</h4>
+                    </div>
+
+                    <div class="form-group col-md-12">
+                        {{ Form::label('title', __('messages.title').'', ['class' => 'form-control-label'], false) }}
+                        {{ Form::text('title', old('title'), ['placeholder' => __('messages.title'), 'class' => 'form-control' ]) }}
+                        <small class="help-block with-errors text-danger"></small>
+                    </div>
+
+                       <div class="form-group col-md-12">
+                        {{ Form::label('about_description',__('messages.description'), ['class' => 'form-control-label']) }}
+                        {{ Form::textarea('about_description', null, ['class'=>"form-control textarea" , 'rows'=>2  , 'placeholder'=> __('messages.description') ]) }}
+                    </div>
+
+                
+
+                  @if($user_data->reason != null)
+
+                      @foreach($user_data->reason as $reason)
+                     <div class="form-section1 form-group col-md-12 ">
+                          <div class="row">
+                            <div class="form-group col-md-12 d-flex">
+                              {{ Form::text('reason[]', $reason, ['placeholder' => __('messages.reason'), 'class' => 'form-control']) }}
+                              <small class="help-block with-errors text-danger"></small>
+                              <div class="form-group col-3 mb-0 align-self-center">
+                                  <button class="remove-section1 button-custom button-remove" data-title="remove" title="Remove">
+                                    <i class="far fa-trash-alt"></i>
+                                  </button>
+                              </div>
+                            </div>
+                          </div>
+                      </div>
+    
+                     @endforeach
+
+                    @endif 
+
+                   <div class="form-section form-group col-md-12 ">
+                      {{ Form::label('reason', __('messages.reason').'', ['class' => 'form-control-label'], false) }}
+                      <div class="row">
+                        <div class="form-group col-md-12 d-flex">
+                            {{ Form::text('reason[]', '', ['placeholder' => __('messages.reason'), 'class' => 'form-control' ]) }}
+                            <small class="help-block with-errors text-danger"></small>
+
+                            <div class="form-group mb-0 col-3 align-self-center">
+                               
+                                <button class="remove-section  button-custom button-remove"> <i class="far fa-trash-alt"></i></button>
+                            </div>
+                        </div>
+                      </div>
+                  </div>
+
+                   <div class="form-group col-md-12">
+                    <div class="form-group row">
+                        <div class="col-md-9 text-md-right pr-1">
+                            <button type="button" id="add-section" class="button-custom button-added">
+                                <i class="fas fa-plus mr-2"></i>Add More Reason
+                            </button>
+                        </div>
+                        <div class="col-md-3"></div>
+                    </div>
+                   </div>
+                  @endif
+
                     <div class="col-md-12">
                         {{ Form::submit(__('messages.update'), ['class'=>"btn btn-md btn-primary float-md-right"]) }}
                     </div>
@@ -164,20 +232,60 @@ $(document).ready(function() {
         cityName(state, city_id);
     })
 
+     $(document).ready(function () {
+        // Add Section
+        $("#add-section").click(function () {
+            var newSection = $(".form-section:first").clone();
+            newSection.find('input').val(''); // Clear input values
+            $(".form-section:last").after(newSection);
+            updateRemoveButtonVisibility();
+        });
 
-    $(document).on('keyup', '.contact_number', function() {
-
-        var contactNumberInput = document.getElementById('contact_number');
-        contactNumberInput.addEventListener('input', function() {
-            var regex = /^[0-9 - +]+$/;
-            if (!regex.test(contactNumberInput.value)) {
-
-                $('#contact_number_err').text('Please enter a valid mobile number');
-            } else {
-                $('#contact_number_err').text('');
+        // Remove Section
+        $(document).on('click', '.remove-section', function () {
+            if ($(".form-section").length > 1) {
+                $(this).closest('.form-section').remove();
+                updateRemoveButtonVisibility();
             }
         });
-    })
+
+          // Remove Section
+        $(document).on('click', '.remove-section1', function () {
+            
+         $(this).closest('.form-section1').remove();
+            
+        });
+
+        // Function to update Remove button visibility
+        function updateRemoveButtonVisibility() {
+            if ($(".form-section").length > 1) {
+                $('.remove-section').show();
+            } else {
+                $('.remove-section').hide();
+            }
+        }
+
+        // Initially hide Remove button if there's only one section
+        updateRemoveButtonVisibility();
+    });
+
+    $(document).on('keyup', '.contact_number', function() {
+        var contactNumberInput = document.getElementById('contact_number');
+        var inputValue = contactNumberInput.value;
+        inputValue = inputValue.replace(/[^0-9+\- ]/g, '');
+        if (inputValue.length > 15) {
+            inputValue = inputValue.substring(0, 15);
+            $('#contact_number_err').text('Contact number should not exceed 15 characters');
+        } else {
+                $('#contact_number_err').text('');
+        }
+        contactNumberInput.value = inputValue;
+        if (inputValue.match(/^[0-9+\- ]+$/)) {
+            $('#contact_number_err').text('');
+        } else {
+            $('#contact_number_err').text('Please enter a valid mobile number');
+        }
+    });
 
 
 

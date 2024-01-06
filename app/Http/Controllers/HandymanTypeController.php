@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\HandymanType;
 use App\Models\Service;
-use App\DataTables\HandymanTypeDataTable;
 use App\Http\Requests\HandymanTypeRequest;
 use Yajra\DataTables\DataTables;
 
@@ -16,7 +15,7 @@ class HandymanTypeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(HandymanTypeDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -24,8 +23,9 @@ class HandymanTypeController extends Controller
         $pageTitle = trans('messages.list_form_title',['form' => trans('messages.handymantype')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('handymantype.index', compact('pageTitle','auth_user','assets','filter'));
+        return view('handymantype.index', compact('pageTitle','auth_user','assets','filter'));
     }
+
 
 
 
@@ -47,9 +47,17 @@ class HandymanTypeController extends Controller
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
             })
-            ->editColumn('name', function($query){
-                return '<a class="btn-link btn-link-hover" href='.route('handymantype.create', ['id' => $query->id]).'>'.$query->name.'</a>';
+          
+            ->editColumn('name', function($query){                
+                if (auth()->user()->can('handymantype edit')) {
+                    $link = '<a class="btn-link btn-link-hover" href='.route('handymantype.create', ['id' => $query->id]).'>'.$query->name.'</a>';
+                } else {
+                    $link = $query->name; 
+                }
+                return $link;
             })
+
+
             ->editColumn('commission' , function ($query){
                 $commission = getPriceFormat($query->commission);
                 if($query->type === 'percent'){

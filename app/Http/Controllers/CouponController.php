@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\Coupon;
 use App\Models\CouponServiceMapping;
 use App\Models\Service;
-use App\DataTables\CouponDataTable;
 use App\Http\Requests\CouponRequest;
 use Yajra\DataTables\DataTables;
 
@@ -17,7 +16,7 @@ class CouponController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(CouponDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -25,9 +24,8 @@ class CouponController extends Controller
         $pageTitle = trans('messages.list_form_title',['form' => trans('messages.coupon')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('coupon.index', compact('pageTitle','auth_user','assets','filter'));
+        return view('coupon.index', compact('pageTitle','auth_user','assets','filter'));
     }
-
 
 
 
@@ -49,9 +47,17 @@ class CouponController extends Controller
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="coupon" onclick="dataTableRowCheck('.$row->id.',this)">';
             })
-            ->editColumn('code', function($query){
-                return '<a class="btn-link btn-link-hover" href='.route('coupon.create', ['id' => $query->id]).'>'.$query->code.'</a>';
+          
+
+            ->editColumn('code', function($query){                
+                if (auth()->user()->can('coupon edit')) {
+                    $link = '<a class="btn-link btn-link-hover" href='.route('coupon.create', ['id' => $query->id]).'>'.$query->code.'</a>';
+                } else {
+                    $link = $query->code; 
+                }
+                return $link;
             })
+           
             ->editColumn('status' , function ($query){
                 $disabled = $query->trashed() ? 'disabled': '';
                 return '<div class="custom-control custom-switch custom-switch-text custom-switch-color custom-control-inline">

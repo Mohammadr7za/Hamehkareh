@@ -127,5 +127,22 @@
         function preview() {
             bank_image_preview.src = URL.createObjectURL(event.target.files[0]);
         }
+        $(document).on('keyup', '.mobile_no', function() {
+            var contactNumberInput = document.getElementById('mobile_no');
+            var inputValue = contactNumberInput.value;
+            inputValue = inputValue.replace(/[^0-9+\- ]/g, '');
+            if (inputValue.length > 15) {
+                inputValue = inputValue.substring(0, 15);
+                $('#mobile_no_err').text('Contact number should not exceed 15 characters');
+            } else {
+                    $('#mobile_no_err').text('');
+            }
+            contactNumberInput.value = inputValue;
+            if (inputValue.match(/^[0-9+\- ]+$/)) {
+                $('#mobile_no_err').text('');
+            } else {
+                $('#mobile_no_err').text('Please enter a valid mobile number');
+            }
+        });
     </script>
 </x-master-layout>

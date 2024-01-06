@@ -19747,6 +19747,8 @@ textarea.form-control {
 
 .avatar {
   position: relative;
+  -o-object-fit: cover;
+     object-fit: cover;
 }
 
 .avatar-30 {

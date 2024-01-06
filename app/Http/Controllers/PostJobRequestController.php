@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PostJobRequest;
-use App\DataTables\PostjobRequestsDataTable;
-use App\DataTables\PostJobBidDataTable;
 use Yajra\DataTables\DataTables;
+use App\Models\PostJobBid;
 
 class PostJobRequestController extends Controller
 {
@@ -15,7 +14,7 @@ class PostJobRequestController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(PostjobRequestsDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -24,7 +23,7 @@ class PostJobRequestController extends Controller
         $auth_user = authSession();
         $assets = ['datatable'];
 
-        return $dataTable->render('postrequest.index', compact('pageTitle','auth_user','assets','filter'));
+        return view('postrequest.index', compact('pageTitle','auth_user','assets','filter'));
 
     }
 
@@ -51,11 +50,17 @@ class PostJobRequestController extends Controller
             ->editColumn('title', function($query){
                 return '<a class="btn-link btn-link-hover"  href='.route('postjobrequest.service',$query->id).'>'.$query->title.'</a>';
             })
+             // ->editColumn('provider_id' , function ($query){
+            //     return ($query->provider_id != null && isset($query->provider)) ? $query->provider->display_name : '-';
+            // })
+            // ->editColumn('customer_id' , function ($query){
+            //     return ($query->customer_id != null && isset($query->customer)) ? $query->customer->display_name : '-';
+            // })
             ->editColumn('provider_id' , function ($query){
-                return ($query->provider_id != null && isset($query->provider)) ? $query->provider->display_name : '-';
+                return view('postrequest.provider', compact('query'));
             })
             ->editColumn('customer_id' , function ($query){
-                return ($query->customer_id != null && isset($query->customer)) ? $query->customer->display_name : '-';
+                return view('postrequest.customer', compact('query'));
             })
             ->filterColumn('customer_id',function($query,$keyword){
                 $query->whereHas('customer',function ($q) use($keyword){
@@ -179,12 +184,40 @@ class PostJobRequestController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id, PostJobBidDataTable $dataTable)
+    public function show($id)
     {
         $pageTitle = trans('messages.list_form_title',['form' => trans('messages.postbid')] );
         $auth_user = authSession();
         $asset = ['datatable'];
-        return $dataTable->with('id', $id)->render('postrequest.view', compact('pageTitle', 'auth_user', 'asset'));
+        return view('postrequest.view', compact('pageTitle', 'auth_user', 'asset','id'));
+    }
+
+    public function postrequest_index_data(DataTables $datatable,$id)
+    {
+        $query = PostJobBid::where('post_request_id',$id);
+       
+        if (auth()->user()->hasAnyRole(['admin'])) {
+            $query->newquery();
+        }
+        
+        return $datatable  ->eloquent($query)
+        ->editColumn('post_request_id' , function ($post_job_bid){
+            return ($post_job_bid->post_request_id != null && isset($post_job_bid->postrequest)) ? $post_job_bid->postrequest->title : '-';
+        })
+        ->editColumn('provider_id' , function ($post_job_bid){
+            return ($post_job_bid->provider_id != null && isset($post_job_bid->provider)) ? $post_job_bid->provider->display_name : '-';
+        })
+        ->editColumn('customer_id', function ($post_job_bid){
+            return ($post_job_bid->customer_id != null && isset($post_job_bid->customer)) ? $post_job_bid->customer->display_name : '-';
+        })
+        ->editColumn('price' , function ($post_job){
+            return getPriceFormat($post_job->price);
+        })
+        ->editColumn('duration' , function ($post_job_bid){
+            return ($post_job_bid->duration != null) ? $post_job_bid->duration : '-';
+        })
+        ->addIndexColumn()
+        ->toJson();
     }
 
     /**

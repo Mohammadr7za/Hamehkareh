@@ -108,7 +108,8 @@
                     {
                         data: 'customer_id',
                         name: 'customer_id',
-                        title: "{{__('messages.user')}}"
+                        title: "{{__('messages.user')}}",
+                         orderable: false,
                     },
                     {
                         data: 'datetime',
@@ -118,7 +119,9 @@
                     {
                         data: 'history',
                         name: 'history',
-                        title: "{{__('messages.history')}}"
+                        title: "{{__('messages.history')}}",
+                        orderable: false,
+                        searchable:false
                     },
                     {
                         data: 'status',
@@ -129,7 +132,7 @@
                     {
                         data: 'total_amount',
                         name: 'total_amount',
-                        title: "{{__('messages.id')}}"
+                        title: "{{__('messages.price')}}"
                     },
                     {
                         data: 'action',

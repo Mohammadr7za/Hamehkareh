@@ -1003,9 +1003,10 @@ a.btn-link-hover:hover {
     font-size: 1.125rem;
 }
 .avatar {
-    block-size: 2.1875rem;
+    /* block-size: 2.1875rem; */
     inline-size: 2.1875rem;
     overflow: hidden;
+    object-fit: cover;
 }
 .avatar > img {
     inline-size: 100%;

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\DataTables\BookingRatingDataTable;
 use App\Models\BookingRating;
 use Yajra\DataTables\DataTables;
 
@@ -14,7 +13,7 @@ class BookingRatingController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(BookingRatingDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -22,7 +21,7 @@ class BookingRatingController extends Controller
         $pageTitle = __('messages.user_ratings');
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('bookingrating.index', compact('pageTitle','auth_user','assets','filter'));
+        return view('bookingrating.index', compact('pageTitle','auth_user','assets','filter'));
     }
 
 
@@ -44,8 +43,16 @@ class BookingRatingController extends Controller
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
             })
+            // ->editColumn('customer_id', function($query){
+            //     return ($query != null && isset($query->customer)) ? $query->customer->first_name : '-';
+            // })
             ->editColumn('customer_id', function($query){
-                return ($query != null && isset($query->customer)) ? $query->customer->first_name : '-';
+                return view('bookingrating.user', compact('query'));
+            })
+            ->filterColumn('customer_id',function($query,$keyword){
+                $query->whereHas('customer',function ($q) use($keyword){
+                    $q->where('display_name','like','%'.$keyword.'%');
+                });
             })
             ->editColumn('service_id', function($query){
                 return ($query != null && isset($query->service)) ? $query->service->name : '-';

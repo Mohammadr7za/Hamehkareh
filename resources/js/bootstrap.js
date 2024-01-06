@@ -16,7 +16,7 @@ window._ = require('lodash');
     window.dragula = require('dragula');
     window.Scrollbar = require('smooth-scrollbar/dist/smooth-scrollbar')
     require('jquery.appear');
-    // require('datatables');
+    require('datatables');
     require('datatables.net-bs4');
     require('flatpickr');
     require('quill');

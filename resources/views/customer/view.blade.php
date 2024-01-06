@@ -34,7 +34,7 @@
                                                 @if(count($customerdata->booking) > 0)
                                                     @foreach($customerdata->booking as $booking)
                                                         <tr class="white-space-no-wrap">
-                                                            <td>{{$booking->service->name}}</td>
+                                                            <td>{{optional($booking->service)->name}}</td>
                                                             <td>
                                                                 <div class="d-flex align-items-center">
                                             

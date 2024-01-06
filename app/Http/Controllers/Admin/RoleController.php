@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Role;
-use App\DataTables\RoleDataTable;
 use Yajra\DataTables\DataTables;
 
 class RoleController extends Controller
@@ -14,7 +13,7 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(RoleDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -22,7 +21,7 @@ class RoleController extends Controller
         $pageTitle = trans('messages.list_form_title',['form' => trans('messages.role')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('role.index', compact('pageTitle','auth_user','assets','filter'));
+        return view('role.index', compact('pageTitle','auth_user','assets','filter'));
     }
 
 

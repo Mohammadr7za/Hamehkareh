@@ -17,7 +17,7 @@ class PostJobRequest extends Model
     protected $casts = [
         'customer_id'  => 'integer',
         'provider_id'  => 'integer',
-        'price' => 'integer',
+        'price' => 'double',
         'job_price' => 'double',
     ];
     public function postServiceMapping(){

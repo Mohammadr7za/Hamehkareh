@@ -131,6 +131,13 @@
                         title: "{{__('messages.payment_status')}}"
                     },
                     {
+                       data: 'updated_at',
+                       name: 'updated_at',
+                       title: "{{ __('product.lbl_update_at') }}",
+                       orderable: true,
+                       visible: false,
+                    },
+                    {
                         data: 'action',
                         name: 'action',
                         orderable: false,
@@ -138,7 +145,12 @@
                         title: "{{__('messages.action')}}"
                     }
                     
-                ]
+                ],
+                        order: [
+            
+                         [9, 'desc'] 
+                     ]
+
                 
             });
       });

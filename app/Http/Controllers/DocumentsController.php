@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Documents;
 use App\Models\Service;
-use App\DataTables\DocumentDataTable;
 use App\Http\Requests\DocumentRequest;
 use Yajra\DataTables\DataTables;
 
@@ -16,7 +15,7 @@ class DocumentsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(DocumentDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -24,9 +23,8 @@ class DocumentsController extends Controller
         $pageTitle = trans('messages.list_form_title',['form' => trans('messages.document')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('document.index', compact('pageTitle','auth_user','assets','filter'));
+        return view('document.index', compact('pageTitle','auth_user','assets','filter'));
     }
-
 
     public function index_data(DataTables $datatable,Request $request)
     {
@@ -46,9 +44,16 @@ class DocumentsController extends Controller
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="document" onclick="dataTableRowCheck('.$row->id.',this)">';
             })
-            ->editColumn('name', function($query){
-                return '<a class="btn-link btn-link-hover" href='.route('document.create', ['id' => $query->id]).'>'.$query->name.'</a>';
+         
+            ->editColumn('name', function($query){                
+                if (auth()->user()->can('document edit')) {
+                    $link = '<a class="btn-link btn-link-hover" href='.route('document.create', ['id' => $query->id]).'>'.$query->name.'</a>';
+                } else {
+                    $link = $query->name; 
+                }
+                return $link;
             })
+
             ->editColumn('status' , function ($query){
                 $disabled = $query->trashed() ? 'disabled': '';
                 return '<div class="custom-control custom-switch custom-switch-text custom-switch-color custom-control-inline">

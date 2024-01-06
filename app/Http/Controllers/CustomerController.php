@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\DataTables\CustomerDataTable;
 use App\Models\User;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\Role;
 use Yajra\DataTables\DataTables;
 use App\Http\Requests\UserRequest;
+use Hash;
 
 class CustomerController extends Controller
 {
@@ -18,7 +18,7 @@ class CustomerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(CustomerDataTable $dataTable, Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -30,7 +30,7 @@ class CustomerController extends Controller
             $pageTitle = __('messages.list_form_title',['form' => __('messages.all_user')] );
         }
         $list_status = $request->status;
-        return $dataTable->with('list_status',$request->status)->render('customer.index', compact('list_status','pageTitle','assets','auth_user','filter'));
+        return view('customer.index', compact('list_status','pageTitle','assets','auth_user','filter'));
     }
 
 
@@ -58,9 +58,15 @@ class CustomerController extends Controller
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="user" onclick="dataTableRowCheck('.$row->id.',this)">';
             })
-            ->editColumn('display_name', function($query){
-                return '<a class="btn-link btn-link-hover" href='.route('user.show', $query->id).'>'.$query->display_name.'</a>';
+            // ->editColumn('display_name', function($query){
+            //     return '<a class="btn-link btn-link-hover" href='.route('user.show', $query->id).'>'.$query->display_name.'</a>';
+            // })
+
+            ->editColumn('display_name', function ($query) {
+                return view('customer.user', compact('query'));
             })
+
+         
             ->editColumn('status', function($query) {
                 if($query->status == '0'){
                     $status = '<span class="badge badge-inactive">'.__('messages.inactive').'</span>';
@@ -270,5 +276,62 @@ class CustomerController extends Controller
             return comman_message_response($msg);
 		}
         return comman_custom_response(['message'=> $msg , 'status' => true]);
+    }
+
+
+    public function getChangePassword(Request $request){
+        $id = $request->id;
+        $auth_user = authSession();
+
+        $customerdata = User::find($id);
+        $pageTitle = __('messages.change_password',['form'=> __('messages.change_password')]);
+        return view('customer.changepassword', compact('pageTitle' ,'customerdata' ,'auth_user'));
+    }
+
+    public function changePassword(Request $request)
+    {
+        if (demoUserPermission()) {
+            return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
+        }
+        $user = User::where('id', $request->id)->first();
+        
+        if ($user == "") {
+            $message = __('messages.user_not_found');
+            return comman_message_response($message, 400);
+        }
+
+        $validator = \Validator::make($request->all(), [
+            'old' => 'required|min:8|max:255',
+            'password' => 'required|min:8|confirmed|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->errors()->has('password')) {
+                $message = __('messages.confirmed',['name' => __('messages.password')]);
+                return redirect()->route('user.changepassword', ['id' => $user->id])->with('error', $message);
+            }
+            return redirect()->route('user.changepassword', ['id' => $user->id])->with('errors', $validator->errors());
+        }
+
+        $hashedPassword = $user->password;
+
+        $match = Hash::check($request->old, $hashedPassword);
+
+        $same_exits = Hash::check($request->password, $hashedPassword);
+        if ($match) {
+            if ($same_exits) {
+                $message = __('messages.old_new_pass_same');
+                return redirect()->route('user.changepassword',['id' => $user->id])->with('error', $message);
+            }
+
+            $user->fill([
+                'password' => Hash::make($request->password)
+            ])->save();
+            $message = __('messages.password_change');
+            return redirect()->route('user.index')->withSuccess($message);
+        } else {
+            $message = __('messages.valid_password');
+            return redirect()->route('user.changepassword',['id' => $user->id])->with('error', $message);
+        }
     }
 }

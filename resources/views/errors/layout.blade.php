@@ -45,7 +45,7 @@
             }
         </style>
     </head>
-    <body dir="rtl" style="direction: rtl">
+    <body>
         <div class="flex-center position-ref full-height">
             <div class="content">
                 <div class="title">

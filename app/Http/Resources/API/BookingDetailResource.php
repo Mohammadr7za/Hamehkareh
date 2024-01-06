@@ -4,6 +4,7 @@ namespace App\Http\Resources\API;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\BookingStatus;
+
 class BookingDetailResource extends JsonResource
 {
     /**
@@ -58,7 +59,8 @@ class BookingDetailResource extends JsonResource
             'final_sub_total'=> $this->final_sub_total,
             'final_discount_amount'=> $this->final_discount_amount,
             'final_coupon_discount_amount'=> $this->final_coupon_discount_amount,
-            'txn_id' => optional($this->payment)->txn_id
+            'txn_id' => optional($this->payment)->txn_id,
+            'BookingAddonService' => BookingServiceAddonResource::collection($this->bookingAddonService),
 
         ];
     }

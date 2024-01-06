@@ -32,4 +32,5 @@
   'user_type' => 'User Type',
   'designation' => 'Designation',
   'password_mismatch_error'=> 'Password and Confirm password does not match',
+
 );

@@ -6,10 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Booking;
 use App\Models\BookingHandymanMapping;
-use App\DataTables\HandymanDataTable;
-use App\DataTables\ServiceDataTable;
 use App\Http\Requests\UserRequest;
 use Yajra\DataTables\DataTables;
+use Hash;
 
 class HandymanController extends Controller
 {
@@ -18,7 +17,7 @@ class HandymanController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(HandymanDataTable $dataTable, Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -33,11 +32,8 @@ class HandymanController extends Controller
         $auth_user = authSession();
         $assets = ['datatable'];
         $list_status = $request->status;
-        return $dataTable
-                ->with('list_status',$request->status)
-                ->render('handyman.index', compact('list_status','pageTitle','auth_user','assets','filter'));
+        return view('handyman.index', compact('list_status','pageTitle','auth_user','assets','filter'));
     }
-
 
     public function index_data(DataTables $datatable,Request $request)
     {
@@ -70,9 +66,23 @@ class HandymanController extends Controller
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="user" onclick="dataTableRowCheck('.$row->id.',this)">';
             })
-            ->editColumn('display_name', function($query){
-                return '<a class="btn-link btn-link-hover" href='.route('handyman.create', ['id' => $query->id]).'>'.$query->display_name.'</a>';
+         
+
+            // ->editColumn('display_name', function($query){                
+            //     if (auth()->user()->can('handyman edit')) {
+            //         $link ='<a class="btn-link btn-link-hover" href='.route('handyman.create', ['id' => $query->id]).'>'.$query->display_name.'</a>';
+            //     } else {
+            //         $link = $query->display_name; 
+            //     }
+            //     return $link;
+            // })
+
+            ->editColumn('display_name', function ($query) {
+                return view('handyman.user', compact('query'));
             })
+
+
+
             ->editColumn('status', function($query) {
                 if($query->status == 0){
                     $status = '<a class="btn-sm text-white btn-success"  href='.route('handyman.approve',$query->id).'>Accept</a>';
@@ -81,19 +91,23 @@ class HandymanController extends Controller
                 }
                 return $status;
             })
-            ->editColumn('provider_id', function($handyman) {
-                return $handyman->provider_id != null && isset($handyman->providers) ? $handyman->providers->display_name : '-';
+        //     ->editColumn('provider_id', function($handyman) {
+        //         return $handyman->provider_id != null && isset($handyman->providers) ? $handyman->providers->display_name : '-';
             
-        })
-          
+        //    })
+            ->editColumn('provider_id', function($query) {
+            return view('handyman.provider', compact('query')); 
+            })
             ->editColumn('address', function($query) {
                 return ($query->address != null && isset($query->address)) ? $query->address : '-';
             })
+            
             ->filterColumn('provider_id',function($qry,$keyword){
                 $qry->whereHas('providers',function ($q) use($keyword){
                     $q->where('display_name','like','%'.$keyword.'%');
                 });
             })
+
             ->addColumn('action', function($handyman){
                 return view('handyman.action',compact('handyman'))->render();
             })
@@ -350,5 +364,66 @@ class HandymanController extends Controller
         $handyman->update(['provider_id' => $provider_id]);         
 
         return response()->json(['message' => 'Provider Assign Successfully', 'status' => true]);
+    }
+
+
+
+    public function getChangePassword(Request $request){
+        $id = $request->id;
+        $auth_user = authSession();
+
+        $handymandata = User::find($id);
+        $pageTitle = __('messages.change_password',['form'=> __('messages.change_password')]);
+        if($handymandata == null){
+            $pageTitle = __('messages.add_button_form',['form' => __('messages.handyman')]);
+            $handymandata = new User;
+        }
+        return view('handyman.changepassword', compact('pageTitle' ,'handymandata' ,'auth_user'));
+    }
+
+    public function changePassword(Request $request)
+    {
+        if (demoUserPermission()) {
+            return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
+        }
+        $user = User::where('id', $request->id)->first();
+        if ($user == "") {
+            $message = __('messages.user_not_found');
+            return comman_message_response($message, 400);
+        }
+
+        $validator = \Validator::make($request->all(), [
+            'old' => 'required|min:8|max:255',
+            'password' => 'required|min:8|confirmed|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->errors()->has('password')) {
+                $message = __('messages.confirmed',['name' => __('messages.password')]);
+                return redirect()->route('handyman.changepassword', ['id' => $user->id])->with('error', $message);
+            }
+            return redirect()->route('handyman.changepassword', ['id' => $user->id])->with('errors', $validator->errors());
+        }
+
+        $hashedPassword = $user->password;
+
+        $match = Hash::check($request->old, $hashedPassword);
+
+        $same_exits = Hash::check($request->password, $hashedPassword);
+        if ($match) {
+            if ($same_exits) {
+                $message = __('messages.old_new_pass_same');
+                return redirect()->route('handyman.changepassword',['id' => $user->id])->with('error', $message);
+            }
+
+            $user->fill([
+                'password' => Hash::make($request->password)
+            ])->save();
+            $message = __('messages.password_change');
+            return redirect()->route('handyman.index')->withSuccess($message);
+        } else {
+            $message = __('messages.valid_password');
+            return redirect()->route('handyman.changepassword',['id' => $user->id])->with('error', $message);
+        }
     }
 }

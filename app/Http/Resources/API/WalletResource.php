@@ -18,6 +18,7 @@ class WalletResource extends JsonResource
             'id'            => $this->id,
             'title'         => $this->title,
             'user_id'       => $this->user_id,
+            'name'          => optional($this->providers)->display_name,
             'amount'        => $this->amount,
             'status'        => $this->status,
             

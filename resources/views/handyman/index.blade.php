@@ -106,7 +106,8 @@
                     {
                         data: 'display_name',
                         name: 'display_name',
-                        title: "{{__('messages.name')}}"
+                        title: "{{__('messages.name')}}",
+                         orderable: false,
                     },
                     {
                         data: 'provider_id',

@@ -12,4 +12,7 @@ class UserPlayerIds extends Model
     protected $fillable = [
         'user_id', 'player_id'
     ];
+    protected $casts = [
+        'user_id'        => 'integer',
+    ];
 }

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Blog;
-use App\DataTables\BlogDataTable;
 use App\Http\Requests\BlogRequest;
 use Yajra\DataTables\DataTables;
 
@@ -15,7 +14,7 @@ class BlogController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(BlogDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -23,7 +22,7 @@ class BlogController extends Controller
         $pageTitle = trans('messages.list_form_title',['form' => trans('messages.blog')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('blog.index', compact('pageTitle','auth_user','assets','filter'));
+        return view('blog.index', compact('pageTitle','auth_user','assets','filter'));
     }
 
 
@@ -42,17 +41,29 @@ class BlogController extends Controller
         }
         
         return $datatable->eloquent($query)
-            ->addColumn('check', function ($row) {
-                return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="blog" onclick="dataTableRowCheck('.$row->id.',this)">';
+            ->addColumn('check', function ($query) {
+                return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$query->id.'"  name="datatable_ids[]" value="'.$query->id.'" data-type="blog" onclick="dataTableRowCheck('.$query->id.',this)">';
             })
-            ->editColumn('title', function($blog){
-                return '<a class="btn-link btn-link-hover" href='.route('blog.create', ['id' => $blog->id]).'>'.$blog->title.'</a>';
+          
+            ->editColumn('title', function($query){                
+                if (auth()->user()->can('blog edit')) {
+                    $link = '<a class="btn-link btn-link-hover" href='.route('blog.create', ['id' => $query->id]).'>'.$query->title.'</a>';
+                } else {
+                    $link = $query->title; 
+                }
+                return $link;
             })
-            ->editColumn('author_id' , function ($blog){
-                return ($blog->author_id != null && isset($blog->author)) ? $blog->author->display_name : '';
+
+
+
+            // ->editColumn('author_id' , function ($query){
+            //     return ($query->author_id != null && isset($query->author)) ? $query->author->display_name : '';
+            // })
+            ->editColumn('author_id' , function ($query){
+                return view('blog.user', compact('query'));
             })
             ->filterColumn('author_id',function($query,$keyword){
-                $query->whereHas('providers',function ($q) use($keyword){
+                $query->whereHas('author',function ($q) use($keyword){
                     $q->where('display_name','like','%'.$keyword.'%');
                 });
             })

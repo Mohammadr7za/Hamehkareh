@@ -15,6 +15,7 @@ use App\Models\Setting;
 use App\Models\ProviderPayout;
 use App\Models\HandymanPayout;
 use App\Models\ServiceFaq;
+use App\Models\ServiceAddon;
 use App\Models\AppDownload;
 use App\http\Requests\Auth\LoginRequest;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -274,11 +275,16 @@ class HomeController extends Controller
                 $blog->status = $request->status;
                 $blog->save();
                 break;
-                case 'servicepackage_status':
-                    $servicepackage = \App\Models\ServicePackage::find($request->id);
-                    $servicepackage->status = $request->status;
-                    $servicepackage->save();
-                    break;
+            case 'servicepackage_status':
+                $servicepackage = \App\Models\ServicePackage::find($request->id);
+                $servicepackage->status = $request->status;
+                $servicepackage->save();
+                break;
+            case 'serviceaddon_status':
+                $serviceaddon = \App\Models\ServiceAddon::find($request->id);
+                $serviceaddon->status = $request->status;
+                $serviceaddon->save();
+                break;
             default:
                 $message = 'error';
                 break;
@@ -308,6 +314,7 @@ class HomeController extends Controller
     {
         $items = array();
         $value = $request->q;
+
         $auth_user = authSession();
         switch ($request->type) {
             case 'permission':
@@ -438,6 +445,16 @@ class HomeController extends Controller
 
                 $items = $items->get();
                 break;
+
+                case 'bank':
+                    $items = \App\Models\Bank::select('id', 'bank_name as text')->where('provider_id',$request->provider_id)->where('status',1);
+    
+                    if ($value != '') {
+                        $items->where('name', 'LIKE', $value . '%');
+                    }
+                    $items = $items->get();
+                    break;
+
             case 'country':
                 $items = \App\Models\Country::select('id', 'name as text');
 
@@ -633,6 +650,10 @@ class HomeController extends Controller
                 $media = Media::find($request->id);
                 $media->delete();
                 $message = __('messages.msg_removed', ['name' => __('messages.attachments')]);
+                break;
+            case 'serviceaddon_image':
+                $data = ServiceAddon::find($request->id);
+                $message = __('messages.msg_removed', ['name' => __('messages.service_addon')]);
                 break;
             default:
                 $data = AppSetting::find($request->id);

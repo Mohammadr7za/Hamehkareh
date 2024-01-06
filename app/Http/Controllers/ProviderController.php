@@ -7,14 +7,14 @@ use Illuminate\Support\Facades\Route;
 use App\Models\User;
 use App\Models\Booking;
 use App\Models\Service;
-use App\DataTables\ProviderDataTable;
-use App\DataTables\ServiceDataTable;
+use App\Models\ProviderSlotMapping;
 use App\Http\Requests\UserRequest;
 use App\Models\ProviderPayout;
 use App\Models\ProviderSubscription;
 use App\Models\PaymentGateway;
 use Carbon\Carbon;
 use Yajra\DataTables\DataTables;
+use Hash;
 
 class ProviderController extends Controller
 {
@@ -23,7 +23,7 @@ class ProviderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(ProviderDataTable $dataTable, Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -39,9 +39,7 @@ class ProviderController extends Controller
         $auth_user = authSession();
         $assets = ['datatable'];
         $list_status = $request->status;
-        return $dataTable
-                ->with('list_status',$request->status)
-                ->render('provider.index', compact('list_status','pageTitle','auth_user','assets','filter'));
+        return view('provider.index', compact('list_status','pageTitle','auth_user','assets','filter'));
     }
 
     public function index_data(DataTables $datatable,Request $request)
@@ -71,8 +69,9 @@ class ProviderController extends Controller
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="user" onclick="dataTableRowCheck('.$row->id.',this)">';
             })
-            ->editColumn('display_name', function($query){
-                return '<a class="btn-link btn-link-hover" href='.route('provider.show', $query->id).'>'.$query->display_name.'</a>';
+
+            ->editColumn('display_name', function ($query) {
+                return view('provider.user', compact('query'));
             })
             ->editColumn('status', function($query) {
                 if($query->status == '0'){
@@ -245,7 +244,7 @@ class ProviderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(ServiceDataTable $dataTable,$id)
+    public function show($id)
     {
         $auth_user = authSession();
         $providerdata = User::with('providerDocument', 'booking')->where('user_type', 'provider')->where('id', $id)->first();
@@ -271,9 +270,7 @@ class ProviderController extends Controller
         ];
 
         $pageTitle = __('messages.view_form_title', ['form' => __('messages.provider')]);
-        return $dataTable
-            ->with('provider_id', $id)
-            ->render('provider.view', compact('pageTitle', 'providerdata', 'auth_user', 'data','providerTotEarning','providerPayout','providerData'));
+        return view('provider.view', compact('pageTitle', 'providerdata', 'auth_user', 'data','providerTotEarning','providerPayout','providerData'));
     }
 
     /**
@@ -353,7 +350,7 @@ class ProviderController extends Controller
         return $dataTable
             ->with('provider_id', $request->id)
             ->render('provider.bank-details', compact('pageTitle', 'providerdata', 'auth_user'));
-    }
+    }    
 
     public function review(Request $request, $id)
     {
@@ -452,4 +449,134 @@ class ProviderController extends Controller
         return redirect()->back()->withSuccess($msg);
     }
 
+    public function getChangePassword(Request $request){
+        $id = $request->id;
+        $auth_user = authSession();
+
+        $providerdata = User::find($id);
+        $pageTitle = __('messages.change_password',['form'=> __('messages.change_password')]);
+        return view('provider.changepassword', compact('pageTitle' ,'providerdata' ,'auth_user'));
+    }
+
+    public function changePassword(Request $request)
+    {
+        if (demoUserPermission()) {
+            return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
+        }
+        $user = User::where('id', $request->id)->first();
+        
+        if ($user == "") {
+            $message = __('messages.user_not_found');
+            return comman_message_response($message, 400);
+        }
+
+        $validator = \Validator::make($request->all(), [
+            'old' => 'required|min:8|max:255',
+            'password' => 'required|min:8|confirmed|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            if ($validator->errors()->has('password')) {
+                $message = __('messages.confirmed',['name' => __('messages.password')]);
+                return redirect()->route('provider.changepassword', ['id' => $user->id])->with('error', $message);
+            }
+            return redirect()->route('provider.changepassword', ['id' => $user->id])->with('errors', $validator->errors());
+        }
+
+        $hashedPassword = $user->password;
+
+        $match = Hash::check($request->old, $hashedPassword);
+
+        $same_exits = Hash::check($request->password, $hashedPassword);
+        if ($match) {
+            if ($same_exits) {
+                $message = __('messages.old_new_pass_same');
+                return redirect()->route('provider.changepassword',['id' => $user->id])->with('error', $message);
+            }
+
+            $user->fill([
+                'password' => Hash::make($request->password)
+            ])->save();
+            $message = __('messages.password_change');
+            return redirect()->route('provider.index')->withSuccess($message);
+        } else {
+            $message = __('messages.valid_password');
+            return redirect()->route('provider.changepassword',['id' => $user->id])->with('error', $message);
+        }
+    }
+    public function getProviderTimeSlot(Request $request){
+        $id = $request->id;
+        $provider = User::find($id);
+        date_default_timezone_set($admin->time_zone ?? 'UTC');
+
+        $current_time = \Carbon\Carbon::now();
+        $time = $current_time->toTimeString();
+        
+        $current_day = strtolower(date('D'));
+        
+        $provider_id = $request->id ?? auth()->user()->id;
+
+        $days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        
+        $slotsArray = ['days' => $days];
+        $activeDay ='mon';
+        foreach ($days as $value) {
+            $slot = ProviderSlotMapping::where('provider_id', $provider_id)
+            ->where('days', $value)
+            ->orderBy('start_at', 'asc')
+            ->pluck('start_at')
+            ->toArray();
+        
+            $obj = [
+                "day" => $value,
+                "slot" => $slot,
+            ];
+            $slotsArray[] = $obj;
+        }
+        
+        $pageTitle = __('messages.slot', ['form' => __('messages.slot')]);
+        return view('provider.timeslot', compact('slotsArray', 'pageTitle', 'activeDay','provider_id','provider'));
+    }
+
+    public function editProviderTimeSlot(Request $request){
+        $id = $request->id;
+        $provider = User::find($id);
+        date_default_timezone_set($admin->time_zone ?? 'UTC');
+
+        $current_time = \Carbon\Carbon::now();
+        $time = $current_time->toTimeString();
+
+        $current_day = strtolower(date('D'));
+
+        $provider_id = $request->id ?? auth()->user()->id;
+
+        $days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
+        $slotsArray = ['days' => $days];
+        $activeDay = 'mon';
+        $activeSlots = []; 
+
+        foreach ($days as $value) {
+            $slot = ProviderSlotMapping::where('provider_id', $provider_id)
+            ->where('days', $value)
+            ->orderBy('start_at', 'asc')
+            ->selectRaw("SUBSTRING(start_at, 1, 5) as start_at")
+            ->pluck('start_at')
+            ->toArray();
+        
+            $obj = [
+                "day" => $value,
+                "slot" => $slot,
+            ];
+            $slotsArray[] = $obj;
+            $activeSlots[$value] = $slot;
+
+        }
+        $pageTitle = __('messages.slot', ['form' => __('messages.slot')]);
+      
+            return view('provider.edittimeslot', compact('slotsArray', 'pageTitle', 'activeDay', 'provider_id', 'activeSlots','provider'));
+        
+        
+
+    }
 }

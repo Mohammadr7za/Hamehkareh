@@ -106,7 +106,7 @@ class DashboardController extends Controller
 
         }
 
-        $payment_settings = PaymentGateway::where('status',1)->get();
+        $payment_settings = PaymentGateway::where('status', 1)->where('type', '!=', 'razorPayX')->get();
 
         $payment_settings = PaymentGatewayResource::collection($payment_settings);
 
@@ -175,6 +175,10 @@ class DashboardController extends Controller
         if($is_advanced_allowed !== null){
             $is_advanced_allowed = $is_advanced_allowed->value;
         }
+        // $is_digital_service_allowed = Setting::where('type','=','DIGITAL_SERVICE_SETTING')->first();
+        // if($is_digital_service_allowed !== null){
+        //     $is_digital_service_allowed = $is_digital_service_allowed->value;
+        // }
         $blogs = Blog::paginate($per_page);
         $blogs = BlogResource::collection($blogs);
         $enable_user_wallet = Setting::where('type', '=', 'USER_WALLET_SETTING')->first();
@@ -302,6 +306,10 @@ class DashboardController extends Controller
         if($is_advanced_allowed !== null){
             $is_advanced_allowed = $is_advanced_allowed->value;
         }
+        // $is_digital_service_allowed = Setting::where('type','=','DIGITAL_SERVICE_SETTING')->first();
+        // if($is_digital_service_allowed !== null){
+        //     $is_digital_service_allowed = $is_digital_service_allowed->value;
+        // }
         $response = [
             'status'         => true,
             'total_booking'  => $total_booking,
@@ -331,7 +339,7 @@ class DashboardController extends Controller
             'app_download' =>$app_download,
             'upcomming_booking' => $upcomming_booking,
             'is_advanced_payment_allowed' =>$is_advanced_allowed,
-            
+            //'is_digital_service_allowed' =>$is_digital_service_allowed,
          ];
  
          return comman_custom_response($response);
@@ -400,6 +408,14 @@ class DashboardController extends Controller
         if(!empty($upcomming_booking)){
             $upcomming_booking = BookingResource::collection($upcomming_booking);
         }
+        // $is_digital_service_allowed = Setting::where('type','=','DIGITAL_SERVICE_SETTING')->first();
+        // if($is_digital_service_allowed !== null){
+        //     $is_digital_service_allowed = $is_digital_service_allowed->value;
+        // }
+        $service = Service::myService()->where('status',1);
+        $total_service = $service->count();
+        $service = $service->orderBy('id','desc')->paginate($per_page);
+        $service = ServiceResource::collection($service);
         $response = [
             'status'                        => true,
             'today_cash' =>                today_cash_total(auth()->user()->id,Carbon::today(),Carbon::today()),
@@ -421,7 +437,8 @@ class DashboardController extends Controller
             'isHandymanAvailable'           => $handyman->is_available,
             'completed_booking'             => $completed_booking->count(),
             'upcomming_booking'             => $upcomming_booking,
-
+            'service'                       => $service,
+            //'is_digital_service_allowed'    => $is_digital_service_allowed,
          ];
          return comman_custom_response($response);
 
@@ -447,7 +464,10 @@ class DashboardController extends Controller
         if($is_advanced_allowed !== null){
             $is_advanced_allowed = $is_advanced_allowed->value;
         }
-
+        // $is_digital_service_allowed = Setting::where('type','=','DIGITAL_SERVICE_SETTING')->first();
+        // if($is_digital_service_allowed !== null){
+        //     $is_digital_service_allowed = $is_digital_service_allowed->value;
+        // }
     
         $response = [
             'status'                        => true,
@@ -470,36 +490,23 @@ class DashboardController extends Controller
             'earning_type'                  => default_earning_type(),
             'post_requests' => $post_requests,
             'is_advanced_payment_allowed' =>$is_advanced_allowed,
+            //'is_digital_service_allowed'    => $is_digital_service_allowed,
 
          ];
  
          return comman_custom_response($response);
     }
-    public function configurations(Request $request){
+    public function configurations(Request $request){  
         
-        $user = User::find(auth()->user()->id);
+      
 
         $configurations = Setting::with('country')->get();
 
-        $notification = 0;
-        if($request->has('customer_id') && isset($request->customer_id)){
-            $customer_review = BookingRating::with('customer','service')->where('customer_id',$request->customer_id)->get();
-            if (!empty($customer_review))
-            {
-                $customer_review = BookingRatingResource::collection($customer_review);
-            }
-            $user = User::where('id',$request->customer_id)->first();
-            $notification = count($user->unreadNotifications);
-        }
-
-        $active_plan = get_user_active_plan($user->id);
-        if(is_any_plan_active($user->id) == 0 && is_subscribed_user($user->id) == 0 ){
-            $active_plan = user_last_plan($user->id);
-        }
-
-        $payment_settings = PaymentGateway::where('status',1)->get();
+        $payment_settings = PaymentGateway::where('status',1)->where('type', '!=', 'razorPayX')->get();
 
         $payment_settings = PaymentGatewayResource::collection($payment_settings);
+
+        $other_setting = Setting::where('type','OTHER_SETTING')->where('key','OTHER_SETTING')->first();
 
         $general_settings = AppSetting::first();
 
@@ -520,33 +527,46 @@ class DashboardController extends Controller
 
         }
 
-        $is_advanced_allowed = Setting::where('type','=','ADVANCED_PAYMENT_SETTING')->first();
-        if($is_advanced_allowed !== null){
-            $is_advanced_allowed = $is_advanced_allowed->value;
+        $other_data = json_decode($other_setting->value);
+        if($other_data !== null){
+            $is_advanced_allowed = $other_data->advanced_payment_setting;
         }
 
-        $enable_user_wallet = Setting::where('type', '=', 'USER_WALLET_SETTING')->first();
-        if($enable_user_wallet !== null){
-            $enable_user_wallet = $enable_user_wallet->value;
+        if($other_data !== null){
+            $enable_user_wallet = $other_data->wallet;
         }
         $general_settings = AppSetting::getAppSettings()->first();
         $general_settings->site_logo = getSingleMedia(settingSession('get'),'site_logo',null);
-        $response = [
-            'configurations' => $configurations,
-            'notification_unread_count' => $notification,
-            'subscription'  => $active_plan,
-            'is_subscribed' => is_subscribed_user($user->id),
-            'payment_settings' => $payment_settings,
-            'helpline_number'=> $general_settings->helpline_number,
-            'inquiry_email' => $general_settings->inquriy_email,
-            'privacy_policy' => $privacy_policy,
-            'term_conditions' => $term_conditions,
-            'language_option' => $language_array,
-            'app_download' => !empty($app_download) ? $app_download : null,
-            'is_advanced_payment_allowed' =>$is_advanced_allowed,
-            'enable_user_wallet' => $enable_user_wallet,
-            'general_settings' => $general_settings
-        ];
+
+        if($request->has('is_authenticated') && $request->is_authenticated ==0){
+
+            $response = [   
+            
+                'other_settings'=> $other_setting ? json_decode($other_setting->value) : null,
+            
+               ];
+
+         }else{
+
+            $response = [
+                'configurations' => $configurations,
+                'payment_settings' => $payment_settings,
+                'other_settings'=>$other_setting ? json_decode($other_setting->value) : null,
+                'helpline_number'=> $general_settings->helpline_number,
+                'inquiry_email' => $general_settings->inquriy_email,
+                'privacy_policy' => $privacy_policy,
+                'term_conditions' => $term_conditions,
+                'language_option' => $language_array,
+                'app_download' => !empty($app_download) ? $app_download : null,
+                'is_advanced_payment_allowed' =>$is_advanced_allowed,
+                'enable_user_wallet' => $enable_user_wallet,
+                'general_settings' => $general_settings
+            ];
+
+        }
+       
+
+       
         return comman_custom_response($response);
     }
 }

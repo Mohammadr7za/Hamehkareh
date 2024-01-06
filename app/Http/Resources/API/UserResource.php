@@ -4,6 +4,7 @@ namespace App\Http\Resources\API;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\UserFavouriteProvider;
+use App\Models\Booking;
 class UserResource extends JsonResource
 {
     /**
@@ -73,8 +74,9 @@ class UserResource extends JsonResource
             'known_languages' => $this->known_languages,
             'skills' => $this->skills,
             'is_favourite'  => UserFavouriteProvider::where('user_id',$request->login_user_id)->where('provider_id',$request->id)->first() ? 1 : 0,
-            'player_ids' =>$this->playerids->pluck('player_id')
-
+            'player_ids' =>$this->playerids->pluck('player_id'),
+            'total_services_booked' => Booking::where('provider_id',$this->id)->count('service_id'),
+            'why_choose_me' => $this->why_choose_me,
         ];
     }
 }

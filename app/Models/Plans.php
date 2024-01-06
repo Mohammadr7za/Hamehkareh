@@ -15,6 +15,7 @@ class Plans extends Model
     protected $casts = [
         'amount'    => 'double',
         'status'    => 'integer',
+        'trial_period'    => 'integer',
     ];
     public function planlimit(){
         return $this->belongsTo(PlanLimit::class,'id', 'plan_id');

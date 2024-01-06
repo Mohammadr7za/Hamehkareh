@@ -7,9 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\PaymentHistory;
 use App\Models\Payment;
 use App\Models\AppSetting;
-use App\DataTables\PaymentDataTable;
-use App\DataTables\CashPaymentDataTable;
-use App\DataTables\PaymentHistoryDataTable;
 use Yajra\DataTables\DataTables;
 
 class PaymentController extends Controller
@@ -19,7 +16,7 @@ class PaymentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(PaymentDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -27,23 +24,54 @@ class PaymentController extends Controller
         $pageTitle = __('messages.list_form_title',['form' => __('messages.payment')] );
         $assets = ['datatable'];
 
-        return $dataTable->render('payment.index', compact('pageTitle','assets','filter'));
+        return view('payment.index', compact('pageTitle','assets','filter'));
     }
 
-    public function cashIndex(PaymentHistoryDataTable $dataTable ,Request $request)
+    public function cashIndex($id)
     {
         $pageTitle = __('messages.list_form_title',['form' => __('messages.cash_history')] );
+        $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->with('id',$request->id)->render('paymenthistory.index', compact('pageTitle','assets'));
+        return view('paymenthistory.index', compact('pageTitle','assets','auth_user','id'));
     }
+    
+     public function paymenthistory_index_data(DataTables $datatable,$id){
+        $query = PaymentHistory::where('payment_id',$id);
+       
+        if (auth()->user()->hasAnyRole(['admin'])) {
+            $query->newquery();
+        }
+        
+        return $datatable  ->eloquent($query)
+        ->editColumn('booking_id', function($payment) {
+            return ($payment->booking_id != null && isset($payment->booking->service)) ? $payment->booking->service->name :'-';
+        })
+        ->filterColumn('booking_id',function($query,$keyword){
+            $query->whereHas('booking.service',function ($q) use($keyword){
+                $q->where('name','like','%'.$keyword.'%');
+            });
+        })            
+        ->editColumn('customer_id', function($payment) {
+            return ($payment->booking != null && isset($payment->booking->customer)) ? $payment->booking->customer->display_name : '-';
+        })
+        ->filterColumn('customer_id', function ($query, $keyword) {
+            $query->whereHas('booking', function ($q) use ($keyword) {
+                $q->whereHas('customer', function ($c) use ($keyword) {
+                    $c->where('display_name', 'like', '%' . $keyword . '%');
+                });
+            });
+        })
+        ->addIndexColumn()
+        ->toJson();
+     }
 
-    public function cashDatatable(CashPaymentDataTable $dataTable,Request $request){
+    public function cashDatatable(Request $request){
         $filter = [
             'status' => $request->status,
         ];
         $pageTitle = __('messages.list_form_title',['form' => __('messages.cash_payment')] );
         $assets = ['datatable'];
-        return $dataTable->render('payment.cash', compact('pageTitle','assets','filter'));
+        return view('payment.cash', compact('pageTitle','assets','filter'));
     }
 
     public function cash_index_data(DataTables $datatable,Request $request)
@@ -80,9 +108,9 @@ class PaymentController extends Controller
                 $query->whereHas('booking.service',function ($q) use($keyword){
                     $q->where('name','like','%'.$keyword.'%');
                 });
-            })            
-            ->editColumn('customer_id', function($payment) {
-                return ($payment->customer_id != null && isset($payment->customer)) ? $payment->customer->display_name : '';
+            }) 
+            ->editColumn('customer_id', function ($payment) {
+                return view('payment.user', compact('payment'));
             })
             ->filterColumn('customer_id',function($query,$keyword){
                 $query->whereHas('customer',function ($q) use($keyword){
@@ -105,11 +133,12 @@ class PaymentController extends Controller
                 });
             })
             // ->addColumn('action', function($payment){
-            //     return view('payment.action',compact('payment'))->render();
+            //     return view('payment.cashaction',compact('payment'))->render();
             // })
             ->editColumn('action', function($payment) {
+                $action = set_admin_approved_cash($payment->id). ' ' .view('payment.cashaction',compact('payment'))->render();
+                return $action;
                
-                return set_admin_approved_cash($payment->id);
             })
             ->addIndexColumn()->rawColumns(['check','history','action','id','status'])
             ->toJson();
@@ -145,8 +174,8 @@ class PaymentController extends Controller
                 $q->where('name','like','%'.$keyword.'%');
             });
         })            
-        ->editColumn('customer_id', function($query) {
-            return ($query->customer_id != null && isset($query->customer)) ? $query->customer->display_name : '';
+        ->editColumn('customer_id', function ($payment) {
+            return view('payment.user', compact('payment'));
         })
         ->filterColumn('customer_id',function($query,$keyword){
             $query->whereHas('customer',function ($q) use($keyword){

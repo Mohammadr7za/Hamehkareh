@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\DataTables\HandymanPayoutHistoryDataTable;
 use App\Http\Requests\HandymanPayoutRequest;
 use App\Models\HandymanPayout;
 use App\Models\HandymanType;
@@ -19,12 +18,12 @@ class HandymanPayoutController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(HandymanPayoutHistoryDataTable $dataTable)
+    public function index()
     {
         $pageTitle = trans('messages.payout_history' );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('handymanpayout.index', compact('pageTitle','auth_user','assets'));
+        return view('handymanpayout.index', compact('pageTitle','auth_user','assets'));
     }
 
 
@@ -46,14 +45,24 @@ class HandymanPayoutController extends Controller
         ->addColumn('check', function ($row) {
             return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
         })
-        ->editColumn('method', function($payout) {
+        ->editColumn('payment_method', function($payout) {
             return !empty($payout->method) ? $payout->method : 'Cash';
         })
         ->editColumn('description', function($payout) {
             return !empty($payout->description) ? $payout->description : '-';
         })
-        ->editColumn('handyman_id', function($payout) {
-            return ($payout->handymans != null && isset($payout->handymans)) ? $payout->handymans->display_name : '-';
+        // ->editColumn('handyman_id', function($payout) {
+        //     return ($payout->handymans != null && isset($payout->handymans)) ? $payout->handymans->display_name : '-';
+        // })
+
+        ->editColumn('handyman_id', function ($payout) {
+            return view('handymanpayout.user', compact('payout'));
+        })
+
+        ->filterColumn('handyman_id',function($payout,$keyword){
+            $payout->whereHas('handymans',function ($q) use($keyword){
+                $q->where('first_name','like','%'.$keyword.'%');
+            });
         })
         ->editColumn('amount', function($payout) {
             return ($payout->amount != null && isset($payout->amount)) ? getPriceFormat($payout->amount) : '-';

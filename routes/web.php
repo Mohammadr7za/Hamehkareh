@@ -38,7 +38,8 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BookingRatingController;
 use App\Http\Controllers\HandymanRatingController;
 use App\Http\Controllers\UserServiceListController;
-
+use App\Http\Controllers\ProviderSlotController;
+use App\Http\Controllers\ServiceAddonController;
 
 
 
@@ -85,7 +86,10 @@ Route::group(['middleware' => ['auth', 'verified']], function()
         Route::post('role-bulk-action', [RoleController::class, 'bulk_action'])->name('role.bulk-action');
     });
 
+
+
     Route::get('changeStatus', [ HomeController::class, 'changeStatus'])->name('changeStatus');
+
     Route::group(['middleware' => ['permission:category list']], function () {
         Route::resource('category', CategoryController::class);
         Route::get('index_data',[CategoryController::class,'index_data'])->name('category.index_data');
@@ -106,7 +110,11 @@ Route::group(['middleware' => ['auth', 'verified']], function()
         Route::get('user-service-index-data',[UserServiceListController::class,'index_data'])->name('service.user-index-data');
         
     });
-
+    Route::get('provider-change-password', [ ProviderController::class , 'getChangePassword'])->name('provider.getchangepassword');
+    Route::post('provider-change-password', [ ProviderController::class , 'changePassword'])->name('provider.changepassword');
+    Route::get('provider-time-slot',[ProviderController::class,'getProviderTimeSlot'])->name('provider.time-slot');
+    Route::get('provider-edit-time-slot',[ProviderController::class,'editProviderTimeSlot'])->name('provider.edit-time-slot');
+    Route::post('provider-save-slot', [ProviderSlotController::class, 'store'] )->name('providerslot.store');
     Route::group(['middleware' => ['permission:provider list']], function () {
         Route::resource('provider', ProviderController::class);
         Route::get('provider/list/{status?}', [ProviderController::class,'index'])->name('provider.pending');
@@ -122,6 +130,7 @@ Route::group(['middleware' => ['auth', 'verified']], function()
         Route::get('provideraddress-index-data',[ProviderAddressMappingController::class,'index_data'])->name('provideraddress.index_data');
         Route::post('provideraddress-bulk-action', [ProviderAddressMappingController::class, 'bulk_action'])->name('provideraddress.bulk-action');
         Route::post('provideraddress/{id}', [ProviderAddressMappingController::class, 'destroy'])->name('provideraddress.destroy');
+        Route::post('/get-lat-long', [ProviderAddressMappingController::class, 'getLatLong'])->name('getLatLong');
     });
 
     Route::group(['middleware' => ['permission:providertype list']], function () {
@@ -131,7 +140,8 @@ Route::group(['middleware' => ['auth', 'verified']], function()
         Route::post('providertype-action',[ProviderTypeController::class, 'action'])->name('providertype.action');
         Route::post('providertype/{id}', [ProviderTypeController::class, 'destroy'])->name('providertype.destroy');
     });
-
+    Route::get('handyman-change-password', [ HandymanController::class , 'getChangePassword'])->name('handyman.getchangepassword');
+    Route::post('handyman-change-password', [ HandymanController::class , 'changePassword'])->name('handyman.changepassword');
     Route::group(['middleware' => ['permission:handyman list']], function () {
         Route::resource('handyman', HandymanController::class);
         Route::get('handyman/list/{status?}', [HandymanController::class,'index'])->name('handyman.pending');
@@ -175,10 +185,13 @@ Route::group(['middleware' => ['auth', 'verified']], function()
     Route::get('payment-index-data',[PaymentController::class,'index_data'])->name('payment.index_data');
     Route::post('payment-bulk-action', [PaymentController::class, 'bulk_action'])->name('payment.bulk-action');
     Route::get('cash/history/{id?}', [PaymentController::class,'cashIndex'])->name('cash.index');
+    Route::get('paymenthistory-index-data/{id}', [PaymentController::class,'paymenthistory_index_data'])->name('paymenthistory.index_data');
     Route::get('cash/approve/{id}',[PaymentController::class, 'cashApprove'])->name('cash.approve');
     
     Route::post('save-payment',[App\Http\Controllers\API\PaymentController::class, 'savePayment'])->name('payment.save');
-
+    
+    Route::get('user-change-password', [ CustomerController::class , 'getChangePassword'])->name('user.getchangepassword');
+    Route::post('user-change-password', [ CustomerController::class , 'changePassword'])->name('user.changepassword');
     Route::group(['middleware' => ['permission:user list']], function () {
         Route::resource('user', CustomerController::class);
         Route::get('user/list/{status?}', [CustomerController::class,'index'])->name('user.all');
@@ -212,6 +225,7 @@ Route::group(['middleware' => ['auth', 'verified']], function()
     Route::get('notification-list',[ NotificationController::class ,'notificationList'])->name('notification.list');
     Route::get('notification-counts',[ NotificationController::class ,'notificationCounts'])->name('notification.counts');
     Route::get('notification',[ NotificationController::class ,'index'])->name('notification.index');
+    Route::get('notification-index-data',[ NotificationController::class ,'index_data'])->name('notification.index_data');
 
     Route::post('remove-file', [ App\Http\Controllers\HomeController::class, 'removeFile' ] )->name('remove.file');
     Route::post('get-lang-file', [ App\Http\Controllers\LanguageController::class, 'getFile' ] )->name('getLangFile');
@@ -251,6 +265,7 @@ Route::group(['middleware' => ['auth', 'verified']], function()
 
     Route::resource('ratingreview', RatingReviewController::class);
     Route::post('ratingreview-action',[RatingReviewController::class, 'action'])->name('ratingreview.action');
+    Route::get('ratingreview-index-data',[RatingReviewController::class,'index_data'])->name('ratingreview.index_data');
 
     Route::resource('booking-rating', BookingRatingController::class);
     Route::get('booking-rating-index-data',[BookingRatingController::class,'index_data'])->name('booking-rating.index_data');
@@ -267,6 +282,8 @@ Route::group(['middleware' => ['auth', 'verified']], function()
     Route::post('payment-settings/save',[ PaymentGatewayController::class , 'paymentsettingsUpdates'])->name('paymentsettingsUpdates');
     Route::post('get_payment_config',[ PaymentGatewayController::class , 'getPaymentConfig'])->name('getPaymentConfig');
 
+    Route::post('/razorpay-layout-page',[ PaymentGatewayController::class, 'rezorpaypaymentPage'])->name('razorpay_layout_page');
+
     Route::resource('tax', TaxController::class);
     Route::get('tax-index_data',[TaxController::class,'index_data'])->name('tax.index_data');
     Route::post('tax-bulk-action', [TaxController::class, 'bulk_action'])->name('tax.bulk-action');
@@ -274,6 +291,7 @@ Route::group(['middleware' => ['auth', 'verified']], function()
     Route::get('earning',[EarningController::class,'index'])->name('earning');
     Route::get('earning-data',[EarningController::class,'setEarningData'])->name('earningData');
     Route::post('earning/{id}', [EarningController::class, 'destroy'])->name('earning.destroy');
+    Route::get('earning/{id}', [EarningController::class, 'show'])->name('earning.show');
 
     Route::get('handyman-earning',[EarningController::class,'handymanEarning'])->name('handymanEarning');
     Route::get('handyman-earning-data',[EarningController::class,'handymanEarningData'])->name('handymanEarningData');
@@ -282,6 +300,7 @@ Route::group(['middleware' => ['auth', 'verified']], function()
     Route::get('providerpayout-index-data',[ProviderPayoutController::class,'index_data'])->name('providerpayout.index_data');
     Route::post('providerpayout-bulk-action', [ProviderPayoutController::class, 'bulk_action'])->name('providerpayout.bulk-action');
     Route::get('providerpayout/create/{id}', [ProviderPayoutController::class,'create'])->name('providerpayout.create');
+    Route::get('provider-payout-index-data/{id}',[ProviderPayoutController::class,'ProviderPayout_index_data'])->name('providerpayout.ProviderPayout_index_data');
 
     Route::get('review/{id}',[ProviderController::class,'review'])->name('provider.review');     
     Route::post('sidebar-reorder-save',[ SettingController::class, 'sequenceSave'])->name('reorderSave');
@@ -301,11 +320,13 @@ Route::group(['middleware' => ['auth', 'verified']], function()
 
     Route::group(['middleware' => ['permission:servicefaq list']], function () {
         Route::resource('servicefaq', ServiceFaqController::class);
+        Route::get('servicefaq-index-data',[ServiceFaqController::class,'index_data'])->name('servicefaq.index_data');
     });
 
     Route::post('send-push-notification', [ SettingController::class , 'sendPushNotification'])->name('sendPushNotification');
     Route::post('save-earning-setting', [ SettingController::class , 'saveEarningTypeSetting'])->name('saveEarningTypeSetting');
     Route::post('advance-earning-setting' , [ SettingController::class , 'advanceEarningSetting'])->name('advanceEarningSetting');
+    Route::post('other-setting' , [ SettingController::class , 'otherSetting'])->name('otherSetting');
 
     Route::post('enable-user-wallet', [SettingController::class, 'enableUserWallet'])->name('enableUserWallet');
 
@@ -313,6 +334,7 @@ Route::group(['middleware' => ['auth', 'verified']], function()
     Route::get('wallet-index-data',[WalletController::class,'index_data'])->name('wallet.index_data');
     Route::post('wallet-bulk-action', [WalletController::class, 'bulk_action'])->name('wallet.bulk-action');
     Route::post('wallet/{id}', [WalletController::class, 'destroy'])->name('wallet.destroy');
+    Route::get('wallet-history-index-data/{id}',[WalletController::class,'wallethistory_index_data'])->name('wallethistory.index_data');
 
     Route::group(['middleware' => ['permission:subcategory list']], function () {
         Route::resource('subcategory', SubCategoryController::class);
@@ -331,6 +353,7 @@ Route::group(['middleware' => ['auth', 'verified']], function()
     Route::get('bank-index-data',[BankController::class, 'index_data'])->name('bank.index_data');
     Route::post('bank-bulk-action',[BankController::class,'bulk_action'])->name('bank.bulk_action');
     Route::post('bank-action',[BankController::class, 'action'])->name('bank.action');
+    Route::get('bank/create/', [BankController::class,'create'])->name('bank.create');
 
 
     Route::get('frontend/app-download',[ FrontendController::class, 'appDownloadPage'])->name('app-download');
@@ -345,6 +368,7 @@ Route::group(['middleware' => ['auth', 'verified']], function()
         Route::get('post-job-index-data',[PostJobRequestController::class,'index_data'])->name('post-job.index_data');
         Route::post('post-job-bulk-action', [PostJobRequestController::class, 'bulk_action'])->name('post-job.bulk-action');
         Route::get('post-job-service/list/{postjobid?}', [ServiceController::class, 'index'])->name('postjobrequest.service');
+        Route::get('postrequest-index-data/{id}', [PostJobRequestController::class,'postrequest_index_data'])->name('postrequest.index_data');
     });
 
     Route::group(['middleware' => ['permission:servicepackage list']], function () {
@@ -363,6 +387,11 @@ Route::group(['middleware' => ['auth', 'verified']], function()
         Route::post('blog/{id}', [BlogController::class, 'destroy'])->name('blog.destroy');
     });
 
+    Route::group(['middleware' => ['permission:service list']], function () {
+        Route::resource('serviceaddon', ServiceAddonController::class);
+        Route::get('serviceaddon-index-data',[ServiceAddonController::class,'index_data'])->name('serviceaddon.index-data');
+        Route::post('serviceaddon-bulk-action', [ServiceAddonController::class, 'bulk_action'])->name('serviceaddon.bulk-action');
+    });
 
 });
 Route::get('/ajax-list',[HomeController::class, 'getAjaxList'])->name('ajax-list');

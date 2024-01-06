@@ -31,17 +31,18 @@
                                         ]) }}
                                     </div>
                                 @endif
+                              
                                 
-                                <div class="form-group col-md-4">
-                                    {{ Form::label('latitude',__('messages.latitude').' <span class="text-danger">*</span>',['class'=>'form-control-label'], false ) }}
-                                    {{ Form::number('latitude',old('latitude'), [ 'placeholder' => '00.0000','class' =>'form-control','required','step'=>'any']) }}
+                                <div id="latFields" class="form-group col-md-4">
+                                    {{ Form::label('latitude',__('messages.latitude').' ',['class'=>'form-control-label'], false ) }}
+                                    {{ Form::number('latitude',old('latitude'), ['id' => 'latitude', 'placeholder' => '00.0000','class' =>'form-control','step'=>'any']) }}
                                 </div>
 
-                                <div class="form-group col-md-4">
-                                    {{ Form::label('longitude',__('messages.longitude').' <span class="text-danger">*</span>',['class'=>'form-control-label'], false ) }}
-                                    {{ Form::number('longitude',old('longitude'), [ 'placeholder' => '00.0000','class' =>'form-control','required','step'=>'any']) }}
+                                <div id="lngFields" class="form-group col-md-4">
+                                    {{ Form::label('longitude',__('messages.longitude').' ',['class'=>'form-control-label'], false ) }}
+                                    {{ Form::number('longitude',old('longitude'), ['id' => 'longitude', 'placeholder' => '00.0000','class' =>'form-control','step'=>'any']) }}
                                 </div>
-                                
+
                                 <div class="form-group col-md-4">
                                     {{ Form::label('status',__('messages.status').' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
                                     {{ Form::select('status',['1' => __('messages.active') , '0' => __('messages.inactive') ],old('status'),[ 'id' => 'role' ,'class' =>'form-control select2js','required']) }}
@@ -49,7 +50,7 @@
 
                                 <div class="form-group col-md-4">
                                     {{ Form::label('address',__('messages.address').' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
-                                    {{ Form::textarea('address', null, ['class'=>"form-control textarea" , 'required','rows'=>3  , 'placeholder'=> __('messages.address') ]) }}
+                                    {{ Form::textarea('address', null, ['id' => 'address-input', 'class'=>"form-control textarea" , 'required','rows'=>3  , 'placeholder'=> __('messages.address') ]) }}
                                     <small class="help-block with-errors text-danger"></small>
                                 </div>  
                             </div>
@@ -61,3 +62,30 @@
         </div>
     </div>
 </x-master-layout>
+<script>
+    $('#address-input').on('input', function() {
+        var address = $(this).val();
+
+        if (address) {
+            $.ajax({
+                url: '{{ route("getLatLong") }}',
+                method: 'POST',
+                data: { address: address },
+                dataType: 'json',
+                success: function(response) {
+                    var latitude = response.latitude;
+                    var longitude = response.longitude;
+                    if (latitude != null && longitude != null) {
+                       
+                        $('#latitude').val(latitude);
+                        $('#longitude').val(longitude);
+                    }
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                }
+            });
+        } 
+    });
+
+</script>

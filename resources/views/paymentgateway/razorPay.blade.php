@@ -53,6 +53,7 @@
 var enable_razorpay = $("input[name='status']").prop('checked');
 checkPaymentTabOption(enable_razorpay);
 
+
 $('#enable_razorpay').change(function(){
     value = $(this).prop('checked') == true ? true : false;
     checkPaymentTabOption(value);
@@ -61,6 +62,7 @@ function checkPaymentTabOption(value){
     if(value == true){
         $('#enable_razorpay_payment').removeClass('d-none');
     }else{
+      
         $('#enable_razorpay_payment').addClass('d-none');
     }
 }

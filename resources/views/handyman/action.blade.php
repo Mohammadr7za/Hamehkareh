@@ -5,7 +5,9 @@
 {{ Form::open(['route' => ['handyman.destroy', $handyman->id], 'method' => 'delete','data--submit'=>'handyman'.$handyman->id]) }}
 <div class="d-flex justify-content-end align-items-center">
     @if(!$handyman->trashed())
-
+     @if($auth_user->can('handyman changePassword'))
+      <a class="mr-2" href="{{ route('handyman.getchangepassword',['id' => $handyman->id]) }}" title="{{ __('messages.change_password',['form' => __('messages.handyman') ]) }}"><i class="fa fa-lock text-success "></i></a>
+      @endif
         @if($auth_user->can('handyman delete'))
         <a class="mr-3 text-danger" href="{{ route('handyman.destroy', $handyman->id) }}" data--submit="handyman{{$handyman->id}}" 
             data--confirmation='true' 

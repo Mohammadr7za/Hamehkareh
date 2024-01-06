@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\DataTables\TaxDataTable;
 use App\Http\Requests\TaxRequest;
 use App\Models\Tax;
 use Yajra\DataTables\DataTables;
@@ -17,7 +16,7 @@ class TaxController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(TaxDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -25,7 +24,7 @@ class TaxController extends Controller
         $pageTitle = trans('messages.list_form_title',['form' => trans('messages.tax')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('taxes.index', compact('pageTitle','auth_user','assets','filter'));
+        return view('taxes.index', compact('pageTitle','auth_user','assets','filter'));
     }
 
 
@@ -47,9 +46,19 @@ class TaxController extends Controller
         ->addColumn('check', function ($row) {
             return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
         })
-        ->editColumn('title', function($query){
-            return '<a class="btn-link btn-link-hover" href='.route('tax.create', ['id' => $query->id]).'>'.$query->title.'</a>';
+     
+        ->editColumn('title', function($query){                
+            if (auth()->user()->can('tax edit')) {
+
+                $link = '<a class="btn-link btn-link-hover" href='.route('tax.create', ['id' => $query->id]).'>'.$query->title.'</a>';
+            } else {
+                $link = $query->title; 
+            }
+            return $link;
         })
+
+
+
         ->editColumn('status' , function ($query){
             return '<div class="custom-control custom-switch custom-switch-text custom-switch-color custom-control-inline">
                 <div class="custom-switch-inner">

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\DataTables\HandymanRatingDataTable;
 use App\Models\HandymanRating;
 use Yajra\DataTables\DataTables;
 
@@ -14,12 +13,12 @@ class HandymanRatingController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(HandymanRatingDataTable $dataTable)
+    public function index()
     {
         $pageTitle = __('messages.handyman_ratings');
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('handymanrating.index', compact('pageTitle','auth_user','assets'));
+        return view('handymanrating.index', compact('pageTitle','auth_user','assets'));
     }
 
 
@@ -42,11 +41,27 @@ class HandymanRatingController extends Controller
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
             })
+            // ->editColumn('handyman_id', function($query){
+            //     return ($query != null && isset($query->handyman)) ? $query->handyman->first_name : '-';
+            // })
+            // ->editColumn('customer_id', function($query){
+            //     return ($query != null && isset($query->customer)) ? $query->customer->first_name : '-';
+            // })
             ->editColumn('handyman_id', function($query){
-                return ($query != null && isset($query->handyman)) ? $query->handyman->first_name : '-';
+                return view('handymanrating.handyman', compact('query'));
+            })
+            ->filterColumn('handyman_id',function($query,$keyword){
+                $query->whereHas('handyman',function ($q) use($keyword){
+                    $q->where('display_name','like','%'.$keyword.'%');
+                });
             })
             ->editColumn('customer_id', function($query){
-                return ($query != null && isset($query->customer)) ? $query->customer->first_name : '-';
+                return view('handymanrating.customer', compact('query'));
+            })
+            ->filterColumn('customer_id',function($query,$keyword){
+                $query->whereHas('customer',function ($q) use($keyword){
+                    $q->where('display_name','like','%'.$keyword.'%');
+                });
             })
             ->editColumn('review', function($query){
                 return ($query != null && isset($query->review)) ? $query->review : '-';

@@ -14,6 +14,7 @@ class PaymentGatewayController extends Controller
         $user_id = $auth_user->id;
         $user_data = User::find($user_id);
         $payment_data = PaymentGateway::where('type',$tabpage)->first();
+
         switch ($tabpage) {
             case 'cash':
                 $data  = view('paymentgateway.'.$tabpage, compact('user_data','tabpage','payment_data'))->render();
@@ -30,20 +31,22 @@ class PaymentGatewayController extends Controller
                 break;
 
             case 'razorPay':
-                if(!empty($payment_data['value'])){
-                    $decodedata = json_decode($payment_data['value']);
 
-                    $payment_data['razor_url'] = $decodedata->razor_url;
-                    $payment_data['razor_key'] = $decodedata->razor_key;
-                    $payment_data['razor_secret'] = $decodedata->razor_secret;
-                }
-                $data  = view('paymentgateway.'.$tabpage, compact('user_data','tabpage','payment_data'))->render();
+                // if(!empty($payment_data['value'])){
+                //     $decodedata = json_decode($payment_data['value']);
+
+                //     $payment_data['razor_url'] = $decodedata->razor_url;
+                //     $payment_data['razor_key'] = $decodedata->razor_key;
+                //     $payment_data['razor_secret'] = $decodedata->razor_secret;
+                // }
+                // $data  = view('paymentgateway.rezorpay_option', compact('user_data','tabpage','payment_data'))->render();
+                $tabpage = 'razorPay';
+                $data  = view('paymentgateway.rezorpay_option', compact('user_data', 'tabpage', 'payment_data'))->render();
                 break;
 
             case 'flutterwave':
                 if(!empty($payment_data['value'])){
                     $decodedata = json_decode($payment_data['value']);
-
                     $payment_data['flutterwave_public'] = $decodedata->flutterwave_public;
                     $payment_data['flutterwave_secret'] = $decodedata->flutterwave_secret;
                     $payment_data['flutterwave_encryption'] = $decodedata->flutterwave_encryption;
@@ -62,7 +65,10 @@ class PaymentGatewayController extends Controller
             case 'paypal':
                 if(!empty($payment_data['value'])){
                     $decodedata = json_decode($payment_data['value']);
-                    $payment_data['paypal_url'] = $decodedata->paypal_url;
+
+                    $payment_data['paypal_client_id'] = isset($decodedata->paypal_client_id) ? $decodedata->paypal_client_id : null;
+                    $payment_data['paypal_secret_key'] = isset($decodedata->paypal_secret_key) ? $decodedata->paypal_secret_key : null;
+                    
                 }
                 $data  = view('paymentgateway.'.$tabpage, compact('user_data','tabpage','payment_data'))->render();
                 break;
@@ -87,6 +93,18 @@ class PaymentGatewayController extends Controller
                 }
                 $data  = view('paymentgateway.'.$tabpage, compact('user_data','tabpage','payment_data'))->render();
                 break;
+
+                case 'airtel':
+                    if(!empty($payment_data['value'])){
+                        $decodedata = json_decode($payment_data['value']);
+                        $payment_data['client_id'] = $decodedata->client_id;
+                        $payment_data['secret_key'] = $decodedata->secret_key;
+                    }
+                    $data  = view('paymentgateway.'.$tabpage, compact('user_data','tabpage','payment_data'))->render();
+                    break;
+    
+
+
             default:
                 $data  = view('paymentgateway.'.$tabpage,compact('tabpage','payment_data'))->render();
                 break;
@@ -94,13 +112,61 @@ class PaymentGatewayController extends Controller
         return response()->json($data);
     }
 
+     public function rezorpaypaymentPage(Request $request)
+    {
+       $tabpage = $request->tabpage;
+
+        $auth_user = authSession();
+        $user_id = $auth_user->id;
+        $user_data = User::find($user_id);
+        $payment_data = PaymentGateway::where('type',$tabpage)->first();
+
+        switch($tabpage) {
+    
+            case 'razorPay':
+
+                if(!empty($payment_data['value'])){
+                    $decodedata = json_decode($payment_data['value']);
+
+                    $payment_data['razor_url'] = $decodedata->razor_url;
+                    $payment_data['razor_key'] = $decodedata->razor_key;
+                    $payment_data['razor_secret'] = $decodedata->razor_secret;
+                }
+                $data  = view('paymentgateway.'.$tabpage, compact('user_data','tabpage','payment_data'))->render();
+                break;
+
+                case 'razorPayX':
+
+                    if(!empty($payment_data['value'])){
+                        $decodedata = json_decode($payment_data['value']);
+    
+                        $payment_data['razorx_url'] = $decodedata->razorx_url;
+                        $payment_data['razorx_account'] = $decodedata->razorx_account;
+                        $payment_data['razorx_key'] = $decodedata->razorx_key;
+                        $payment_data['razorx_secret'] = $decodedata->razorx_secret;
+                    }
+                    $data  = view('paymentgateway.'.$tabpage, compact('user_data','tabpage','payment_data'))->render();
+                    break;
+            
+          
+            default:
+              
+                $data  = view('paymentgateway.'.$tabpage,compact('tabpage','payment_data'))->render();
+                break;
+        }
+        return response()->json($data);
+       
+    }
+
     public function paymentsettingsUpdates(Request $request){
         if(demoUserPermission()){
             return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
+
         $data = $request->all();
         $page = $request->page;
         $type = $request->type;
+
 
         $data['is_test'] = 0;
         $data['status'] = 0;
@@ -129,6 +195,15 @@ class PaymentGatewayController extends Controller
                 ];
                 break;
 
+                case 'razorPayX':
+                    $config_data = [
+                        'razorx_url' => $data['razorx_url'],
+                        'razorx_account' => $data['razorx_account'],
+                        'razorx_key' => $data['razorx_key'],
+                        'razorx_secret' => $data['razorx_secret']
+                    ];
+               break;
+
             case 'flutterwave':
                 $config_data = [
                     'flutterwave_public' => $data['flutterwave_public'],
@@ -145,7 +220,8 @@ class PaymentGatewayController extends Controller
 
             case 'paypal':
                 $config_data = [
-                    'paypal_url' => $data['paypal_url'],
+                    'paypal_client_id' => $data['paypal_client_id'],
+                    'paypal_secret_key' => $data['paypal_secret_key'],
                 ];
                 break;
 
@@ -164,6 +240,14 @@ class PaymentGatewayController extends Controller
                     'sadad_domain' => $data['sadad_domain']
                 ];
                 break;
+
+                case 'airtel':
+                    $config_data = [
+                        'client_id' => $data['client_id'],
+                        'secret_key' => $data['secret_key'],
+                      
+                    ];
+                    break;
             default:
                 $config_data = [];
                 break;
@@ -188,6 +272,8 @@ class PaymentGatewayController extends Controller
         }
         $payment_data = PaymentGateway::select('id','title', $select,'is_test','status','type')->where('type',$request->page)->first();
         $payment_data['type'] = $mode;
+
+    
         return response()->json(['success'=>'Ajax request submitted successfully','data'=>$payment_data]);
     }
 }

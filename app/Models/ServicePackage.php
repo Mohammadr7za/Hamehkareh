@@ -36,6 +36,9 @@ class ServicePackage extends Model implements  HasMedia
     public function providers(){
         return $this->belongsTo('App\Models\User','provider_id','id');
     }
+    public function bookingPackageMappings(){
+        return $this->hasMany(BookingPackageMapping::class, 'service_package_id','id');
+    }
    
     public function scopeMyPackage($query)
     {

@@ -12,4 +12,8 @@ class Notification extends Model
     protected $fillable = [
         'id', 'type', 'notifiable_type', 'notifiable_id', 'data' , 'read_at'
     ];
+    protected $casts = [
+        'notifiable_id'    => 'integer',
+
+    ];
 }

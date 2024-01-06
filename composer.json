@@ -11,16 +11,20 @@
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
-        "laravel/framework": "81",
+        "laravel-notification-channels/onesignal": "^2.3",
+        "laravel/framework": "^8.40",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "lavary/laravel-menu": "^1.8",
         "league/flysystem-aws-s3-v3": "^1.0",
+        "orangehill/iseed": "^3.0",
         "spatie/laravel-medialibrary": "^9.6",
-        "spaatie/laravel-permission": "^4.0",
+        "spatie/laravel-permission": "^4.0",
+        "stripe/stripe-php": "^10.12",
         "tightenco/ziggy": "^1.4",
+        "toin0u/geocoder-laravel": "^4.6",
         "yajra/laravel-datatables": "^1.5",
-        "yajra/laravel-datatables-oracle": "9.18"
+        "yajra/laravel-datatables-oracle": "^9.18"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
@@ -66,7 +70,10 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true

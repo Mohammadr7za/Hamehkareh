@@ -88,11 +88,12 @@
                     {
                         data: 'handyman_id',
                         name: 'handyman_id',
-                        title: "{{__('messages.handyman')}}"
+                        title: "{{__('messages.handyman')}}",
+                        orderable: false,
                     },
                     {
-                        data: 'method',
-                        name: 'method',
+                        data: 'payment_method',
+                        name: 'payment_method',
                         title: "{{__('messages.method')}}"
                     },
                     {

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\DataTables\RatingReviewDataTable;
 use App\Models\BookingRating;
+use Yajra\DataTables\DataTables;
 
 class RatingReviewController extends Controller
 {
@@ -13,12 +13,47 @@ class RatingReviewController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(RatingReviewDataTable $dataTable)
+    public function index()
     {
         $pageTitle = trans('messages.list_form_title',['form' => trans('messages.rating')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('ratingreview.index', compact('pageTitle','auth_user','assets'));
+        return view('ratingreview.index', compact('pageTitle','auth_user','assets'));
+    }
+
+    public function index_data(DataTables $datatable,Request $request)
+    {
+        $query = BookingRating::query();
+      
+        if(auth()->user()->hasAnyRole(['admin'])){
+            $query = $query->withTrashed();
+        }
+        return $datatable->eloquent($query)
+        ->editColumn('customer_id' , function ($rating_review){
+            return ($rating_review->customer_id != null && isset($rating_review->customer)) ? $rating_review->customer->display_name : '';
+        })
+        ->filterColumn('customer_id',function($query,$keyword){
+            $query->whereHas('customer',function ($q) use($keyword){
+                $q->where('display_name','like','%'.$keyword.'%');
+            });
+        })
+        ->editColumn('service_id' , function ($rating_review){
+            return ($rating_review->service_id != null && isset($rating_review->service)) ? $rating_review->service->name : '';
+        })
+        ->filterColumn('service_id',function($query,$keyword){
+            $query->whereHas('service',function ($q) use($keyword){
+                $q->where('name','like','%'.$keyword.'%');
+            });
+        })
+        ->editColumn('rating' , function ($rating_review){
+            return $rating_review->rating .' <i class="ri-star-line"></i>';
+        })
+        ->addColumn('action', function($rating_review){
+            return view('ratingreview.action',compact('rating_review'))->render();
+        })
+        ->addIndexColumn()
+        ->rawColumns(['action','rating'])
+            ->toJson();
     }
 
     /**

@@ -10,31 +10,30 @@
                             
                         </div>
                     </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="float-right ">
+                                <div class="d-flex justify-content-end">
+                                    
+                                    <div class="input-group ml-auto">
+                                        <span class="input-group-text" id="addon-wrapping"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control dt-search" placeholder="Search..." aria-label="Search" aria-describedby="addon-wrapping" aria-controls="dataTableBuilder">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                    <table id="datatable" class="table table-striped border">
+
+                                    </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div class="card">
-        <div class="card-body">
-        <div class="row justify-content-between ">
-           
-              <div class="d-flex justify-content-end">
-                
-                <div class="input-group ml-2">
-                    <span class="input-group-text" id="addon-wrapping"><i class="fas fa-search"></i></span>
-                    <input type="text" class="form-control dt-search" placeholder="Search..." aria-label="Search" aria-describedby="addon-wrapping" aria-controls="dataTableBuilder">
-                  </div>
-              </div>
-               
-              <div class="table-responsive">
-                <table id="datatable" class="table table-striped border">
-
-                </table>
-              </div>
-            </div>
-        </div>
-    </div>
+    
 
 <script>
         document.addEventListener('DOMContentLoaded', (event) => {

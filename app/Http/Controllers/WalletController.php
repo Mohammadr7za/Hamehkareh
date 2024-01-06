@@ -5,9 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Wallet;
 use App\Models\WalletHistory;
-use App\DataTables\WalletDataTable;
 use App\Http\Requests\WalletRequest;
-use App\DataTables\WalletHistoryDataTable;
 use Yajra\DataTables\DataTables;
 
 class WalletController extends Controller
@@ -17,7 +15,7 @@ class WalletController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(WalletDataTable $dataTable,Request $request)
+    public function index(Request $request)
     {
         $filter = [
             'status' => $request->status,
@@ -25,7 +23,7 @@ class WalletController extends Controller
         $pageTitle = __('messages.list_form_title',['form' => __('messages.wallet')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->render('wallet.index', compact('pageTitle','auth_user','assets','filter'));
+        return view('wallet.index', compact('pageTitle','auth_user','assets','filter'));
     }
 
 
@@ -33,7 +31,7 @@ class WalletController extends Controller
     {
         $query = Wallet::query();
         $filter = $request->filter;
-
+        $query = $query->orderBy('updated_at','desc');
         if (isset($filter)) {
             if (isset($filter['column_status'])) {
                 $query->where('status', $filter['column_status']);
@@ -50,8 +48,11 @@ class WalletController extends Controller
             ->editColumn('title', function($query){
                 return '<a class="btn-link btn-link-hover" href='.route('wallet.show', $query->user_id).'>'.$query->title.'</a>';
             })
+            // ->editColumn('user_id' , function ($query){
+            //     return ($query->user_id != null && isset($query->providers)) ? $query->providers->display_name : '';
+            // })
             ->editColumn('user_id' , function ($query){
-                return ($query->user_id != null && isset($query->providers)) ? $query->providers->display_name : '';
+                return view('wallet.user', compact('query'));
             })
             ->editColumn('amount' , function ($query){
                 return getPriceFormat($query->amount);
@@ -127,13 +128,13 @@ class WalletController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(WalletRequest $request)
+    public function store(Request $request)
     {
         if(demoUserPermission()){
             return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
         $data = $request->all();
-
+        $data['user_id'] = !empty($request->user_id) ? $request->user_id : auth()->user()->id;
         $wallet = Wallet::where('user_id',$data['user_id'])->first();
         if($wallet && !$data['id']){
             $message = __('messages.already_wallet');
@@ -164,7 +165,9 @@ class WalletController extends Controller
                 saveWalletHistory($activity_data);
             }
         }
-
+        if($request->is('api/*')) {
+            return comman_message_response($message);
+		}
         return redirect(route('wallet.index'))->withSuccess($message); 
     }
 
@@ -174,12 +177,30 @@ class WalletController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id,WalletHistoryDataTable $dataTable)
+    public function show($id)
     {
         $pageTitle = __('messages.list_form_title',['form' => __('messages.wallet_history')] );
         $auth_user = authSession();
         $assets = ['datatable'];
-        return $dataTable->with('id', $id)->render('wallet.view', compact('pageTitle','auth_user','assets','id'));
+        return view('wallet.view', compact('pageTitle','auth_user','assets','id'));
+    }
+
+    public function wallethistory_index_data(DataTables $datatable,$id){
+        $query = WalletHistory::where('user_id',$id)->orderBy('id','desc')->newQuery();
+       
+        if (auth()->user()->hasAnyRole(['admin'])) {
+            $query->newquery();
+        }
+        
+        return $datatable ->eloquent($query)
+        ->editColumn('user_id' , function ($history){
+            return ($history->user_id != null && isset($history->providers)) ? $history->providers->display_name : '-';
+        })
+        ->editColumn('activity_type' , function ($history){
+            return $history->activity_type ? str_replace("_"," ",ucfirst($history->activity_type)) : '-';
+        })
+        ->addIndexColumn()
+        ->toJson();
     }
 
     /**
@@ -221,7 +242,7 @@ class WalletController extends Controller
         
         if($wallet != '') { 
             $wallet->delete();
-            $msg= __('messages.msg_deleted',['name' => __('messages.wallet  ')] );
+            $msg= __('messages.wallet_deleted');
         }
         return comman_custom_response(['message'=> $msg, 'status' => true]);
     }

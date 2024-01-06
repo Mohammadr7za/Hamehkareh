@@ -6,8 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\Service;
 use App\Models\Booking;
 use App\Models\User;
-use App\DataTables\ServiceDataTable;
-use App\DataTables\UserServiceDataTable;
 use Yajra\DataTables\DataTables;
 use App\Models\PackageServiceMapping;
 
@@ -44,13 +42,23 @@ class UserServiceListController extends Controller
                     $q->where('name','like','%'.$keyword.'%');
                 });
             })
+             // ->editColumn('customer_id', function ($service) {
+            //     $services = Service::with('serviceBooking.customer')->get();
+
+            //     if ($service->serviceBooking()->exists()) {
+            //         return $service->serviceBooking->first()->customer->display_name;
+            //     } else {
+            //         return '';
+            //     }
+                
+            // })
             ->editColumn('customer_id', function ($service) {
                 $services = Service::with('serviceBooking.customer')->get();
 
                 if ($service->serviceBooking()->exists()) {
-                    return $service->serviceBooking->first()->customer->display_name;
+                    return view('service.userservice', compact('service'));
                 } else {
-                    return '';
+                    return '-';
                 }
                 
             })

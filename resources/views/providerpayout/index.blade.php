@@ -88,7 +88,8 @@
                     {
                         data: 'provider_id',
                         name: 'provider_id',
-                        title: "{{ __('messages.provider') }}"
+                        title: "{{ __('messages.provider') }}",
+                         orderable: false,
                     },
                     {
                         data: 'payment_method',

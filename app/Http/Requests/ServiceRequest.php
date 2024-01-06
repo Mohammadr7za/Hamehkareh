@@ -33,7 +33,7 @@ class ServiceRequest extends FormRequest
             'category_id'                    => 'required',
             'type'                           => 'required',
             'price'                          => 'required|integer|min:0',   
-            'duration'                       => 'required',   
+            // 'duration'                       => 'required',   
             'status'                         => 'required',
         ];
     }

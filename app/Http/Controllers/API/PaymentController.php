@@ -12,6 +12,7 @@ use App\Models\AppSetting;
 use App\Models\PaymentHistory;
 use App\Http\Resources\API\PaymentResource;
 use App\Http\Resources\API\PaymentHistoryResource;
+use App\Http\Resources\API\GetCashPaymentHistoryResource;
 use Braintree;
 
 class PaymentController extends Controller
@@ -37,6 +38,14 @@ class PaymentController extends Controller
                 if($wallet_amount >= $request->total_amount){
                     $wallet->amount = $wallet->amount - $request->total_amount;
                     $wallet->update();
+                    $activity_data = [
+                        'activity_type' => 'paid_for_booking',
+                        'wallet' => $wallet,
+                        'booking_id'=>$request->booking_id,
+                        'booking_amount'=>$request->total_amount,
+                    ];
+            
+                    saveWalletHistory($activity_data);
                 }else{
                     $message = __('messages.wallent_balance_error');
                 }
@@ -62,6 +71,12 @@ class PaymentController extends Controller
         $payment = Payment::myPayment()->with('booking');
         if($request->has('booking_id') && !empty($request->booking_id)){
             $payment->where('booking_id',$request->booking_id);
+        }
+        if($request->has('payment_type') && !empty($request->payment_type)){
+
+            if($request->payment_type == 'cash'){
+                $payment->where('payment_type',$request->payment_type);
+            }  
         }
         $per_page = config('constant.PER_PAGE_LIMIT');
         if( $request->has('per_page') && !empty($request->per_page)){
@@ -175,6 +190,42 @@ class PaymentController extends Controller
 
     }
 
+    public function getCashPaymentHistory(Request $request){
+        $payment_id = $request->payment_id;
+        $payment = PaymentHistory::where('payment_id',$payment_id)->with('booking');
+
+        $per_page = config('constant.PER_PAGE_LIMIT');
+        if( $request->has('per_page') && !empty($request->per_page)){
+            if(is_numeric($request->per_page)){
+                $per_page = $request->per_page;
+            }
+            if($request->per_page === 'all' ){
+                $per_page = $payment->count();
+            }
+        }
+
+        $payment = $payment->orderBy('id','desc')->paginate($per_page);
+        $items = GetCashPaymentHistoryResource::collection($payment);
+
+        $response = [
+            'pagination' => [
+                'total_items' => $items->total(),
+                'per_page' => $items->perPage(),
+                'currentPage' => $items->currentPage(),
+                'totalPages' => $items->lastPage(),
+                'from' => $items->firstItem(),
+                'to' => $items->lastItem(),
+                'next_page' => $items->nextPageUrl(),
+                'previous_page' => $items->previousPageUrl(),
+            ],
+            'data' => $items,
+        ];
+        
+        return comman_custom_response($response);
+
+    }
+
+    
     public function paymentDetail(Request $request){
         $auth_user = authSession();
         $user_id = $auth_user->id;
@@ -219,5 +270,39 @@ class PaymentController extends Controller
 
         return comman_custom_response($response);
     }
-   
+
+    public function getCashPayment(Request $request)
+    {
+        $payment = Payment::where('payment_type', 'cash');
+        
+        $per_page = config('constant.PER_PAGE_LIMIT');
+        if( $request->has('per_page') && !empty($request->per_page)){
+            if(is_numeric($request->per_page)){
+                $per_page = $request->per_page;
+            }
+            if($request->per_page === 'all' ){
+                $per_page = $payment->count();
+            }
+        }
+
+        $payment = $payment->orderBy('id','desc')->paginate($per_page);
+        $items = PaymentResource::collection($payment);
+
+        $response = [
+            'pagination' => [
+                'total_items' => $items->total(),
+                'per_page' => $items->perPage(),
+                'currentPage' => $items->currentPage(),
+                'totalPages' => $items->lastPage(),
+                'from' => $items->firstItem(),
+                'to' => $items->lastItem(),
+                'next_page' => $items->nextPageUrl(),
+                'previous_page' => $items->previousPageUrl(),
+            ],
+            'data' => $items,
+        ];
+        
+        return comman_custom_response($response);
+    }
+
 }

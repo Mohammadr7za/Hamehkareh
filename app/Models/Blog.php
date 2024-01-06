@@ -17,8 +17,8 @@ class Blog extends Model implements  HasMedia
     ];
 
     protected $casts = [
-        'total_views'   => 'integer',
-        'status'   => 'integer',
+        'total_views'         => 'double',
+        'status'              => 'integer',
         'is_featured'         => 'integer',
     ];
     public function scopeMyBlog($query)

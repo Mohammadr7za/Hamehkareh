@@ -46,6 +46,7 @@ class ServiceDetailResource extends JsonResource
             'is_slot'           => $this->is_slot,
             'slots'              => getServiceTimeSlot($this->provider_id ),
             'servicePackage'    => ServicePackageResource::collection(ServicePackage::whereIn('id',$this->servicePackage->pluck('service_package_id'))->where('status',1)->get()),
+            'visit_type'           => $this->visit_type,
             'is_enable_advance_payment' => $this->is_enable_advance_payment,
             'advance_payment_amount' => $this->advance_payment_amount== null ? 0:(double) $this->advance_payment_amount,
         ];

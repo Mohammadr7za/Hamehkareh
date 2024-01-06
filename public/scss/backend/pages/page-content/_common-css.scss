@@ -387,3 +387,8 @@ g[aria-describedby="id-22-description"] {
     align-items: center;
     gap: 5px;
 }
+
+.provider-slot .nav-item {
+	flex: inherit;
+	margin: 0;
+}

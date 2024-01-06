@@ -26,11 +26,14 @@ class ProviderPayout extends FormRequest
      *
      * @return array
      */
+  
     public function rules()
     {
         $method = request()->method();
 
-        $provider_id = request()->provider_id;
+         $provider_id = request()->provider_id;
+
+        $payment_method = request()->payment_method;
 
         $provider = User::with('providertype')->find($provider_id);
 
@@ -54,11 +57,28 @@ class ProviderPayout extends FormRequest
         }
         switch ($method) {
             case 'POST':
+ 
+               if($payment_method=='bank'){
+
                 return [
                     'payment_method' => 'required',
                     'provider_id' => 'required',
+                    'bank'=>'required',
                     'amount' => 'required|numeric|min:1|max:'.$amount,
-                ];
+                  ];
+
+                }else{
+
+                    return [
+                        'payment_method' => 'required',
+                        'provider_id' => 'required',
+                        'amount' => 'required|numeric|min:1|max:'.$amount,
+                    ];
+
+
+
+                }
+                
                 break;
             case 'DELETE':
                 return [];

@@ -21,7 +21,7 @@
                         <div class="row">
                         <div class="form-group col-md-4">
                                 {{ Form::label('name', __('messages.name').' <span class="text-danger">*</span>', ['class' => 'form-control-label'], false) }}
-                                {{ Form::text('name', old('name'), ['placeholder' => __('messages.name'), 'class' => 'form-control', 'required', 'pattern' => '[A-Za-z\s]+', 'title' => 'Please enter alphabetic characters and spaces only']) }}
+                                {{ Form::text('name', old('name'), ['placeholder' => __('messages.name'), 'class' => 'form-control', 'required', 'title' => 'Please enter alphabetic characters and spaces only']) }}
                                 <small class="help-block with-errors text-danger"></small>
                             </div>
 

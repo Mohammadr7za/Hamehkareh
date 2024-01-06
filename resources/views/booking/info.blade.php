@@ -38,9 +38,15 @@
         <div class="pay-booking-details">
             <div class="row mb-2">
                 <div class="col-sm-6"><span>{{__('messages.booking_status')}} :</span></div>
-                <div class="col-sm-6 align-text"><span class="c1"
-                        id="booking_status__span">{{  App\Models\BookingStatus::bookingStatus($bookingdata->status)}}</span>
+                <div class="col-sm-6 align-text">
+                    <span class="c1" id="booking_status__span">{{  App\Models\BookingStatus::bookingStatus($bookingdata->status)}}</span>      
                 </div>
+                @if($bookingdata->status === "cancelled")
+                    <div class="col-sm-6"><span>{{__('messages.reason')}} :</span></div>
+                     <div class="col-sm-6 align-text">
+                        <span class="c1" id="booking_status__span">{{ $bookingdata->reason }}</span>
+                    </div>
+                @endif
             </div>
             <div class="row mb-2">
                 <div class="col-sm-6"> <span>{{__('messages.payment_status')}} : </span></div>
@@ -148,6 +154,42 @@
             </table>
         </div>
     @endif
+
+    @php
+        $addonTotalPrice = 0;
+    @endphp
+
+    @if($bookingdata->bookingAddonService->count() > 0 )
+        <h3 class="mb-3 mt-3">{{__('messages.service_addon')}}</h3>
+        <div class="table-responsive border-bottom">
+            <table class="table text-nowrap align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-lg-3">{{__('messages.title')}}</th>
+                        <th>{{__('messages.price')}}</th>
+                        <th class="text-end">{{__('messages.total_amount')}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($bookingdata->bookingAddonService as $addonservice)
+                        @php
+                            $addonTotalPrice += $addonservice->price;
+                        @endphp
+                    <tr>
+                        <td class="text-wrap ps-lg-3">
+                            <div class="d-flex flex-column">
+                                <a href="" class="booking-service-link fw-bold">{{$addonservice->name}}</a>
+                            </div>
+                        </td>
+                        <td>{{getPriceFormat($addonservice->price)}}</td>
+                        <td class="text-end">{{getPriceFormat($addonservice->price)}}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @endif
+
     <h3 class="mb-3 mt-3">{{__('messages.booking_summery')}}</h3>
     <div class="table-responsive border-bottom">
         <table class="table text-nowrap align-middle mb-0">
@@ -206,6 +248,13 @@
                             <td class="text-right text-success">+{{getPriceFormat($bookingdata->getExtraChargeValue())}}</td>
                         </tr>
                         @endif
+
+                        @if($bookingdata->bookingAddonService->count() > 0 )
+                        <tr>
+                            <td>{{__('messages.add_ons')}} </td>
+                            <td class="text-right text-success">+{{getPriceFormat($addonTotalPrice)}}</td>
+                        </tr>
+                        @endif
                       
                         <tr>
                             <td>{{__('messages.tax')}}</td>
@@ -216,7 +265,7 @@
                         <tr class="grand-total">
                             <td><strong>{{__('messages.grand_total')}}</strong></td>
                             <td class="bk-value">
-                                <h3>{{getPriceFormat($bookingdata->total_amount)}}</h3>
+                                <h3>{{isset($bookingdata->bookingAddonService) ? getPriceFormat($bookingdata->total_amount+$addonTotalPrice) : getPriceFormat($bookingdata->total_amount)}}</h3>
                             </td>
                         </tr>
                         @if($bookingdata->service->is_enable_advance_payment == 1 )

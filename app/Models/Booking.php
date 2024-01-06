@@ -10,7 +10,25 @@ class Booking extends Model
     use HasFactory,SoftDeletes;
     protected $table = 'bookings';
     protected $fillable = [
-        'customer_id', 'service_id','post_request_id','type', 'provider_id', 'date', 'start_at' , 'end_at' ,'amount' , 'discount','total_amount' , 'quantity', 'description' , 'coupon_id' , 'status' , 'payment_id' , 'reason' , 'address' ,'duration_diff' , 'booking_address_id','tax',
+        'customer_id', 
+        'service_id',
+        'post_request_id',
+        'type', 
+        'provider_id', 
+        'date', 'start_at' , 
+        'end_at' ,
+        'amount' , 
+        'discount','total_amount' ,
+        'quantity', 
+        'description' , 
+        'coupon_id' , 
+        'status' , 
+        'payment_id' ,
+        'reason' , 
+        'address' ,
+        'duration_diff' , 
+        'booking_address_id',
+        'tax',
         'booking_slot',
         'booking_day',
         'advance_paid_amount',
@@ -34,6 +52,11 @@ class Booking extends Model
         'booking_address_id' => 'integer',
         'advance_paid_amount' => 'double',
         'post_request_id' => 'integer',
+        'final_total_service_price'=> 'double',
+        'final_total_tax'=> 'double',
+        'final_sub_total'=> 'double',
+        'final_discount_amount'=> 'double',
+        'final_coupon_discount_amount'=> 'double',
     ];
     public function customer(){
         return $this->belongsTo(User::class,'customer_id', 'id')->withTrashed();
@@ -61,6 +84,10 @@ class Booking extends Model
 
     public function couponAdded(){
         return $this->belongsTo(BookingCouponMapping::class,'id','booking_id');
+    }
+
+    public function bookingAddonService(){
+        return $this->hasMany(BookingServiceAddonMapping::class,'booking_id','id')->with('AddonserviceDetails');
     }
 
     public function handymanAdded(){
@@ -158,7 +185,7 @@ class Booking extends Model
     }
     public function scopeList($query)
     {
-        return $query->orderBy('deleted_at', 'asc');
+        return $query->orderBy('updated_at', 'desc');
     }
 
     public function getHourlyPrice():float
@@ -245,5 +272,15 @@ class Booking extends Model
        $grandTotalAmount =  $this->getSubTotalValue()  + $this->getTaxesValue() + $this->getExtraChargeValue();
 
        return $grandTotalAmount;
+    }
+    public function getServiceAddonValue(): float
+    {
+        $addonPrice = 0;
+        if (!empty($this->bookingAddonService)) {
+            foreach ($this->bookingAddonService as $charge) {
+                $addonPrice += $charge['price'];
+            }
+        }
+        return $addonPrice;
     }
 }

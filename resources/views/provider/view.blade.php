@@ -94,7 +94,6 @@
 </main>
 {{ Form::close() }}
 @section('bottom_script')
-    {{ $dataTable->scripts() }}
 
 
     <script type="text/javascript">

@@ -5,6 +5,9 @@ $auth_user= authSession();
 {{ Form::open(['route' => ['provider.destroy', $provider->id], 'method' => 'delete','data--submit'=>'provider'.$provider->id]) }}
 <div class="d-flex justify-content-end align-items-center">
 @if(!$provider->trashed())
+<a class="mr-2" href="{{ route('provider.time-slot',['id' => $provider->id]) }}" title="{{ __('messages.My_time_slot',['form' => __('messages.provider') ]) }}"><i class="fa fa-clock text-primary "></i></a>
+<a class="mr-2" href="{{ route('provider.getchangepassword',['id' => $provider->id]) }}" title="{{ __('messages.change_password',['form' => __('messages.provider') ]) }}"><i class="fa fa-lock text-success "></i></a>
+
     @if($auth_user->can('provider edit'))
     <a class="mr-2" href="{{ route('provider.create',['id' => $provider->id]) }}" title="{{ __('messages.update_form_title',['form' => __('messages.provider') ]) }}"><i class="fas fa-pen text-secondary"></i></a>
     @endif

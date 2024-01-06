@@ -121,16 +121,16 @@
                         name:'category_id',
                         title:"{{ __('messages.category') }}"
                     },
-                    {
-                        data:'price',
-                        name:'price',
-                        title:"{{ __('messages.price') }}"
-                    },
-                    {
-                        data:'discount',
-                        name:'discount',
-                        title:"{{ __('messages.discount') }}"
-                    },
+                    // {
+                    //     data:'price',
+                    //     name:'price',
+                    //     title:"{{ __('messages.price') }}"
+                    // },
+                    // {
+                    //     data:'discount',
+                    //     name:'discount',
+                    //     title:"{{ __('messages.discount') }}"
+                    // },
                     {
                         data: 'status',
                         name: 'status',

@@ -14,18 +14,18 @@ class UserTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('users')->delete();
-        
+
         \DB::table('users')->insert(array (
-            0 => 
+            0 =>
             array (
                 'id' => 1,
                 'username' => 'admin',
                 'first_name' => 'Admin',
                 'last_name' => 'Admin',
-                'contact_number' => '9876543210',
+                'contact_number' => '09384515622',
                 'address' => NULL,
                 'email' => 'admin@admin.com',
                 'password' => bcrypt('12345678'),
@@ -47,13 +47,13 @@ class UserTableSeeder extends Seeder
                 'updated_at' => NULL,
                 'deleted_at' => NULL,
             ),
-            1 => 
+            1 =>
             array (
                 'id' => 2,
                 'username' => 'demo_admin',
                 'first_name' => 'Demo',
                 'last_name' => 'Admin',
-                'contact_number' => '4564552664',
+                'contact_number' => '09384515612',
                 'address' => NULL,
                 'email' => 'demo@admin.com',
                 'password' => bcrypt('12345678'),
@@ -75,13 +75,13 @@ class UserTableSeeder extends Seeder
                 'updated_at' => NULL,
                 'deleted_at' => NULL,
             ),
-            2 => 
+            2 =>
             array (
                 'id' => 3,
                 'username' => 'user',
                 'first_name' => 'User',
                 'last_name' => 'Demo',
-                'contact_number' => '4564552664',
+                'contact_number' => '09384515652',
                 'address' => NULL,
                 'email' => 'demo@user.com',
                 'password' => bcrypt('12345678'),
@@ -103,13 +103,13 @@ class UserTableSeeder extends Seeder
                 'updated_at' => NULL,
                 'deleted_at' => NULL,
             ),
-            3 => 
+            3 =>
             array (
                 'id' => 4,
                 'username' => 'provider',
                 'first_name' => 'Provider',
                 'last_name' => 'Demo',
-                'contact_number' => '0123456789',
+                'contact_number' => '09384515642',
                 'address' => NULL,
                 'email' => 'demo@provider.com',
                 'password' => bcrypt('12345678'),
@@ -131,13 +131,13 @@ class UserTableSeeder extends Seeder
                 'updated_at' => NULL,
                 'deleted_at' => NULL,
             ),
-            4 => 
+            4 =>
             array (
                 'id' => 5,
                 'username' => 'handyman',
                 'first_name' => 'Handyman',
                 'last_name' => 'Demo',
-                'contact_number' => '4564552664',
+                'contact_number' => '09384515632',
                 'address' => NULL,
                 'email' => 'demo@handyman.com',
                 'password' => bcrypt('12345678'),
@@ -160,7 +160,7 @@ class UserTableSeeder extends Seeder
                 'deleted_at' => NULL,
             ),
         ));
-        
-        
+
+
     }
 }

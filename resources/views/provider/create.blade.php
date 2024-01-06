@@ -109,8 +109,8 @@
                             </div>
                             <div class="form-group col-md-4">
                                 {{ Form::label('contact_number',__('messages.contact_number').' <span class="text-danger">*</span>',['class'=>'form-control-label'], false ) }}
-                                {{ Form::text('contact_number',old('contact_number'),['placeholder' => __('messages.contact_number'),'class' =>'form-control','required']) }}
-                                <small class="help-block with-errors text-danger"></small>
+                                {{ Form::text('contact_number',old('contact_number'),['placeholder' => __('messages.contact_number'),'class' =>'form-control contact_number','required']) }}
+                                <small class="help-block with-errors text-danger" id="contact_number_err"></small>
                             </div>
 
                             <div class="form-group col-md-4">
@@ -196,6 +196,24 @@
                 cityName(state, city_id);
             })
         })
+
+        $(document).on('keyup', '.contact_number', function() {
+        var contactNumberInput = document.getElementById('contact_number');
+        var inputValue = contactNumberInput.value;
+        inputValue = inputValue.replace(/[^0-9+\- ]/g, '');
+        if (inputValue.length > 15) {
+            inputValue = inputValue.substring(0, 15);
+            $('#contact_number_err').text('Contact number should not exceed 15 characters');
+        } else {
+            $('#contact_number_err').text('');
+        }
+        contactNumberInput.value = inputValue;
+        if (inputValue.match(/^[0-9+\- ]+$/)) {
+            $('#contact_number_err').text('');
+        } else {
+            $('#contact_number_err').text('Please enter a valid mobile number');
+        }
+    });
 
         function stateName(country, state = "") {
             var state_route = "{{ route('ajax-list', [ 'type' => 'state','country_id' =>'']) }}" + country;

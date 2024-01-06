@@ -103,20 +103,17 @@
                         name: 'check',
                         data: 'check',
                         title: '<input type="checkbox" class="form-check-input" name="select_all_table" id="select-all-table" data-type="user" onclick="selectAllTable(this)">',
+                        searchable: false,
                         exportable: false,
                         orderable: false,
-                        searchable: false,
                     },
                     {
                         data: 'display_name',
                         name: 'display_name',
-                        title: "{{ __('messages.name') }}"
+                        title: "{{ __('messages.name') }}",
+                        orderable: false,
                     },
-                    {
-                        data: 'email',
-                        name: 'email',
-                        title: "{{ __('messages.email') }}"
-                    },
+               
                     {
                         data: 'created_at',
                         name: 'created_at',

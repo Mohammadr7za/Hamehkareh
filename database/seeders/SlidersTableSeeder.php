@@ -16,7 +16,6 @@ class SlidersTableSeeder extends Seeder
      */
     public function run()
     {
-        
         $data = [
             [
                 'created_at' => '2022-02-23 09:05:27',
@@ -67,7 +66,7 @@ class SlidersTableSeeder extends Seeder
                 'slider_image' => public_path('/images/slider/4.png'),
             ],
         ];
-        
+
         foreach ($data as $key => $val) {
             $featureImage = $val['slider_image'] ?? null;
             $sliderData = Arr::except($val, ['slider_image']);
@@ -75,7 +74,7 @@ class SlidersTableSeeder extends Seeder
             if (isset($featureImage)) {
                 $this->attachFeatureImage($slider, $featureImage);
             }
-        } 
+        }
     }
     private function attachFeatureImage($model, $publicPath)
     {

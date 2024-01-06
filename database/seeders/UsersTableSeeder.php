@@ -18,7 +18,6 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        
             $data = [
                 [
                 'id' => 1,
@@ -28,7 +27,7 @@ class UsersTableSeeder extends Seeder
                 'email' => 'admin@admin.com',
                 'password' => bcrypt('12345678'),
                 'user_type' => 'admin',
-                'contact_number' => '9876543210',
+                'contact_number' => '09384515622',
                 'country_id' => 38,
                 'state_id' => 674,
                 'city_id' => 10839,
@@ -69,7 +68,7 @@ class UsersTableSeeder extends Seeder
                 'email' => 'demo@admin.com',
                 'password' => bcrypt('12345678'),
                 'user_type' => 'demo_admin',
-                'contact_number' => '4564552664',
+                'contact_number' => '09384515623',
                 'country_id' => 231,
                 'state_id' => 3924,
                 'city_id' => 42865,
@@ -110,7 +109,7 @@ class UsersTableSeeder extends Seeder
                 'email' => 'demo@user.com',
                 'password' => bcrypt('12345678'),
                 'user_type' => 'user',
-                'contact_number' => '1-56781289',
+                'contact_number' => '09384515624',
                 'country_id' => 38,
                 'state_id' => 674,
                 'city_id' => 10843,
@@ -151,7 +150,7 @@ class UsersTableSeeder extends Seeder
                 'email' => 'demo@provider.com',
                 'password' => bcrypt('12345678'),
                 'user_type' => 'provider',
-                'contact_number' => '1-81289567',
+                'contact_number' => '09384515625',
                 'country_id' => 38,
                 'state_id' => 674,
                 'city_id' => 10843,
@@ -304,7 +303,7 @@ class UsersTableSeeder extends Seeder
                 'email' => 'andrew@gmail.com',
                 'password' => bcrypt('12345678'),
                 'user_type' => 'provider',
-                'contact_number' => '1-8783783872',
+                'contact_number' => '09384515626',
                 'country_id' => 231,
                 'state_id' => 3938,
                 'city_id' => 44580,
@@ -358,7 +357,7 @@ class UsersTableSeeder extends Seeder
                 'email' => 'jennifer@gmail.com',
                 'password' => bcrypt('12345678'),
                 'user_type' => 'provider',
-                'contact_number' => '44-5874968574',
+                'contact_number' => '09384515627',
                 'country_id' => 230,
                 'state_id' => 3810,
                 'city_id' => 41414,
@@ -423,7 +422,7 @@ class UsersTableSeeder extends Seeder
                 'email' => 'danny@gmail.com',
                 'password' => bcrypt('12345678'),
                 'user_type' => 'provider',
-                'contact_number' => '1-66755245',
+                'contact_number' => '09384515628',
                 'country_id' => 231,
                 'state_id' => 3942,
                 'city_id' => 44771,
@@ -1386,7 +1385,7 @@ class UsersTableSeeder extends Seeder
                 'email' => 'robertbenedict@gmail.com',
                 'password' => bcrypt('12345678'),
                 'user_type' => 'handyman',
-                'contact_number' => '1-25526232',
+                'contact_number' => '1-255262322',
                 'country_id' => 230,
                 'state_id' => 3842,
                 'city_id' => 41928,
@@ -1960,7 +1959,7 @@ class UsersTableSeeder extends Seeder
                 'email' => 'tracy@gmail.com',
                 'password' => bcrypt('12345678'),
                 'user_type' => 'user',
-                'contact_number' => '1-44748566',
+                'contact_number' => '1-447485661',
                 'country_id' => 231,
                 'state_id' => 3938,
                 'city_id' => 44574,
@@ -2001,7 +2000,7 @@ class UsersTableSeeder extends Seeder
                 'email' => 'brenda@gmail.com',
                 'password' => bcrypt('12345678'),
                 'user_type' => 'user',
-                'contact_number' => '1-632266589',
+                'contact_number' => '1-6322665891',
                 'country_id' => 38,
                 'state_id' => 674,
                 'city_id' => 10865,
@@ -2691,7 +2690,7 @@ class UsersTableSeeder extends Seeder
                 'profile_image' => public_path('/images/profile-images/provider/pending/Ruth.png'),
             ],
         ];
-        
+
         foreach ($data as $key => $val) {
             $featureImage = $val['profile_image'] ?? null;
             $userData = Arr::except($val, ['provider_address','profile_image']);
@@ -2710,9 +2709,9 @@ class UsersTableSeeder extends Seeder
             if (isset($featureImage)) {
                 $this->attachFeatureImage($user, $featureImage);
             }
-         
+
         }
-        
+
     }
     private function attachFeatureImage($model, $publicPath)
     {

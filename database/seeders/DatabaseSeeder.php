@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        \DB::table('users')->delete();
+
         // \App\Models\User::factory(10)->create();
         $this->call([
             AppSettingsTableSeeder::class,

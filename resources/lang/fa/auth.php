@@ -34,5 +34,7 @@
     'contact_number' => 'شماره تماس',
     'user_type' => 'نوع کاربر',
     'designation' => 'تعیین',
+    'delete' => 'حذف',
+    'restore' => 'بازیابی',
     'password_mismatch_error'=> 'گذرواژه و تایید رمز عبور مطابقت ندارند',
 );

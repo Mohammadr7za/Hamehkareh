@@ -246,7 +246,7 @@ class CategoriesTableSeeder extends Seeder
                 'updated_at' => '2023-09-04 13:05:01',
             ],
         ];
-        
+
         foreach ($data as $key => $val) {
             $featureImage = $val['category_image'] ?? null;
             $categoryData = Arr::except($val, ['category_image']);
@@ -254,7 +254,7 @@ class CategoriesTableSeeder extends Seeder
             if (isset($featureImage)) {
                 $this->attachFeatureImage($category, $featureImage);
             }
-        } 
+        }
     }
 
     private function attachFeatureImage($model, $publicPath)

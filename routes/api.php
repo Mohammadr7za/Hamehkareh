@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Resources\UserDataResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers;
@@ -37,7 +38,10 @@ Route::get('slider-list',[ API\SliderController::class, 'getSliderList' ]);
 Route::get('top-rated-service',[ API\ServiceController::class, 'getTopRatedService' ]);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    $data = $request->user();
+
+    return comman_message_response($data);
+    return comman_message_response(UserDataResource::make($data));
 });
 
 Route::post('register',[API\User\UserController::class, 'register']);
@@ -61,7 +65,6 @@ Route::post('service-reviews', [ API\ServiceController::class, 'serviceReviewsLi
 Route::get('post-job-status', [ API\PostJobRequestController::class, 'postRequestStatus' ] );
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
-    Route::post('service-save', [ App\Http\Controllers\ServiceController::class, 'store' ] );
     Route::post('service-save', [ App\Http\Controllers\ServiceController::class, 'store' ] );
     Route::post('service-delete/{id}', [ App\Http\Controllers\ServiceController::class, 'destroy' ] );
     Route::post('booking-save', [ App\Http\Controllers\BookingController::class, 'store' ] );

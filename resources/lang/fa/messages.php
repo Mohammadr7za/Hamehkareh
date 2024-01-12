@@ -714,5 +714,17 @@ return [
     'restore' => 'بازیابی',
     'hourly' => 'ساعتی',
     'fixed' => 'ثابت',
+    'accepted' => 'قبول شده',
+    'requested' => 'درخواست شده',
+    'cancelled' => 'لغو شده',
+    'declined' => 'نپذیرفتن',
+    'assigned' => 'اختصاص داده',
+    'waiting' => 'در حال ',
+    'pending_approval' => 'منتظر تایید',
+    'completed' => 'پایان یافته',
+    'in_progress' => 'در حال انجام',
+    'on_going' => 'در حال حرکت',
+    'hold' => 'نگه داشته شده',
+    'accept' => 'تایید',
 
 ];

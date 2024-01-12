@@ -207,7 +207,6 @@ class BookingController extends Controller
         }
         $data['date'] = isset($request->date) ? date('Y-m-d H:i:s',strtotime($request->date)) : date('Y-m-d H:i:s');
         $service_data = Service::find($data['service_id']);
-
         $data['provider_id'] = !empty($data['provider_id']) ? $data['provider_id']: $service_data->provider_id;
 
         if($request->has('tax') && $request->tax != null) {

@@ -34,7 +34,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto navbar-list align-items-center">
-                        <li class="nav-item nav-icon dropdown">
+                        <li class="nav-item nav-icon dropdown pl-3">
                             <a href="#" class="search-toggle dropdown-toggle notification_list" id="notification-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" class="h-6 w-6 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -47,42 +47,42 @@
                                 <div class="card shadow-none m-0 border-0 notification_data"></div>
                             </div>
                         </li>
-                        <li class="nav-item nav-icon dropdown">
-                            <a href="#" class="search-toggle dropdown-toggle language-toggle" id="languageDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <?php
-                                $selected_lang_flag = file_exists(public_path('/images/flags/' . app()->getLocale() . '.png')) ? asset('/images/flags/' . app()->getLocale() . '.png') : asset('/images/language.png');
-                                ?>
-                                <img src="{{ $selected_lang_flag }}" class="img-fluid" alt="lang" style="height: 30px; min-width: 30px; width: 30px;">
-                                <span class="bg-primary"></span>
-                            </a>
-                            <div class="iq-sub-dropdown dropdown-menu language-dropdown-menu" aria-labelledby="languageDropdownMenu">
-                                <div class="card shadow-none m-0 border-0">
-                                    <div class=" p-0 ">
-                                        <ul class="dropdown-menu-1 list-group list-group-flush">
-                                            <?php
-                                            $language_option = settingSession('get')->language_option;
-                                            if (!empty($language_option)) {
-                                                $language_array = languagesArray($language_option);
-                                            }
-                                            ?>
-                                            @if(count($language_array) > 0 )
-                                            @foreach( $language_array as $lang )
-                                            <li class="dropdown-item-1 list-group-item px-2">
-                                                <a class="p-0" data-lang="{{ $lang['id'] }}" href="{{ route('switch-language',['locale'=> $lang['id'] ]) }}">
-                                                    <?php
-                                                    $flag_path = file_exists(public_path('/images/flags/' . $lang['id'] . '.png')) ? asset('/images/flags/' . $lang['id'] . '.png') : asset('/images/language.png');
-                                                    ?>
-                                                    <img src="{{ $flag_path }}" alt="img-flag-{{ $lang['id'] }}" class="img-fluid mr-2" style="width: 20px;height: auto;min-width: 15px;" />
-                                                    {{ $lang['title'] }}
-                                                </a>
-                                            </li>
-                                            @endforeach
-                                            @endif
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
+{{--                        <li class="nav-item nav-icon dropdown">--}}
+{{--                            <a href="#" class="search-toggle dropdown-toggle language-toggle" id="languageDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">--}}
+{{--                                <?php--}}
+{{--                                $selected_lang_flag = file_exists(public_path('/images/flags/' . app()->getLocale() . '.png')) ? asset('/images/flags/' . app()->getLocale() . '.png') : asset('/images/language.png');--}}
+{{--                                ?>--}}
+{{--                                <img src="{{ $selected_lang_flag }}" class="img-fluid" alt="lang" style="height: 30px; min-width: 30px; width: 30px;">--}}
+{{--                                <span class="bg-primary"></span>--}}
+{{--                            </a>--}}
+{{--                            <div class="iq-sub-dropdown dropdown-menu language-dropdown-menu" aria-labelledby="languageDropdownMenu">--}}
+{{--                                <div class="card shadow-none m-0 border-0">--}}
+{{--                                    <div class=" p-0 ">--}}
+{{--                                        <ul class="dropdown-menu-1 list-group list-group-flush">--}}
+{{--                                            <?php--}}
+{{--                                            $language_option = settingSession('get')->language_option;--}}
+{{--                                            if (!empty($language_option)) {--}}
+{{--                                                $language_array = languagesArray($language_option);--}}
+{{--                                            }--}}
+{{--                                            ?>--}}
+{{--                                            @if(count($language_array) > 0 )--}}
+{{--                                            @foreach( $language_array as $lang )--}}
+{{--                                            <li class="dropdown-item-1 list-group-item px-2">--}}
+{{--                                                <a class="p-0" data-lang="{{ $lang['id'] }}" href="{{ route('switch-language',['locale'=> $lang['id'] ]) }}">--}}
+{{--                                                    <?php--}}
+{{--                                                    $flag_path = file_exists(public_path('/images/flags/' . $lang['id'] . '.png')) ? asset('/images/flags/' . $lang['id'] . '.png') : asset('/images/language.png');--}}
+{{--                                                    ?>--}}
+{{--                                                    <img src="{{ $flag_path }}" alt="img-flag-{{ $lang['id'] }}" class="img-fluid mr-2" style="width: 20px;height: auto;min-width: 15px;" />--}}
+{{--                                                    {{ $lang['title'] }}--}}
+{{--                                                </a>--}}
+{{--                                            </li>--}}
+{{--                                            @endforeach--}}
+{{--                                            @endif--}}
+{{--                                        </ul>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                        </li>--}}
                         <li class="nav-item nav-icon dropdown">
                             <a href="#" class="nav-item nav-icon dropdown-toggle pr-0 search-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <img src="{{ getSingleMedia(auth()->user(),'profile_image') }}" class="img-fluid avatar-rounded bg-light" alt="user">

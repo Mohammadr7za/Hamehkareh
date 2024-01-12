@@ -216,6 +216,7 @@ function saveBookingActivity($data)
     switch ($data['activity_type'])
     {
         case "add_booking":
+    dd("asdasd");
 
                 $customer_name=$data['booking']->customer->display_name;
 
@@ -231,6 +232,7 @@ function saveBookingActivity($data)
                 ];
                 $sendTo = ['admin' , 'provider'];
             break;
+
         case "assigned_booking":
                 $assigned_handyman = handymanNames($data['booking']->handymanAdded);
                 $data['activity_message'] = __('messages.booking_assigned',['name' => $assigned_handyman]);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PostJobStatusResponse;
 use Illuminate\Http\Request;
 use App\Models\PostRequestStatus;
 use App\Models\PostJobRequest;
@@ -13,11 +14,11 @@ use App\Http\Resources\API\PostJobRequestDetailResource;
 
 class PostJobRequestController extends Controller
 {
-  
+
     public function postRequestStatus(Request $request)
     {
         $post_job_status = PostRequestStatus::orderBy('sequence')->get();
-        return comman_custom_response($post_job_status);
+        return comman_custom_response(PostJobStatusResponse::collection($post_job_status));
     }
     public function getPostRequestList(Request $request){
         $user = auth()->user();
@@ -59,7 +60,7 @@ class PostJobRequestController extends Controller
         $post_request = PostJobRequest::myPostJob()->find($id);
         if(empty($post_request)){
             $message = __('messages.record_not_found');
-            return comman_message_response($message,400);   
+            return comman_message_response($message,400);
         }
         $post_request_detail = new PostJobRequestDetailResource($post_request);
         $bider_data = PostJobBiderResource::collection(PostJobBid::where('post_request_id',$id)->get());

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BookingStatusResponse;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\BookingStatus;
@@ -38,16 +39,16 @@ class BookingController extends Controller
 
         if ($request->has('status') && isset($request->status)) {
 
-            $status = explode(',', $request->status); 
+            $status = explode(',', $request->status);
             $booking->whereIn('status', $status);
-           
+
          }
 
          if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $booking->where(function ($query) use ($search) {
                 $query->where('id', 'LIKE', "%$search%")
-                    
+
                     ->orWhereHas('service', function ($serviceQuery) use ($search) {
                         $serviceQuery->where('name', 'LIKE', "%$search%");
                     })
@@ -100,23 +101,23 @@ class BookingController extends Controller
             ],
             'data' => $items,
         ];
-        
+
         return comman_custom_response($response);
     }
 
     public function getBookingDetail(Request $request){
 
         $id = $request->booking_id;
-        
+
         $booking_data = Booking::with('customer','provider','service','bookingRating','bookingPostJob','bookingAddonService')->where('id',$id)->first();
 
-        
+
         if($booking_data == null){
             $message = __('messages.booking_not_found');
-            return comman_message_response($message,400);  
+            return comman_message_response($message,400);
         }
         $booking_detail = new BookingDetailResource($booking_data);
-        
+
         $rating_data = BookingRatingResource::collection($booking_detail->bookingRating->take(5));
         $service = new ServiceResource($booking_detail->service);
         $customer = new UserResource($booking_detail->customer);
@@ -156,7 +157,7 @@ class BookingController extends Controller
             'customer_review'   => $customer_review,
             'service_proof' => $serviceProof,
             'post_request_detail' => $post_job_object,
-           
+
         ];
 
         return comman_custom_response($response);
@@ -178,9 +179,9 @@ class BookingController extends Controller
     public function deleteBookingRating(Request $request)
     {
         $user = \Auth::user();
-        
+
         $book_rating = BookingRating::where('id',$request->id)->where('customer_id',$user->id)->delete();
-        
+
         $message = __('messages.delete_form',[ 'form' => __('messages.rating') ] );
 
         return comman_message_response($message);
@@ -189,7 +190,7 @@ class BookingController extends Controller
     public function bookingStatus(Request $request)
     {
         $booking_status = BookingStatus::orderBy('sequence')->get();
-        return comman_custom_response($booking_status);
+        return comman_custom_response(BookingStatusResponse::collection($booking_status));
     }
 
     public function bookingUpdate(Request $request)
@@ -199,7 +200,7 @@ class BookingController extends Controller
         $data['start_at'] = isset($request->start_at) ? date('Y-m-d H:i:s',strtotime($request->start_at)) : null;
         $data['end_at'] = isset($request->end_at) ? date('Y-m-d H:i:s',strtotime($request->end_at)) : null;
 
-        
+
         $bookingdata = Booking::find($id);
         $paymentdata = Payment::where('booking_id',$id)->first();
         if($request->type == 'service_addon'){
@@ -210,7 +211,7 @@ class BookingController extends Controller
                     $get_addon->update();
                 }
                 $message = __('messages.update_form',[ 'form' => __('messages.booking') ] );
-    
+
                 if($request->is('api/*')) {
                     return comman_message_response($message);
                 }
@@ -237,7 +238,7 @@ class BookingController extends Controller
                     }
                 }else{
                     $duration_diff = $bookingdata->duration_diff;
-                 
+
                     if($bookingdata->start_at != null && $bookingdata->end_at != null){
                         $new_diff = $data['duration_diff'];
                     }else{
@@ -253,9 +254,9 @@ class BookingController extends Controller
             $data['duration_diff'] = $duration_diff + $new_diff;
             $duration_diff = $bookingdata->duration_diff;
             $duration_diff = $bookingdata->duration_diff;
-            
+
         }
-    
+
         if($bookingdata->status != $data['status']) {
             $activity_type = 'update_booking_status';
         }
@@ -268,7 +269,7 @@ class BookingController extends Controller
                 $assigned_handyman_ids = $bookingdata->handymanAdded()->pluck('handyman_id')->toArray();
                 $bookingdata->handymanAdded()->delete();
                 $data['status'] = 'accept';
-            } 
+            }
         }
         if($data['status'] == 'pending'){
             if($bookingdata->handymanAdded()->count() > 0){
@@ -292,7 +293,7 @@ class BookingController extends Controller
                 'booking_id'=> $id,
                 'refund_amount'=> $advance_paid_amount,
             ];
-    
+
             saveWalletHistory($activity_data);
         }
         $data['reason'] = isset($data['reason']) ? $data['reason'] : null;
@@ -327,7 +328,7 @@ class BookingController extends Controller
                 'booking_id' => $id,
                 'booking' => $bookingdata,
             ];
-    
+
             saveBookingActivity($activity_data);
         }
 
@@ -335,7 +336,7 @@ class BookingController extends Controller
             $payment_status = isset($data['payment_status']) ? $data['payment_status'] : 'pending';
             $paymentdata->update(['payment_status' => $payment_status]);
         }
-    
+
         if($data['status'] == 'completed' && $data['payment_status'] == 'pending_by_admin'){
             $handyman = BookingHandymanMapping::where('booking_id',$bookingdata->id)->first();
             $user = User::where('id',$handyman->handyman_id)->first();
@@ -390,9 +391,9 @@ class BookingController extends Controller
     }
 
     public function getHandymanRatingList(Request $request){
-      
+
         $handymanratings = HandymanRating::orderBy('id','desc');
-  
+
         $per_page = config('constant.PER_PAGE_LIMIT');
         if($request->has('per_page') && !empty($request->per_page)){
             if(is_numeric($request->per_page)){
@@ -405,7 +406,7 @@ class BookingController extends Controller
 
         $handymanratings = $handymanratings->paginate($per_page);
         $data = HandymanRatingResource::collection($handymanratings);
-        
+
         return response ([
             'pagination' => [
                 'total_ratings' => $data->total(),
@@ -424,9 +425,9 @@ class BookingController extends Controller
     public function deleteHandymanRating(Request $request)
     {
         $user = auth()->user();
-        
+
         $book_rating = HandymanRating::where('id',$request->id)->where('customer_id',$user->id)->delete();
-        
+
         $message = __('messages.delete_form',[ 'form' => __('messages.rating') ] );
 
         return comman_message_response($message);
@@ -460,12 +461,12 @@ class BookingController extends Controller
 		}
         return comman_message_response($message);
     }
-    
+
     public function getUserRatings(Request $request){
-        $user = auth()->user(); 
-      
+        $user = auth()->user();
+
         if(auth()->user() !== null){
-           
+
             if(auth()->user()->hasRole('admin')){
                 $ratings = BookingRating::orderBy('id','desc');
             }
@@ -473,7 +474,7 @@ class BookingController extends Controller
                 $ratings = BookingRating::where('customer_id', $user->id);
             }
         }
-        
+
 
         $per_page = config('constant.PER_PAGE_LIMIT');
         if($request->has('per_page') && !empty($request->per_page)){
@@ -487,7 +488,7 @@ class BookingController extends Controller
 
         $ratings = $ratings->paginate($per_page);
         $data = BookingRatingResource::collection($ratings);
-        
+
         return response ([
             'pagination' => [
                 'total_ratings' => $data->total(),
@@ -504,12 +505,12 @@ class BookingController extends Controller
     }
     public function getRatingsList(Request $request){
         $type = $request->type;
-       
+
         if ($type === 'user_service_rating') {
-            $user = auth()->user(); 
-      
+            $user = auth()->user();
+
             if(auth()->user() !== null){
-               
+
                 if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('demo_admin')){
                     $ratings = BookingRating::orderBy('id','desc');
                 }
@@ -522,7 +523,7 @@ class BookingController extends Controller
         }else {
                 return response()->json(['message' => 'Invalid type parameter'], 400);
         }
-  
+
         $per_page = config('constant.PER_PAGE_LIMIT');
         if($request->has('per_page') && !empty($request->per_page)){
             if(is_numeric($request->per_page)){
@@ -535,7 +536,7 @@ class BookingController extends Controller
 
         $ratings = $ratings->paginate($per_page);
         $data = HandymanRatingResource::collection($ratings);
-        
+
         return response ([
             'pagination' => [
                 'total_ratings' => $data->total(),
@@ -552,7 +553,7 @@ class BookingController extends Controller
     }
     public function deleteRatingsList($id,Request $request){
         $type = $request->type;
-    
+
         if(demoUserPermission()){
             $message = __('messages.demo.permission.denied');
             return comman_message_response($message);
@@ -568,7 +569,7 @@ class BookingController extends Controller
         }elseif ($type === 'handyman_rating') {
             $handymanrating = HandymanRating::find($id);
             $msg= __('messages.msg_fail_to_delete',['name' => __('messages.handyman_ratings')] );
-    
+
             if($handymanrating != ''){
                 $handymanrating->delete();
                 $msg= __('messages.msg_deleted',['name' => __('messages.handyman_ratings')] );
@@ -577,7 +578,7 @@ class BookingController extends Controller
             $msg = "Invalid type parameter";
             return comman_custom_response(['message'=> $msg, 'status' => false]);
         }
-  
+
         return comman_custom_response(['message'=> $msg, 'status' => true]);
     }
 }

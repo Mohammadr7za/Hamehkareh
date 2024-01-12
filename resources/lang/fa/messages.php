@@ -491,7 +491,7 @@ return [
     'customer_information' => 'اطلاعات مشتری',
     'phone_information' => 'شماره تلفن',
     'provider_information' => 'اطلاعات نمایندگی',
-    'handyman_information' => 'اطلاعات Handyman',
+    'handyman_information' => 'اطلاعات متخصص',
     'booking_summery' => 'خلاصه رزرو',
     'booking_amount' => 'مبلغ رزرو',
     'information_detail' => 'جزئیات اطلاعات',
@@ -726,5 +726,7 @@ return [
     'on_going' => 'در حال حرکت',
     'hold' => 'نگه داشته شده',
     'accept' => 'تایید',
+    'created_at' => 'ایجاد شده در',
+    'updated_at' => 'ویرایش شده در',
 
 ];

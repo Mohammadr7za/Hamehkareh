@@ -208,6 +208,8 @@ class BookingController extends Controller
         $data['date'] = isset($request->date) ? date('Y-m-d H:i:s',strtotime($request->date)) : date('Y-m-d H:i:s');
         $service_data = Service::find($data['service_id']);
         $data['provider_id'] = !empty($data['provider_id']) ? $data['provider_id']: $service_data->provider_id;
+        $data['customer_id'] = auth()->user()->id;
+        $data['address'] = $request->address;
 
         if($request->has('tax') && $request->tax != null) {
             $data['tax'] = json_encode($request->tax);
@@ -236,7 +238,7 @@ class BookingController extends Controller
 
         saveBookingActivity($activity_data);
 
-        if($data['coupon_id'] != null) {
+        if(isset($data['coupon_id']) && $data['coupon_id'] != null) {
             $coupons = Coupon::find($data['coupon_id']);
 
             $coupon_data = [

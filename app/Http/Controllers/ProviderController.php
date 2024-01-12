@@ -35,7 +35,7 @@ class ProviderController extends Controller
         if($request->status === 'subscribe'){
             $pageTitle = __('messages.list_form_title',['form' => __('messages.subscribe')] );
         }
-        
+
         $auth_user = authSession();
         $assets = ['datatable'];
         $list_status = $request->status;
@@ -46,7 +46,7 @@ class ProviderController extends Controller
     {
         $query = User::query();
         $filter = $request->filter;
-       
+
         if (isset($filter)) {
             if (isset($filter['column_status'])) {
                 $query->where('status', $filter['column_status']);
@@ -63,8 +63,8 @@ class ProviderController extends Controller
         }
         if($request->list_status == 'subscribe'){
             $query = $query->where('status',1)->where('is_subscribe',1);
-        } 
-        
+        }
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="user" onclick="dataTableRowCheck('.$row->id.',this)">';
@@ -93,7 +93,7 @@ class ProviderController extends Controller
 
                 return $formattedDate;
             })
-               
+
             ->filterColumn('providertype_id',function($query,$keyword){
                 $query->whereHas('providertype',function ($q) use($keyword){
                     $q->where('name','like','%'.$keyword.'%');
@@ -131,7 +131,7 @@ class ProviderController extends Controller
                 User::whereIn('id', $ids)->restore();
                 $message = 'Bulk Provider Restored';
                 break;
-                
+
             case 'permanently-delete':
                 User::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Provider Permanently Deleted';
@@ -158,12 +158,12 @@ class ProviderController extends Controller
 
         $providerdata = User::find($id);
         $pageTitle = __('messages.update_form_title',['form'=> __('messages.provider')]);
-        
+
         if($providerdata == null){
             $pageTitle = __('messages.add_button_form',['form' => __('messages.provider')]);
             $providerdata = new User;
         }
-        
+
         return view('provider.create', compact('pageTitle' ,'providerdata' ,'auth_user' ));
     }
 
@@ -183,7 +183,7 @@ class ProviderController extends Controller
         $id = $data['id'];
         $data['user_type'] = $data['user_type'] ?? 'provider';
         $data['is_featured'] = 0;
-        
+
         if($request->has('is_featured')){
 			$data['is_featured'] = 1;
 		}
@@ -200,16 +200,16 @@ class ProviderController extends Controller
         }
         if($data['status'] == 1 && auth()->user()->hasAnyRole(['admin'])){
             try {
-                \Mail::send('verification.verification_email',
-                array(), function($message) use ($user)
-                {
-                    $message->from(env('MAIL_FROM_ADDRESS'));
-                    $message->to($user->email);
-                });
+//                \Mail::send('verification.verification_email',
+//                array(), function($message) use ($user)
+//                {
+//                    $message->from(env('MAIL_FROM_ADDRESS'));
+//                    $message->to($user->email);
+//                });
             } catch (\Throwable $th) {
 
             }
-           
+
         }
         $user->assignRole($data['user_type']);
         storeMediaFile($user,$request->profile_image, 'profile_image');
@@ -309,8 +309,8 @@ class ProviderController extends Controller
         }
         $provider = User::find($id);
         $msg= __('messages.msg_fail_to_delete',['name' => __('messages.provider')] );
-        
-        if($provider != '') { 
+
+        if($provider != '') {
             $provider->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.provider')] );
         }
@@ -350,15 +350,15 @@ class ProviderController extends Controller
         return $dataTable
             ->with('provider_id', $request->id)
             ->render('provider.bank-details', compact('pageTitle', 'providerdata', 'auth_user'));
-    }    
+    }
 
     public function review(Request $request, $id)
     {
         $auth_user = authSession();
         $providerdata = User::with('getServiceRating')->where('user_type', 'provider')->where('id', $id)->first();
-        $earningData = array();             
+        $earningData = array();
         foreach ($providerdata->getServiceRating as $bookingreview) {
-           
+
             $booking_id = $bookingreview->id;
             $date = optional($bookingreview->booking)->date ?? '-';
             $rating = $bookingreview->rating;
@@ -367,7 +367,7 @@ class ProviderController extends Controller
                 'booking_id'=>$booking_id,
                 'date' => $date,
                 'rating' => $rating,
-                'review' => $review,  
+                'review' => $review,
             ];
         }
         if ($request->ajax()) {
@@ -376,7 +376,7 @@ class ProviderController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        
+
         if (empty($providerdata)) {
             $msg = __('messages.not_found_entry', ['name' => __('messages.provider')]);
             return redirect(route('provider.index'))->withError($msg);
@@ -385,7 +385,7 @@ class ProviderController extends Controller
         return view('provider.review', compact('pageTitle','earningData', 'auth_user', 'providerdata'));
     }
     public function providerDetail(Request $request)
-    { 
+    {
 
         $tabpage = $request->tabpage;
         $pageTitle = __('messages.list_form_title', ['form' => __('messages.service')]);
@@ -393,17 +393,17 @@ class ProviderController extends Controller
         $user_id = $auth_user->id;
         $user_data = User::find($user_id);
         $earningData = array();
-        $payment_data = PaymentGateway::where('type', $tabpage)->first();  
+        $payment_data = PaymentGateway::where('type', $tabpage)->first();
         $provideId = $request->providerId;
-        $plandata = ProviderSubscription::where('user_id',$request->providerid)->get(); 
+        $plandata = ProviderSubscription::where('user_id',$request->providerid)->get();
         if($request->tabpage == 'subscribe-plan'){
             $plandata = $plandata->where('plan_type','subscribe');
         }if($request->tabpage == 'unsubscribe-plan'){
             $plandata = $plandata->where('plan_type','unsubscribe');
         }
-        switch ($tabpage) {                    
+        switch ($tabpage) {
             case 'all-plan':
-                
+
                 if ($request->ajax() && $request->type == 'tbl') {
                  return  Datatables::of($plandata)
                    ->addIndexColumn()
@@ -421,7 +421,7 @@ class ProviderController extends Controller
                       ->make(true);
                    }
                    return view('providerdetail.subscribe-plan', compact('user_data', 'earningData', 'tabpage', 'auth_user', 'payment_data','provideId'));
-                
+
                 break;
             case 'unsubscribe-plan':
                 if ($request->ajax() && $request->type == 'tbl') {
@@ -431,7 +431,7 @@ class ProviderController extends Controller
                       ->make(true);
                    }
                    return view('providerdetail.unsubscribe-plan', compact('user_data', 'earningData', 'tabpage', 'auth_user', 'payment_data','provideId'));
-                
+
                 break;
             default:
                 $data  = view('providerdetail.' . $tabpage, compact('tabpage', 'auth_user', 'payment_data'))->render();
@@ -464,7 +464,7 @@ class ProviderController extends Controller
             return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
         $user = User::where('id', $request->id)->first();
-        
+
         if ($user == "") {
             $message = __('messages.user_not_found');
             return comman_message_response($message, 400);
@@ -511,13 +511,13 @@ class ProviderController extends Controller
 
         $current_time = \Carbon\Carbon::now();
         $time = $current_time->toTimeString();
-        
+
         $current_day = strtolower(date('D'));
-        
+
         $provider_id = $request->id ?? auth()->user()->id;
 
         $days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-        
+
         $slotsArray = ['days' => $days];
         $activeDay ='mon';
         foreach ($days as $value) {
@@ -526,14 +526,14 @@ class ProviderController extends Controller
             ->orderBy('start_at', 'asc')
             ->pluck('start_at')
             ->toArray();
-        
+
             $obj = [
                 "day" => $value,
                 "slot" => $slot,
             ];
             $slotsArray[] = $obj;
         }
-        
+
         $pageTitle = __('messages.slot', ['form' => __('messages.slot')]);
         return view('provider.timeslot', compact('slotsArray', 'pageTitle', 'activeDay','provider_id','provider'));
     }
@@ -554,7 +554,7 @@ class ProviderController extends Controller
 
         $slotsArray = ['days' => $days];
         $activeDay = 'mon';
-        $activeSlots = []; 
+        $activeSlots = [];
 
         foreach ($days as $value) {
             $slot = ProviderSlotMapping::where('provider_id', $provider_id)
@@ -563,7 +563,7 @@ class ProviderController extends Controller
             ->selectRaw("SUBSTRING(start_at, 1, 5) as start_at")
             ->pluck('start_at')
             ->toArray();
-        
+
             $obj = [
                 "day" => $value,
                 "slot" => $slot,
@@ -573,10 +573,10 @@ class ProviderController extends Controller
 
         }
         $pageTitle = __('messages.slot', ['form' => __('messages.slot')]);
-      
+
             return view('provider.edittimeslot', compact('slotsArray', 'pageTitle', 'activeDay', 'provider_id', 'activeSlots','provider'));
-        
-        
+
+
 
     }
 }

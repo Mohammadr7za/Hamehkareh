@@ -27,7 +27,7 @@ class FrontendController extends Controller
     {
         $appdata = AppDownload::first();
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.app_download')]);
-        
+
         if($appdata == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.app_download')]);
             $appdata = new AppDownload;

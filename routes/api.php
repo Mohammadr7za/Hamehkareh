@@ -38,7 +38,14 @@ Route::get('slider-list',[ API\SliderController::class, 'getSliderList' ]);
 Route::get('top-rated-service',[ API\ServiceController::class, 'getTopRatedService' ]);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    $data = $request->user();
+    $user_id = $request->user()->id;
+
+    $data = \App\Models\User::where('id', $user_id)
+        ->with('city')
+        ->with('country')
+        ->with('payment')
+        ->with('booking')
+        ->with('state')->get();
 
     return comman_message_response($data);
     return comman_message_response(UserDataResource::make($data));

@@ -61,18 +61,18 @@ class HandymanController extends Controller
         if($request->list_status == 'unassigned'){
             $query = $query->where('status',0)->orWhere('provider_id',NULL)->where('user_type','handyman');
         }
-        
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="user" onclick="dataTableRowCheck('.$row->id.',this)">';
             })
-         
 
-            // ->editColumn('display_name', function($query){                
+
+            // ->editColumn('display_name', function($query){
             //     if (auth()->user()->can('handyman edit')) {
             //         $link ='<a class="btn-link btn-link-hover" href='.route('handyman.create', ['id' => $query->id]).'>'.$query->display_name.'</a>';
             //     } else {
-            //         $link = $query->display_name; 
+            //         $link = $query->display_name;
             //     }
             //     return $link;
             // })
@@ -93,15 +93,15 @@ class HandymanController extends Controller
             })
         //     ->editColumn('provider_id', function($handyman) {
         //         return $handyman->provider_id != null && isset($handyman->providers) ? $handyman->providers->display_name : '-';
-            
+
         //    })
             ->editColumn('provider_id', function($query) {
-            return view('handyman.provider', compact('query')); 
+            return view('handyman.provider', compact('query'));
             })
             ->editColumn('address', function($query) {
                 return ($query->address != null && isset($query->address)) ? $query->address : '-';
             })
-            
+
             ->filterColumn('provider_id',function($qry,$keyword){
                 $qry->whereHas('providers',function ($q) use($keyword){
                     $q->where('display_name','like','%'.$keyword.'%');
@@ -141,7 +141,7 @@ class HandymanController extends Controller
                 User::whereIn('id', $ids)->restore();
                 $message = 'Bulk Handyman Restored';
                 break;
-                
+
             case 'permanently-delete':
                 User::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Handyman Permanently Deleted';
@@ -151,7 +151,7 @@ class HandymanController extends Controller
                 User::whereIn('id', $ids)->restore();
                 $message = 'Bulk Provider Restored';
                 break;
-                
+
             case 'permanently-delete':
                 User::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Provider Permanently Deleted';
@@ -177,12 +177,12 @@ class HandymanController extends Controller
 
         $handymandata = User::find($id);
         $pageTitle = __('messages.update_form_title',['form'=> __('messages.handyman')]);
-        
+
         if($handymandata == null){
             $pageTitle = __('messages.add_button_form',['form' => __('messages.handyman')]);
             $handymandata = new User;
         }
-        
+
         return view('handyman.create', compact('pageTitle' ,'handymandata' ,'auth_user' ));
     }
 
@@ -222,7 +222,7 @@ class HandymanController extends Controller
 
         $data['user_type'] = $data['user_type'] ?? 'handyman';
         $data['is_featured'] = 0;
-        
+
         if($request->has('is_featured')){
 			$data['is_featured'] = 1;
 		}
@@ -239,12 +239,12 @@ class HandymanController extends Controller
             $user->fill($data)->update();
         }
         if($data['status'] == 1 && auth()->user()->hasAnyRole(['admin'])){
-            \Mail::send('verification.verification_email',
-            array(), function($message) use ($user)
-            {
-                $message->from(env('MAIL_FROM_ADDRESS'));
-                $message->to($user->email);
-            });
+//            \Mail::send('verification.verification_email',
+//            array(), function($message) use ($user)
+//            {
+//                $message->from(env('MAIL_FROM_ADDRESS'));
+//                $message->to($user->email);
+//            });
         }
         $user->assignRole($data['user_type']);
         storeMediaFile($user,$request->profile_image, 'profile_image');
@@ -269,13 +269,13 @@ class HandymanController extends Controller
     public function show($id)
     {
         $auth_user = authSession();
-        $providerdata = User::with('providerHandyman')->where('user_type','provider')->where('id',$id)->first();        
+        $providerdata = User::with('providerHandyman')->where('user_type','provider')->where('id',$id)->first();
         if(empty($providerdata))
         {
             $msg = __('messages.not_found_entry',['name' => __('messages.provider')] );
             return redirect(route('provider.index'))->withError($msg);
         }
-        $pageTitle = __('messages.view_form_title',['form'=> __('messages.provider')]);        
+        $pageTitle = __('messages.view_form_title',['form'=> __('messages.provider')]);
         return view('handyman.view', compact('pageTitle' ,'providerdata' ,'auth_user' ));
     }
 
@@ -318,8 +318,8 @@ class HandymanController extends Controller
         }
         $handyman = User::find($id);
         $msg = __('messages.msg_fail_to_delete',['item' => __('messages.handyman')] );
-        
-        if($handyman!='') { 
+
+        if($handyman!='') {
             $handyman->delete();
             $msg = __('messages.msg_deleted',['name' => __('messages.handyman')] );
         }
@@ -361,7 +361,7 @@ class HandymanController extends Controller
         $handyman = User::with('handyman')->findOrFail($id);
         $provider_id = $request->provider_id;
 
-        $handyman->update(['provider_id' => $provider_id]);         
+        $handyman->update(['provider_id' => $provider_id]);
 
         return response()->json(['message' => 'Provider Assign Successfully', 'status' => true]);
     }

@@ -27,18 +27,18 @@ class EarningController extends Controller
             $provider_type = optional($provider->providertype)->type;
 
             $bookings = Booking::where('provider_id', $provider->id)
-            ->where('status', 'completed')
-            ->whereNotNull('payment_id')
-            ->get();
+                ->where('status', 'completed')
+                ->whereNotNull('payment_id')
+                ->get();
 
             $booking_data = get_provider_commission($bookings);
 
             $providerEarning = ProviderPayout::where('provider_id',$provider->id)->sum('amount') ?? 0;
-  
+
             $provider_earning = calculate_commission($booking_data['total_amount'],$provider_commission,$provider_type,'provider', $providerEarning,$bookings->count());
 
             $admin_earning  = calculate_commission($booking_data['total_amount'],$provider_commission,$provider_type, '', $providerEarning,$bookings->count());
-            
+
             if($request->is('api/*')) {
                 $providerearning = $provider_earning['number_format'] <= 0 ? ($providerEarning) : $provider_earning['number_format'];
                 $totalearning = $booking_data['total_amount'];
@@ -58,8 +58,8 @@ class EarningController extends Controller
 
                 }
 
-             //  $providerearning = $provider_earning['number_format'] <= 0 ? getPriceFormat($providerEarning) : $provider_earning['value'];   
-           
+                //  $providerearning = $provider_earning['number_format'] <= 0 ? getPriceFormat($providerEarning) : $provider_earning['value'];
+
             }
             $earningData[] = [
                 'provider_id' => $provider->id,
@@ -81,43 +81,43 @@ class EarningController extends Controller
 
         if($request->ajax()) {
             return Datatables::of($earningData)
-            ->addIndexColumn()
+                ->addIndexColumn()
 
-            // ->addColumn('provider_name', function ($query) {
-            //     return view('earning.user', compact('query'));
-            // })
+                // ->addColumn('provider_name', function ($query) {
+                //     return view('earning.user', compact('query'));
+                // })
 
 
-            // ->addColumn('provider_name', function($row){
-            //     $provider_id = $row['provider_id'];
-            //     $provider_name = $row['provider_name'];
-            //     $providername = "<a href=". route('earning.show',$provider_id) ." class='btn-link btn-link-hover'>$provider_name</a>";
-            //     return $providername;
-            // })
-            ->addColumn('provider_name', function($row){
-                $provider_id = $row['provider_id'];
-                $provider_name = $row['provider_name'];
-                $email = $row['email'];
-                return view('earning.user', compact('row','provider_id','provider_name','email'));
-            })
+                // ->addColumn('provider_name', function($row){
+                //     $provider_id = $row['provider_id'];
+                //     $provider_name = $row['provider_name'];
+                //     $providername = "<a href=". route('earning.show',$provider_id) ." class='btn-link btn-link-hover'>$provider_name</a>";
+                //     return $providername;
+                // })
+                ->addColumn('provider_name', function($row){
+                    $provider_id = $row['provider_id'];
+                    $provider_name = $row['provider_name'];
+                    $email = $row['email'];
+                    return view('earning.user', compact('row','provider_id','provider_name','email'));
+                })
 
-            ->addColumn('action', function($row) {
-                $btn = '-';
-                $provider_id = $row['provider_id'];
+                ->addColumn('action', function($row) {
+                    $btn = '-';
+                    $provider_id = $row['provider_id'];
 
-                if($row['provider_earning_formate'] > 0){
-                    $btn = "<a href=". route('providerpayout.create',$provider_id) ."><i class='fas fa-money-bill-alt earning-icon'></i></a>";
-                }
-                //return view('earning.action',compact('row'))->render();
-                return $btn;
-                //return $earningData;
-            })
-            ->rawColumns(['provider_name','action'])
-            ->make(true);
+                    if($row['provider_earning_formate'] > 0){
+                        $btn = "<a href=". route('providerpayout.create',$provider_id) ."><i class='fas fa-money-bill-alt earning-icon'></i></a>";
+                    }
+                    //return view('earning.action',compact('row'))->render();
+                    return $btn;
+                    //return $earningData;
+                })
+                ->rawColumns(['provider_name','action'])
+                ->make(true);
         }
         if($request->is('api/*')) {
             return comman_custom_response($earningData);
-		}
+        }
     }
     public function handymanEarning(){
         $pageTitle =  __('messages.earning');
@@ -125,28 +125,28 @@ class EarningController extends Controller
     }
     public function handymanEarningData(Request $request){
         $auth_user = authSession();
-        
+
         $earningData = array();
 
         $bookings = Booking::with('handymanAdded')->has('handymanAdded')->where('provider_id',$auth_user->id)->whereNotNull('payment_id')->get();
         $provider_earning =ProviderPayout::where('provider_id',$auth_user->id)->sum('amount') ?? 0;
 
-      
-      
+
+
         $handyman = collect($bookings)->map(function ($handyman) {
-          return [$handyman->handymanAdded->pluck('handyman_id')];
+            return [$handyman->handymanAdded->pluck('handyman_id')];
         })->toArray();
 
         $userIds = [];
-foreach ($handyman  as $item) {
-    $userId = $item[0]->get(0);
-    $userIds[] = $userId;
- 
-}
+        foreach ($handyman  as $item) {
+            $userId = $item[0]->get(0);
+            $userIds[] = $userId;
+
+        }
 
 
-       
-   
+
+
         $user = User::whereIn('id',array_values($userIds))->get();
 
         foreach ($user as $key => $value) {
@@ -163,7 +163,7 @@ foreach ($handyman  as $item) {
             })->get();
 
             $totalEarning = HandymanPayout::where('handyman_id',$value->id)->sum('amount') ?? 0;
-        
+
             $all_booking_total = $handyman_bookings->map(function ($booking) {
                 return optional($booking->bookings)->total_amount;
             })->toArray();
@@ -171,7 +171,7 @@ foreach ($handyman  as $item) {
             $total = array_reduce($all_booking_total, function ($value1, $value2) {
                 return $value1 + $value2;
             }, 0);
-            
+
             $earning =   ($commission * count($handyman_bookings));
 
             if($commission_type === 'percent'){
@@ -191,25 +191,25 @@ foreach ($handyman  as $item) {
                 'handyman_earning_formate' => $final_amount,
             ];
         }
-        
-        
+
+
         if ($request->ajax()) {
             return Datatables::of($earningData)
-            ->addIndexColumn()
-            ->addColumn('action', function($row) use ($provider_earning) {
-                $btn = '-';
-                $handyman_id = $row['handyman_id'];
-                if($row['handyman_earning_formate'] > 0 && $provider_earning > 0) {
-                    $btn = "<a href=". route('handymanpayout.create',$handyman_id) ."><i class='fas fa-money-bill-alt earning-icon'></i></a>";
-                }
-                return $btn;
-            })
-            ->rawColumns(['action','total_earning'])
-            ->make(true);
+                ->addIndexColumn()
+                ->addColumn('action', function($row) use ($provider_earning) {
+                    $btn = '-';
+                    $handyman_id = $row['handyman_id'];
+                    if($row['handyman_earning_formate'] > 0 && $provider_earning > 0) {
+                        $btn = "<a href=". route('handymanpayout.create',$handyman_id) ."><i class='fas fa-money-bill-alt earning-icon'></i></a>";
+                    }
+                    return $btn;
+                })
+                ->rawColumns(['action','total_earning'])
+                ->make(true);
         }
     }
 
-  
+
     public function show($id)
     {
         //

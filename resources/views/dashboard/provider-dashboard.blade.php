@@ -117,7 +117,7 @@
                     </div>
                     <div class="card-body p-0">
                         <ul class="common-list list-unstyled">
-                            @foreach($data['dashboard']['new_customer'] as $customer) 
+                            @foreach($data['dashboard']['new_customer'] as $customer)
                             <li style="pointer-events:none;">
                                 <div class="media gap-3">
                                     <div class="h-avatar is-medium h-5">
@@ -125,12 +125,12 @@
                                     </div>
                                     <div class="media-body ">
                                         <h5><span class="font-weight-bold">{{!empty($customer->display_name) ? $customer->display_name : '-'}}</span>  </h5>
-                                        {{($customer->created_at)}}
-                                            
+                                        {{(jdate($customer->created_at))}}
+
                                     </div>
                                 </div>
                             </li>
-                            @endforeach 
+                            @endforeach
                         </ul>
                     </div>
                 </div>
@@ -144,7 +144,7 @@
                         <div class="card-body">
                             <ul class="common-list p-0">
                                 @foreach($data['dashboard']['upcomming_booking'] as $booking)
-                                @php 
+                                @php
                                     $getAttachments = getAttachments(optional($booking->service)->getMedia('service_attachment'),null);
                                 @endphp
                                     <li class="d-flex flex-wrap gap-2 align-items-start align-items-lg-center justify-content-between  flex-column flex-lg-row"  style="pointer-events:none;">
@@ -154,7 +154,7 @@
                                                 </div>
                                                 <div class="media-body ">
                                                     <h5>#{{$booking->id}}</h5>
-                                                        
+
                                                         {{($booking->date)}}
                                                 </div>
                                         </div>
@@ -169,7 +169,7 @@
     </div>
 </x-master-layout>
 <script>
-   
+
     var chartData = '<?php echo $data['category_chart']['chartdata']; ?>';
     var chartArray = JSON.parse(chartData);
     var chartlabel = '<?php echo $data['category_chart']['chartlabel']; ?>';
@@ -179,12 +179,12 @@
     if(jQuery('#monthly-revenue').length){
          var currencySymbol = "{{ $data['currency_data']['currency_symbol'] }}";
          var currencyPosition = "{{ $data['currency_data']['currency_position'] }}";
-      
+
         var formattedData = [{{ implode ( ',' ,$data['revenueData'] ) }}].map(function(value) {
         return value; // Assuming the getPriceFormat function is available
     });
 
-  
+
 
         var options = {
         series: [{
@@ -203,11 +203,11 @@
                     } else {
                         return value + currencySymbol;
                     }
-                    
+
                 }
             }
         },
-        
+
         chart: {
           height: 265,
           type: 'bar',
@@ -218,7 +218,7 @@
             click: function(chart, w, e) {
             }
           },
-        },        
+        },
         plotOptions: {
             bar: {
                 horizontal: false,
@@ -279,7 +279,7 @@
             'Mar',
             'Apr',
             'May',
-            'June', 
+            'June',
             'Jul',
             'Aug',
             'Sep',
@@ -290,7 +290,7 @@
           labels: {
             minHeight: 22,
             maxHeight: 22,
-            style: {              
+            style: {
               fontSize: '12px'
             }
           }

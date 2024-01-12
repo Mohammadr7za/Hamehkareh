@@ -7,14 +7,14 @@
                     <div class="card card-block card-stretch">
                         <div class="card-body">
                         <h5 class="card-title">{{__('messages.earning')}}</h5>
-                            
+
                         </div>
                     </div>
                     <div class="card">
                         <div class="card-body">
                             <div class="float-right ">
                                 <div class="d-flex justify-content-end">
-                                    
+
                                     <div class="input-group ml-auto">
                                         <span class="input-group-text" id="addon-wrapping"><i class="fas fa-search"></i></span>
                                         <input type="text" class="form-control dt-search" placeholder="Search..." aria-label="Search" aria-describedby="addon-wrapping" aria-controls="dataTableBuilder">
@@ -33,7 +33,7 @@
         </div>
     </div>
 </div>
-    
+
 
 <script>
         document.addEventListener('DOMContentLoaded', (event) => {
@@ -57,7 +57,7 @@
                   },
                 },
                 columns: [
-                   
+
                     {
                         data: 'provider_name',
                         name: 'provider_name',
@@ -93,7 +93,7 @@
                         name: 'provider_earning',
                         title: "{{__('messages.provider_earning')}}"
                     },
-                    
+
                     {
                         data: 'action',
                         name: 'action',
@@ -101,9 +101,9 @@
                         searchable: false,
                         title: "{{__('messages.action')}}"
                     }
-                    
+
                 ]
-                
+
             });
       });
 

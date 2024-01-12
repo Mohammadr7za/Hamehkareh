@@ -428,7 +428,7 @@ var Datepicker = (function () {
     defaultViewDate: undefined, // placeholder, defaults to today() by the program
     disableTouchKeyboard: false,
     format: 'mm/dd/yyyy',
-    language: 'en',
+    language: 'fa-IR',
     maxDate: null,
     maxNumberOfDates: 1,
     maxView: 3,

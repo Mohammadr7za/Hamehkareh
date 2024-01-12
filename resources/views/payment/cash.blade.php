@@ -33,7 +33,7 @@
                       <option value="1">{{__('messages.approvecash')}}</option>
                     </select>
                 </div>
-                
+
                 <button id="quick-action-apply" class="btn btn-primary" data-ajax="true"
                 data--submit="{{ route('payment.bulk-action') }}"
                 data-datatable="reload" data-confirmation='true'
@@ -41,7 +41,7 @@
                 title="{{ __('cash payment list',['form'=>  __('cash payment list') ]) }}"
                 data-message='{{ __("Do you want to perform this action?") }}' disabled>{{__('messages.apply')}}</button>
             </div>
-          
+
             </form>
           </div>
               <div class="d-flex justify-content-end">
@@ -57,7 +57,7 @@
                     <input type="text" class="form-control dt-search" placeholder="Search..." aria-label="Search" aria-describedby="addon-wrapping" aria-controls="dataTableBuilder">
                   </div>
               </div>
-               
+
               <div class="table-responsive">
                 <table id="datatable" class="table table-striped border">
                 </table>
@@ -128,7 +128,7 @@
                         name: 'status',
                         title: "{{__('messages.status')}}"
                     },
-                   
+
                     {
                         data: 'total_amount',
                         name: 'total_amount',
@@ -141,9 +141,9 @@
                         searchable: false,
                         title: "{{__('messages.action')}}"
                     }
-                    
+
                 ]
-                
+
             });
       });
 

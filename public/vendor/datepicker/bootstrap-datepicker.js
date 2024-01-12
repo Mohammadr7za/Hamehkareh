@@ -21,7 +21,7 @@
  * ========================================================= */
 
 (function($, undefined){
-
+    console.log("im here ini asd asdsa");
 	var $window = $(window);
 
 	function UTCDate(){
@@ -1332,7 +1332,7 @@
 		return out;
 	}
 
-	function opts_from_locale(lang){
+	function opts_from_locale(){
 		// Derive options from locale plugins
 		var out = {};
 		// Check if "de-DE" style date is available, if not language should
@@ -1347,7 +1347,7 @@
 			if (k in d)
 				out[k] = d[k];
 		});
-		return out;
+		return "fa-IR";
 	}
 
 	var old = $.fn.datepicker;
@@ -1398,7 +1398,7 @@
 		forceParse: true,
 		format: 'mm/dd/yyyy',
 		keyboardNavigation: true,
-		language: 'en',
+		language: 'fa-IR',
 		minViewMode: 0,
 		multidate: false,
 		multidateSeparator: ',',

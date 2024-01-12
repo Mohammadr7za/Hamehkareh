@@ -58,6 +58,9 @@ class BookingController extends Controller
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="booking" onclick="dataTableRowCheck('.$row->id.',this)">';
             })
+            ->editColumn('date', function($query) {
+                return jdate($query->datetime);
+            })
             ->editColumn('id' , function ($query){
                 return "<a class='btn-link btn-link-hover' href=" .route('booking.show', $query->id).">#".$query->id ."</a>";
             })

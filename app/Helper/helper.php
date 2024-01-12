@@ -61,7 +61,7 @@ function checkMenuRoleAndPermission($menu)
             if(auth()->user()->can($menu->data('permission')) ) {
                 return true;
             }
-          
+
         }
     }
 
@@ -235,7 +235,7 @@ function saveBookingActivity($data)
                 $assigned_handyman = handymanNames($data['booking']->handymanAdded);
                 $data['activity_message'] = __('messages.booking_assigned',['name' => $assigned_handyman]);
                 $data['activity_type'] = __('messages.assigned_booking');
-                
+
                 $activity_data = [
                     'handyman_id' => $data['booking']->handymanAdded->pluck('handyman_id'),
                     'handyman_name' => $data['booking']->handymanAdded,
@@ -435,7 +435,7 @@ function getPriceFormat($price){
 }
 
 function currency_data(){
-  
+
     $currency_symbol = \App\Models\Setting::where('type','CURRENCY')->where('key','CURRENCY_COUNTRY_ID')->with('country')->first();
     $symbol = '$';
     if(!empty($currency_symbol))
@@ -880,7 +880,7 @@ function format_commission($value){
             $commission = $commission_value . '%';
         }else{
             $commission = getPriceFormat((float)$commission_value);
-           
+
         }
 
         return $commission;
@@ -905,7 +905,7 @@ function calculate_commission($total_amount = 0,$provider_commission = 0, $commi
 
           if(abs($final_amount) < 1) { // treat values less than 0.0001 as 0
              $final_amount = 0;
-           } 
+           }
 
 
           break;
@@ -1019,7 +1019,7 @@ function savePayoutActivity($data)
                 $activity_data = [
                     'user_id' =>$data['user_id'],
                     'amount' => $data['amount'],
-                  
+
                 ];
                 $sendTo = ['provider'];
             break;
@@ -1028,7 +1028,7 @@ function savePayoutActivity($data)
                 $activity_data = [
                     'user_id' =>$data['user_id'],
                     'amount' => $data['amount'],
-        
+
                 ];
                 $sendTo = ['handyman'];
             break;
@@ -1086,7 +1086,7 @@ function get_plan_expiration_date($plan_start_date = '',$plan_type = '',$left_da
 
 function get_user_active_plan($user_id){
     $get_provider_plan  =  \App\Models\ProviderSubscription::where('user_id',$user_id)->where('status',config('constant.SUBSCRIPTION_STATUS.ACTIVE'))->first();
-    $activeplan = null; 
+    $activeplan = null;
     if(!empty($get_provider_plan)){
         $activeplan = new App\Http\Resources\API\ProviderSubscribeResource($get_provider_plan);
     }
@@ -1113,7 +1113,7 @@ function check_days_left_plan($old_plan,$new_plan){
 function user_last_plan($user_id){
     $user_subscribed = \App\Models\ProviderSubscription::where('user_id',$user_id)
                     ->where('status',config('constant.SUBSCRIPTION_STATUS.INACTIVE'))->orderBy('id','desc')->first();
-    $inactivePlan = null; 
+    $inactivePlan = null;
     if(!empty($user_subscribed)){
         $inactivePlan = new App\Http\Resources\API\ProviderSubscribeResource($user_subscribed);
     }
@@ -1136,7 +1136,7 @@ function default_earning_type(){
 }
 
 function saveWalletHistory($data){
- 
+
     $admin = \App\Models\AppSetting::first();
     date_default_timezone_set( $admin->time_zone ?? 'UTC');
     $data['datetime'] = date('Y-m-d H:i:s');
@@ -1214,7 +1214,7 @@ function saveWalletHistory($data){
                 'transaction_type' =>__('messages.debit'),
             ];
         break;
-       
+
         default :
             $activity_data = [];
             break;
@@ -1328,7 +1328,7 @@ function sendNotification($type,$user,$data){
     curl_setopt($ch, CURLOPT_POST, TRUE);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-    
+
     $response = curl_exec($ch);
     curl_close($ch);
     $childData = array(
@@ -1348,7 +1348,7 @@ function sendNotification($type,$user,$data){
         )
     );
 
-   
+
   }
   function saveRequestJobActivity($data)
 {
@@ -1356,9 +1356,9 @@ function sendNotification($type,$user,$data){
     date_default_timezone_set( $admin->time_zone ?? 'UTC');
     $data['datetime'] = date('Y-m-d H:i:s');
     $role = auth()->user()->user_type;
-    $customerLatitude = 50.930557; 
+    $customerLatitude = 50.930557;
     $customerLongitude = -102.80777;
-    $radius = 50; 
+    $radius = 50;
     $providers = \App\Models\ProviderAddressMapping::selectRaw("id, provider_id, address, latitude, longitude,
                 ( 6371 * acos( cos( radians($customerLatitude) ) *
                 cos( radians( latitude ) )
@@ -1403,7 +1403,7 @@ function sendNotification($type,$user,$data){
     curl_setopt($ch, CURLOPT_POST, TRUE);
     curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-    
+
     $response = curl_exec($ch);
     curl_close($ch);
 
@@ -1430,7 +1430,7 @@ function saveJobActivity($data)
         case "user_accept_bid":
                 $data['activity_message'] = __('messages.bid_accepted_message',['name' => $data['bid_data']->customer->display_name,]);
                 $data['activity_type'] =  __('messages.bid_accepted_title');
-                
+
                 $activity_data = [
                     'post_request_id' => $data['bid_data']->post_request_id,
                     'customer_id' => $data['bid_data']->customer_id,
@@ -1522,50 +1522,51 @@ function getServiceTimeSlot($provider_id)
 }
 
 function bookingstatus($status){
+    $statusName = __('messages.'.$status);
     switch ($status) {
         case 'Pending':
-            $html = '<span class="badge badge-warning ">'.$status.'</span>';
+            $html = '<span class="badge badge-warning ">'.$statusName.'</span>';
 
             break;
 
         case 'Accepted':
-            $html = '<span class="badge badge-primary">'.$status.'</span>';
+            $html = '<span class="badge badge-primary">'.$statusName.'</span>';
 
             break;
 
-        
+
         case 'Ongoing':
-            $html = '<span class="badge badge-warning">'.$status.'</span>';
+            $html = '<span class="badge badge-warning">'.$statusName.'</span>';
 
             break;
 
         case 'In Progress':
-            $html = '<span class="badge badge-info">'.$status.'</span>';
+            $html = '<span class="badge badge-info">'.$statusName.'</span>';
 
             break;
 
         case 'Hold':
-            $html = '<span class="badge badge-dark text-white">'.$status.'</span>';
+            $html = '<span class="badge badge-dark text-white">'.$statusName.'</span>';
 
             break;
-        
+
         case 'Cancelled':
-            $html = '<span class="badge badge-light">'.$status.'</span>';
+            $html = '<span class="badge badge-light">'.$statusName.'</span>';
 
             break;
 
         case 'Rejected':
-            $html = '<span class="badge badge-light">'.$status.'</span>';
+            $html = '<span class="badge badge-light">'.$statusName.'</span>';
 
             break;
 
         case 'Completed':
-            $html = '<span class="badge badge-success">'.$status.'</span>';
+            $html = '<span class="badge badge-success">'.$statusName.'</span>';
 
             break;
-        
+
         default:
-            $html = '<span class="badge badge-danger">'.$status.'</span>';
+            $html = '<span class="badge badge-danger">'.$statusName.'</span>';
             break;
     }
    return $html;
@@ -1583,8 +1584,8 @@ function today_cash_total($user_id,$to='',$from='',$type = ''){
         })
         ->whereDate('datetime', '>=', $from)
         ->whereDate('datetime', '<=', $to)
-        ->sum('total_amount');  
-    
+        ->sum('total_amount');
+
     }
 
     if (auth()->user()->hasAnyRole(['provider'])) {
@@ -1604,9 +1605,9 @@ function today_cash_total($user_id,$to='',$from='',$type = ''){
 function total_cash($user_id){
     $amount = 0;
 
-   
+
     if (auth()->user()->hasAnyRole(['handyman'])) {
-       
+
         $amount = \App\Models\PaymentHistory::where('receiver_id', $user_id)
         ->where(function ($query) {
             $query->where('action', 'handyman_approved_cash')
@@ -1688,7 +1689,7 @@ function providerpayout_rezopayX($data){
 
         $currency_country_data=\App\Models\Setting::where('type','CURRENCY')->first();
 
-        $currency_country=json_decode($currency_country_data, true); 
+        $currency_country=json_decode($currency_country_data, true);
 
         $currency_country_id=$currency_country['value'];
 
@@ -1719,12 +1720,12 @@ function providerpayout_rezopayX($data){
             $contact_number=$providers_details['contact_number'];
             $user_type=$providers_details['user_type'];
 
-            $bank_details=\App\Models\Bank::where('id',$bank_id)->first();  
+            $bank_details=\App\Models\Bank::where('id',$bank_id)->first();
 
                 $bank_name=$bank_details['bank_name'];
                 $account_number=$bank_details['account_no'];
                 $ifsc=$bank_details['ifsc_no'];
-                    
+
                 $payout_data = array(
                     "account_number" =>$RazorpayXaccount,
                     "amount" =>$payout_amount*100,
@@ -1746,9 +1747,9 @@ function providerpayout_rezopayX($data){
                                 )
                             ),
                     "queue_if_low_balance" => true,
-                
+
                 );
-            
+
             // Convert data to JSON
             $json_data = json_encode($payout_data);
 
@@ -1762,8 +1763,8 @@ function providerpayout_rezopayX($data){
                 'Content-Type: application/json',
                 'Authorization: Basic '. base64_encode($key . ':' . $secret)
             ));
-            
-            $response = curl_exec($ch); 
+
+            $response = curl_exec($ch);
 
             return $response;
     }else{
@@ -1785,13 +1786,13 @@ function providerpayout_stripe($data)
         $is_test=$stripe_data['is_test'];
 
         if($is_test==1){
-    
+
           $json_data=$stripe_data['value'];
-    
+
         }else{
-    
+
            $json_data=$stripe_data['live_value'];
-    
+
         }
 
          $stripe_credentials = json_decode($json_data, true);
@@ -1800,26 +1801,26 @@ function providerpayout_stripe($data)
 
           //$secret_key='sk_test_51MwP0cJ2UdY3IWsbLmbsJ5iNgCMdAdzoIWeGArMVPpfUqYdLxgKdMH0cC207Mea0eTlJhQxLzWJQ6pC7Q6aIJmVB00x0cZUGnY';
 
-       
+
 
           $currency_country_data=\App\Models\Setting::where('type','CURRENCY')->first();
-    
-          $currency_country=json_decode($currency_country_data, true); 
-   
+
+          $currency_country=json_decode($currency_country_data, true);
+
           $currency_country_id=$currency_country['value'];
-   
+
           $country_data=\App\Models\Country::where('id',$currency_country_id)->first();
 
           $country=$country_data['code'];
 
           $currency=strtolower($country_data['currency_code']);
-   
-           
+
+
           $provider_id=$data['provider_id'];
           $payout_amount=$data['amount'];
           $bank_id=$data['bank'];
 
-          $bank_details=\App\Models\Bank::where('id',$bank_id)->first();  
+          $bank_details=\App\Models\Bank::where('id',$bank_id)->first();
 
           $bank_name=$bank_details['bank_name'];
           $account_number=$bank_details['account_no'];
@@ -1827,7 +1828,7 @@ function providerpayout_stripe($data)
           $stripe_account=$bank_details['stripe_account'];
 
           if($stripe_account ==''){
-            
+
             $providers_details=\App\Models\User::where('id',$provider_id)->first();
             $email=$providers_details['email'];
             $first_name=$providers_details['first_name'];
@@ -1837,7 +1838,7 @@ function providerpayout_stripe($data)
 
             $current_datetime=time();
 
-            $ip_address=file_get_contents('https://api.ipify.org');      
+            $ip_address=file_get_contents('https://api.ipify.org');
 
           try{
 
@@ -1853,7 +1854,7 @@ function providerpayout_stripe($data)
                      'account_holder_name' => $first_name.$last_name,
                      'routing_number' => $ifsc
                  ],
-                
+
                  'capabilities' => [
                      'transfers' => [
                          'requested' => true
@@ -1879,12 +1880,12 @@ function providerpayout_stripe($data)
 
              $stripe_account= $stripedata['id'];
 
-            \App\Models\Bank::where('id',$bank_id)->update(['stripe_account'=>$stripe_account]);   
+            \App\Models\Bank::where('id',$bank_id)->update(['stripe_account'=>$stripe_account]);
 
             }catch(Stripe\Exception\ApiErrorException $e){
 
                 //    $error1= $e->getError()->code;
-           
+
                    $error= $e->getError();
 
                    if($error ==''){
@@ -1898,7 +1899,7 @@ function providerpayout_stripe($data)
                       return $error;
 
                   }
-                   
+
               }
 
            }
@@ -1911,27 +1912,27 @@ function providerpayout_stripe($data)
              'stripe_account'=>$stripe_account
            ];
 
-          
+
 
        $bank_transfer=create_stripe_transfer($data);
 
        return $bank_transfer;
-           
+
 
      }else{
 
         return $response='';
     }
-  
+
 }
 
 function create_stripe_transfer($data)
 {
         try{
 
-           
+
           \Stripe\Stripe::setApiKey($data['secret_key']);
-          
+
           $transfer = \Stripe\Transfer::create([
             "amount" => $data['amount']*100,
             "currency" =>  $data['currency'],
@@ -1942,11 +1943,11 @@ function create_stripe_transfer($data)
 
          return $payout;
 
-     
+
         }catch(Stripe\Exception\ApiErrorException $e){
 
           // $error1= $e->getError()->code;
-     
+
           $error= $e->getError();
 
            $error['status']=400;
@@ -1961,7 +1962,7 @@ function create_stripe_transfer($data)
              return $error;
 
           }
-     
+
         }
 
 }
@@ -1972,7 +1973,7 @@ function create_bank_tranfer($data)
     try{
 
         \Stripe\Stripe::setApiKey($data['secret_key']);
-       
+
         $payout = \Stripe\Payout::create([
           'amount' =>$data['amount']*100,
           'currency' => $data['currency'],
@@ -1981,27 +1982,27 @@ function create_bank_tranfer($data)
 
          ]);
 
-         return $payout; 
- 
+         return $payout;
+
         }catch(Stripe\Exception\ApiErrorException $e){
 
             // $error1= $e->getError()->code;
-       
+
            $error= $e->getError();
 
-  
+
              if($error ==''){
-  
+
               return $response='';
-  
+
               }else{
-  
+
                $error['status']=400;
                return $error;
-  
+
             }
-       
+
           }
 
-        
+
 }

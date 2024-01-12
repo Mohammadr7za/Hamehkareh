@@ -39,17 +39,17 @@ class BlogController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->withTrashed();
         }
-        
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($query) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$query->id.'"  name="datatable_ids[]" value="'.$query->id.'" data-type="blog" onclick="dataTableRowCheck('.$query->id.',this)">';
             })
-          
-            ->editColumn('title', function($query){                
+
+            ->editColumn('title', function($query){
                 if (auth()->user()->can('blog edit')) {
                     $link = '<a class="btn-link btn-link-hover" href='.route('blog.create', ['id' => $query->id]).'>'.$query->title.'</a>';
                 } else {
-                    $link = $query->title; 
+                    $link = $query->title;
                 }
                 return $link;
             })
@@ -102,12 +102,12 @@ class BlogController extends Controller
                 Blog::whereIn('id', $ids)->delete();
                 $message = 'Bulk Blog Deleted';
                 break;
-                   
+
             case 'restore':
                 Blog::whereIn('id', $ids)->restore();
                 $message = 'Bulk Blog Restored';
                 break;
-                
+
             case 'permanently-delete':
                 Blog::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Blog Permanently Deleted';
@@ -133,12 +133,12 @@ class BlogController extends Controller
 
         $blogdata = Blog::find($id);
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.blog')]);
-        
+
         if($blogdata == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.blog')]);
             $blogdata = new Blog;
         }
-        
+
         return view('blog.create', compact('pageTitle' ,'blogdata' ,'auth_user' ));
     }
 
@@ -182,7 +182,7 @@ class BlogController extends Controller
         if($request->is('api/*')) {
             return comman_message_response($message);
 		}
-        return redirect(route('blog.index'))->withSuccess($message);        
+        return redirect(route('blog.index'))->withSuccess($message);
     }
 
     /**
@@ -232,8 +232,8 @@ class BlogController extends Controller
         }
         $blog = Blog::find($id);
         $msg= __('messages.msg_fail_to_delete',['name' => __('messages.blog')] );
-        
-        if($blog!='') { 
+
+        if($blog!='') {
 
             $blog->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.blog')] );
@@ -242,7 +242,7 @@ class BlogController extends Controller
             return comman_message_response($msg);
 		}
         return comman_custom_response(['message'=> $msg, 'status' => true]);
-    }   
+    }
     public function action(Request $request){
         $id = $request->id;
 
@@ -261,5 +261,5 @@ class BlogController extends Controller
 		}
         return comman_custom_response(['message'=> $msg , 'status' => true]);
     }
-    
+
 }

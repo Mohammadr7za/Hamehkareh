@@ -1,13 +1,13 @@
 <?php
 
 return [
-	'USER' => [
-			'DEFAULT_IMAGE'   => '/images/user-profile.png',
-		],
+    'USER' => [
+        'DEFAULT_IMAGE'   => '/images/user-profile.png',
+    ],
     'IMAGE_EXTENTIONS' => ['png','jpg','jpeg','gif'],
 
     'PER_PAGE_LIMIT' => 10,
-	'DEFAULT_IMAGE'   => '/images/default.jpg',
+    'DEFAULT_IMAGE'   => '/images/default.jpg',
 
     'USER_SAVE_IMAGE_PATH'   => '/uploads/profile-image',
 
@@ -74,5 +74,9 @@ return [
         'APPROVED_ADMIN' => 'approved_by_admin',
         'SEND_PROVIDER' => 'send_to_provider',
         'SEND_ADMIN' => 'send_to_admin'
+    ],
+    'VISIT_TYPE' =>[
+        'ON_SITE' => 'On Site',
+        'ONLINE' => 'Online',
     ],
 ];

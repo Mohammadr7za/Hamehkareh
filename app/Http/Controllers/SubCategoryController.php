@@ -28,7 +28,7 @@ class SubCategoryController extends Controller
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = SubCategory::query()->list();
+        $query = SubCategory::query()->list()->orderByDesc('id');
 
         $filter = $request->filter;
 
@@ -48,11 +48,11 @@ class SubCategoryController extends Controller
             })
 
 
-            ->editColumn('name', function($query){                
+            ->editColumn('name', function($query){
                 if (auth()->user()->can('subcategory edit')) {
                     $link = '<a class="btn-link btn-link-hover" href='.route('subcategory.create', ['id' => $query->id]).'>'.$query->name.'</a>';
                 } else {
-                    $link = $query->name; 
+                    $link = $query->name;
                 }
                 return $link;
             })
@@ -106,7 +106,7 @@ class SubCategoryController extends Controller
                 $branches = SubCategory::whereIn('id', $ids)->update(['status' => $request->status]);
                 $message = 'Bulk Sub Category Status Updated';
                 break;
-            
+
             case 'change-featured':
                 $branches = SubCategory::whereIn('id', $ids)->update(['is_featured' => $request->is_featured]);
                 $message = 'Bulk Sub Category Featured Updated';
@@ -116,12 +116,12 @@ class SubCategoryController extends Controller
                 SubCategory::whereIn('id', $ids)->delete();
                 $message = 'Bulk Sub Category Deleted';
                 break;
-                
+
             case 'restore':
                 SubCategory::whereIn('id', $ids)->restore();
                 $message = 'Bulk Sub Category Restored';
                 break;
-                
+
             case 'permanently-delete':
                 SubCategory::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Sub Category Permanently Deleted';
@@ -147,12 +147,12 @@ class SubCategoryController extends Controller
 
         $subcategory = SubCategory::find($id);
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.subcategory')]);
-        
+
         if($subcategory == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.subcategory')]);
             $subcategory = new SubCategory;
         }
-        
+
         return view('subcategory.create', compact('pageTitle' ,'subcategory' ,'auth_user' ));
     }
 
@@ -168,7 +168,7 @@ class SubCategoryController extends Controller
             return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
         $data = $request->all();
-       
+
         $data['is_featured'] = 0;
         if($request->has('is_featured')){
 			$data['is_featured'] = 1;
@@ -191,7 +191,7 @@ class SubCategoryController extends Controller
         if($request->is('api/*')) {
             return comman_message_response($message);
 		}
-        return redirect(route('subcategory.index'))->withSuccess($message);    
+        return redirect(route('subcategory.index'))->withSuccess($message);
     }
 
     /**
@@ -241,8 +241,8 @@ class SubCategoryController extends Controller
         }
         $subcategory = SubCategory::find($id);
         $msg= __('messages.msg_fail_to_delete',['name' => __('messages.subcategory')] );
-        
-        if($subcategory!='') { 
+
+        if($subcategory!='') {
             $subcategory->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.subcategory')] );
         }

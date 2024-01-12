@@ -72,7 +72,7 @@
                                 <a href="{{ route('provideraddress.create') }}" class=""><i
                                         class="fa fa-plus-circle mt-2"></i>
                                     {{ trans('messages.add_form_title',['form' => trans('messages.provider_address')  ]) }}</a>
-                            </div> 
+                            </div>
 
                             <div class="form-group col-md-4">
                                 {{ Form::label('type',__('messages.price_type').' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
@@ -102,7 +102,7 @@
                                 {{ Form::label('status',__('messages.status').' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
                                 {{ Form::select('status',['1' => __('messages.active') , '0' => __('messages.inactive') ],old('status'),[ 'class' =>'form-control select2js','required']) }}
                             </div>
-                            
+
                             <div class="form-group col-md-4">
                                     {{ Form::label('visit_type', __('messages.visit_type').' ',['class'=>'form-control-label'],false) }}
                                     <br />

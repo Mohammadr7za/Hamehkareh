@@ -34,9 +34,9 @@
                                             'data-placeholder' => __('messages.select_name',[ 'select' => __('messages.category') ]),
                                             'data-ajax--url' => route('ajax-list', ['type' => 'category']),
                                         ]) }}
-                                    
+
                                 </div>
-                                
+
                                 <div class="form-group col-md-4">
                                     {{ Form::label('status',trans('messages.status').' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
                                     {{ Form::select('status',['1' => __('messages.active') , '0' => __('messages.inactive') ],old('status'),[ 'id' => 'role' ,'class' =>'form-control select2js','required']) }}
@@ -69,7 +69,7 @@
                                     </div>
                                 @endif
 
-                                
+
                                 <div class="form-group col-md-12">
                                     {{ Form::label('description',trans('messages.description'), ['class' => 'form-control-label']) }}
                                     {{ Form::textarea('description', null, ['class'=>"form-control textarea" , 'rows'=>3  , 'placeholder'=> __('messages.description') ]) }}

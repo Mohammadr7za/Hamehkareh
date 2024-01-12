@@ -177,13 +177,13 @@ class ServiceController extends Controller
 
         $advancedPaymentSetting=0;
 
-          if($settingdata) {
-    
-              $settings = json_decode($settingdata->value, true);
-    
-              $advancedPaymentSetting = $settings['advanced_payment_setting'];
-    
-          } 
+        if($settingdata) {
+
+            $settings = json_decode($settingdata->value, true);
+
+            $advancedPaymentSetting = $settings['advanced_payment_setting'];
+
+        }
 
         //$digitalservicedata = Setting::where('type','=','DIGITAL_SERVICE_SETTING')->first();
 

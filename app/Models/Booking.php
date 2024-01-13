@@ -10,23 +10,23 @@ class Booking extends Model
     use HasFactory,SoftDeletes;
     protected $table = 'bookings';
     protected $fillable = [
-        'customer_id', 
+        'customer_id',
         'service_id',
         'post_request_id',
-        'type', 
-        'provider_id', 
-        'date', 'start_at' , 
+        'type',
+        'provider_id',
+        'date', 'start_at' ,
         'end_at' ,
-        'amount' , 
+        'amount' ,
         'discount','total_amount' ,
-        'quantity', 
-        'description' , 
-        'coupon_id' , 
-        'status' , 
+        'quantity',
+        'description' ,
+        'coupon_id' ,
+        'status' ,
         'payment_id' ,
-        'reason' , 
+        'reason' ,
         'address' ,
-        'duration_diff' , 
+        'duration_diff' ,
         'booking_address_id',
         'tax',
         'booking_slot',
@@ -93,14 +93,14 @@ class Booking extends Model
     public function handymanAdded(){
         return $this->hasMany(BookingHandymanMapping::class,'booking_id','id')->with(['handyman']);
     }
-    
+
     public function bookingActivity(){
         return $this->hasMany(BookingActivity::class,'booking_id','id');
     }
 
     public function scopeMyBooking($query){
         $user = auth()->user();
-        if($user->hasRole('admin') || $user->hasRole('demo_admin')) {
+        if($user->hasRole('admin') || $user->hasRole('manager')) {
             return $query;
         }
 
@@ -160,12 +160,12 @@ class Booking extends Model
             $row->service()->withTrashed()->restore();
             $row->provider()->withTrashed()->restore();
             $row->customer()->withTrashed()->restore();
-            $row->bookingActivity()->withTrashed()->restore(); 
+            $row->bookingActivity()->withTrashed()->restore();
             $row->couponAdded()->withTrashed()->restore();
             $row->payment()->withTrashed()->restore();
             $row->handymanAdded()->withTrashed()->restore();
             $row->bookingRating()->withTrashed()->restore();
-        });    
+        });
     }
 
     public function handymanByAddress(){
@@ -192,9 +192,9 @@ class Booking extends Model
     {
         $totalOneHourSeconds = 3600;
         $totalMinutes = 0;
-      
+
         $perMinuteCharge = $this->amount / 60;
-      
+
         if ($this->duration_diff <= $totalOneHourSeconds) {
           $totalMinutes = $totalOneHourSeconds / 60;
         } else {
@@ -205,7 +205,7 @@ class Booking extends Model
     public function getServiceTotalPrice(): float
     {
        $serviceTotalPrice = 0;
-       
+
        if($this->service !== null && $this->service->type == 'hourly'){
         $serviceTotalPrice += $this->getHourlyPrice();
        }else{

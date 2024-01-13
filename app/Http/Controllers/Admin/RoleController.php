@@ -36,8 +36,8 @@ class RoleController extends Controller
                 $query->where('status', $filter['column_status']);
             }
         }
-        $query = $query->newQuery()->whereNotIn('name',['admin','demo_admin']);
-        
+        $query = $query->newQuery()->whereNotIn('name',['admin','manager']);
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';

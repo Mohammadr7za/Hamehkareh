@@ -50,7 +50,7 @@ class UserTableSeeder extends Seeder
             1 =>
             array (
                 'id' => 2,
-                'username' => 'demo_admin',
+                'username' => 'manager',
                 'first_name' => 'Demo',
                 'last_name' => 'Admin',
                 'contact_number' => '09384515612',
@@ -61,7 +61,7 @@ class UserTableSeeder extends Seeder
                 'state_id' => 3924,
                 'city_id' => 42865,
                 'email_verified_at' => NULL,
-                'user_type' => 'demo_admin',
+                'user_type' => 'manager',
                 'player_id' => NULL,
                 'provider_id' => NULL,
                 'is_featured' => 0,

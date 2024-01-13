@@ -1313,7 +1313,7 @@ function get_provider_plan_limit($provider_id, $type)
     return $exceed;
 }
 
-function sendNotification($type, $user, $data)
+function sendNotificationOld($type, $user, $data)
 {
     $app_id = ENV('ONESIGNAL_API_KEY');
     $rest_api_key = ENV('ONESIGNAL_REST_API_KEY');
@@ -1375,6 +1375,91 @@ function sendNotification($type, $user, $data)
     );
 
 
+}
+
+function sendNotification($type, $user, $data)
+{
+    if ($type === 'user') {
+
+    }
+    if (isset($user->contact_number)) {
+        $url = "https://ippanel.com/services.jspd";
+        $rcpt_nm = array('',$user->contact_number);
+        $param = array
+        (
+            'uname' => env('SMS_PANEL_USER'),
+            'pass' => env('SMS_PANEL_PASS'),
+            'from' => '+98event',
+            'message' => $data['message'],
+            'to'=> json_encode($rcpt_nm),
+            'op' => 'send'
+        );
+
+        $handler = curl_init($url);
+        curl_setopt($handler, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($handler, CURLOPT_POSTFIELDS, $param);
+        curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
+        $response2 = curl_exec($handler);
+
+        $response2 = json_decode($response2);
+        $res_code = $response2[0];
+        $res_data = $response2[1];
+    }
+
+//    echo $res_data;
+    //
+
+    $childData = array(
+        "id" => $data['id'],
+        "type" => $data['type'],
+        "subject" => $data['subject'],
+        "message" => $data['message'],
+        'notification-type' => $data['notification-type']
+    );
+    $notification = \App\Models\Notification::create(
+        array(
+            'id' => Illuminate\Support\Str::random(32),
+            'type' => $data['type'],
+            'notifiable_type' => 'App\Models\User',
+            'notifiable_id' => $user->id,
+            'data' => json_encode($childData)
+        )
+    );
+}
+
+function sendSMS($phoneNumbers, $message)
+{
+    if (isset($phoneNumbers)) {
+        $url = "https://ippanel.com/services.jspd";
+
+        $rcpt_nm = array($phoneNumbers ?? '');
+        $param = array
+        (
+            'uname' => env('SMS_PANEL_USER'),
+            'pass' => env('SMS_PANEL_PASS'),
+            'from' => '+98event',
+            'message' => $message,
+            'to' => json_encode($rcpt_nm),
+            'op' => 'send'
+        );
+
+        $handler = curl_init($url);
+        curl_setopt($handler, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($handler, CURLOPT_POSTFIELDS, $param);
+        curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
+        $response2 = curl_exec($handler);
+
+        $response2 = json_decode($response2);
+        $res_code = $response2[0];
+        $res_data = $response2[1];
+    }
+
+
+    if ($res_code == 0) {
+        return true;
+    }
+
+    return false;
 }
 
 function saveRequestJobActivity($data)

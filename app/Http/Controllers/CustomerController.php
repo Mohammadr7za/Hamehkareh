@@ -49,11 +49,11 @@ class CustomerController extends Controller
             $query->withTrashed();
         }
         if($request->list_status == 'all'){
-            $query = $query->whereNotIn('user_type',['admin','demo_admin']);
+            $query = $query->whereNotIn('user_type',['admin','manager']);
         }else{
             $query = $query->where('user_type','user');
-        } 
-        
+        }
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="user" onclick="dataTableRowCheck('.$row->id.',this)">';
@@ -66,7 +66,7 @@ class CustomerController extends Controller
                 return view('customer.user', compact('query'));
             })
 
-         
+
             ->editColumn('status', function($query) {
                 if($query->status == '0'){
                     $status = '<span class="badge badge-inactive">'.__('messages.inactive').'</span>';
@@ -105,12 +105,12 @@ class CustomerController extends Controller
                 User::whereIn('id', $ids)->delete();
                 $message = 'Bulk Customer Deleted';
                 break;
-                            
+
             case 'restore':
                 User::whereIn('id', $ids)->restore();
                 $message = 'Bulk Customer Restored';
                 break;
-            
+
             case 'permanently-delete':
                 User::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Customer Permanently Deleted';
@@ -120,7 +120,7 @@ class CustomerController extends Controller
                 User::whereIn('id', $ids)->restore();
                 $message = 'Bulk Provider Restored';
                 break;
-                
+
             case 'permanently-delete':
                 User::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Provider Permanently Deleted';
@@ -146,14 +146,14 @@ class CustomerController extends Controller
 
         $customerdata = User::find($id);
         $pageTitle = __('messages.update_form_title',['form'=> __('messages.user')]);
-        $roles = Role::where('status',1)->orderBy('name','ASC');    
+        $roles = Role::where('status',1)->orderBy('name','ASC');
         $roles = $roles->get();
-        
+
         if($customerdata == null){
             $pageTitle = __('messages.add_button_form',['form' => __('messages.user')]);
             $customerdata = new User;
         }
-        
+
         return view('customer.create', compact('pageTitle' ,'customerdata' ,'auth_user','roles' ));
     }
 
@@ -247,8 +247,8 @@ class CustomerController extends Controller
         }
         $user = User::find($id);
         $msg = __('messages.msg_fail_to_delete',['item' => __('messages.user')] );
-        
-        if($user != '') { 
+
+        if($user != '') {
             $user->delete();
             $msg = __('messages.msg_deleted',['name' => __('messages.user')] );
         }
@@ -294,7 +294,7 @@ class CustomerController extends Controller
             return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
         $user = User::where('id', $request->id)->first();
-        
+
         if ($user == "") {
             $message = __('messages.user_not_found');
             return comman_message_response($message, 400);

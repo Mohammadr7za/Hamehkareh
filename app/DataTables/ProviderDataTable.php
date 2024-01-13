@@ -42,6 +42,8 @@ class ProviderDataTable extends DataTable
                 return ($provider->address != null && isset($provider->address)) ? $provider->address : '-';
             })
             ->editColumn('created_at', function($provider) {
+                return jdate($provider->created_at);
+
                 $carbonDate = Carbon::parse($provider->created_at);
 
                 // Format the Carbon instance to display only the date part
@@ -49,7 +51,7 @@ class ProviderDataTable extends DataTable
 
                 return $formattedDate;
             })
-               
+
             ->filterColumn('providertype_id',function($query,$keyword){
                 $query->whereHas('providertype',function ($q) use($keyword){
                     $q->where('name','like','%'.$keyword.'%');
@@ -81,7 +83,7 @@ class ProviderDataTable extends DataTable
         }
         if($this->list_status == 'subscribe'){
             $model = $model->where('status',1)->where('is_subscribe',1);
-        } 
+        }
         $model = $model->orderBy('created_at', 'desc');
         return $model->list();
     }
@@ -137,4 +139,3 @@ class ProviderDataTable extends DataTable
     }
 }
 
-  

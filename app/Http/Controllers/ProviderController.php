@@ -88,10 +88,11 @@ class ProviderController extends Controller
                 return ($query->address != null && isset($query->address)) ? $query->address : '-';
             })
             ->editColumn('created_at', function($query) {
-                $carbonDate = Carbon::parse($query->created_at);
-                $formattedDate = $carbonDate->toDateString();
-
-                return $formattedDate;
+                return jdate($query->created_at)->format('Y/m/d');
+//                $carbonDate = Carbon::parse($query->created_at);
+//                $formattedDate = $carbonDate->toDateString();
+//
+//                return $formattedDate;
             })
 
             ->filterColumn('providertype_id',function($query,$keyword){

@@ -24,13 +24,13 @@ class ProviderDocument extends Model implements HasMedia
 
     public function providers(){
         return $this->belongsTo('App\Models\User','provider_id','id')->withTrashed();
-    }   
+    }
     public function document(){
         return $this->belongsTo('App\Models\Documents','document_id','id')->withTrashed();
     }
     public function scopeMyDocument($query){
         $user = auth()->user();
-        if($user->hasRole('admin') || $user->hasRole('demo_admin')) {
+        if($user->hasRole('admin') || $user->hasRole('manager')) {
             $query =  $query;
         }
 

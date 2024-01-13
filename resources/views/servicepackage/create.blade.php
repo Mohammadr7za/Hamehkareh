@@ -24,7 +24,7 @@
                             {{ Form::text('name',old('name'),['placeholder' => trans('messages.name'),'class' =>'form-control','required']) }}
                             <small class="help-block with-errors text-danger"></small>
                         </div>
-                        @if(auth()->user()->hasAnyRole(['admin','demo_admin']))
+                        @if(auth()->user()->hasAnyRole(['admin','manager']))
                         <div class="form-group col-md-4">
                             {{ Form::label('name', __('messages.select_name',[ 'select' => __('messages.provider') ]).' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
                             <br />
@@ -55,10 +55,10 @@
                             {{ Form::label('name', __('messages.select_name',[ 'select' => __('messages.subcategory') ]).'',['class'=>'form-control-label'],false) }}
                             <br />
                             {{ Form::select('subcategory_id', [optional($servicepackage->subcategory)->id => optional($servicepackage->subcategory)->name], optional($servicepackage->subcategory)->id, [
-                                'class' => 'select2js form-group subcategory',                                    
+                                'class' => 'select2js form-group subcategory',
                                 'id' => 'subcategory_id',
                                 'data-placeholder' => __('messages.select_name',[ 'select' => __('messages.subcategory') ]),
-                               
+
                             ]) }}
                         </div>
                         <div class="form-group col-md-4">
@@ -217,14 +217,14 @@
                     getService(provider_id,category_id,subcategory_id)
                 })
             })
-            
+
             function hideShow(package_type){
                 if(package_type == 'single'){
                     $('#select_category').removeClass('d-none');
                     $('#select_subcategory').removeClass('d-none');
                     $('#category_id').prop('required', true);
                     $('#subcategory_id').prop('required', true);
-                } 
+                }
                 else{
                     $('#select_category').addClass('d-none');
                     $('#select_subcategory').addClass('d-none');
@@ -255,7 +255,7 @@
                     url: "{{ route('service-list') }}",
                     method:"POST",
                     data : { '_token': $('meta[name=csrf-token]').attr('content'),provider_id : provider_id,category_id:category_id,subcategory_id:subcategory_id },
-                   
+
                     success: function(result) {
                         console.log(result)
                         $('#service_id').select2({

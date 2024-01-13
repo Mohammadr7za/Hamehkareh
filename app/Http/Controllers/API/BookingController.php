@@ -511,7 +511,7 @@ class BookingController extends Controller
 
             if(auth()->user() !== null){
 
-                if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('demo_admin')){
+                if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('manager')){
                     $ratings = BookingRating::orderBy('id','desc');
                 }
                 else{

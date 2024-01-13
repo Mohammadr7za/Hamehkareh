@@ -175,7 +175,7 @@ class User extends Authenticatable implements HasMedia
 
     public function scopeMyUsers($query,$type=''){
         $user = auth()->user();
-        if($user->hasRole('admin') || $user->hasRole('demo_admin')) {
+        if($user->hasRole('admin') || $user->hasRole('manager')) {
             if($type === 'get_provider'){
                 $query->where('user_type', 'provider')->where('status',1);
             }

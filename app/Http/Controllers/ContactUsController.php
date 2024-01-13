@@ -13,12 +13,13 @@ class ContactUsController extends Controller
     public function __construct()
     {
         // Middleware only applied to these methods
-        $this->middleware('throttle:3', [
+        $this->middleware('throttle:30', [
             'only' => [
                 'store' // Could add bunch of more methods too
             ]
         ]);
     }
+
     /**
      * Display a listing of the resource.
      *
@@ -29,15 +30,14 @@ class ContactUsController extends Controller
         $filter = [
             'status' => $request->status,
         ];
-        $pageTitle = trans('messages.list_form_title',['form' => trans('messages.contactus')] );
+        $pageTitle = trans('messages.list_form_title', ['form' => trans('messages.contactus')]);
         $auth_user = authSession();
         $assets = ['datatable'];
-        return view('contactus.index', compact('pageTitle','auth_user','assets','filter'));
+        return view('contactus.index', compact('pageTitle', 'auth_user', 'assets', 'filter'));
     }
 
 
-
-    public function index_data(DataTables $datatable,Request $request)
+    public function index_data(DataTables $datatable, Request $request)
     {
         $query = ContactUs::query();
         $filter = $request->filter;
@@ -53,36 +53,33 @@ class ContactUsController extends Controller
 
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
-                return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
+                return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-' . $row->id . '"  name="datatable_ids[]" value="' . $row->id . '" onclick="dataTableRowCheck(' . $row->id . ')">';
             })
-
-            ->editColumn('title', function($query){
+            ->editColumn('title', function ($query) {
                 if (auth()->user()->can('plan edit')) {
-                    $link = '<a class="btn-link btn-link-hover" href='.route('plans.create', ['id' => $query->id]).'>'.$query->title.'</a>';
+                    $link = '<a class="btn-link btn-link-hover" href=' . route('plans.create', ['id' => $query->id]) . '>' . $query->title . '</a>';
                 } else {
                     $link = $query->title;
                 }
                 return $link;
             })
-
-
-            ->editColumn('status' , function ($query){
+            ->editColumn('status', function ($query) {
                 return '<div class="custom-control custom-switch custom-switch-text custom-switch-color custom-control-inline">
                     <div class="custom-switch-inner">
-                        <input type="checkbox" class="custom-control-input  change_status" data-type="plan_status" '.($query->status ? "checked" : "").'   value="'.$query->id.'" id="'.$query->id.'" data-id="'.$query->id.'">
-                        <label class="custom-control-label" for="'.$query->id.'" data-on-label="" data-off-label=""></label>
+                        <input type="checkbox" class="custom-control-input  change_status" data-type="plan_status" ' . ($query->status ? "checked" : "") . '   value="' . $query->id . '" id="' . $query->id . '" data-id="' . $query->id . '">
+                        <label class="custom-control-label" for="' . $query->id . '" data-on-label="" data-off-label=""></label>
                     </div>
                 </div>';
             })
-            ->editColumn('amount' , function ($query){
-                $price = !empty($query->amount)? getPriceFormat($query->amount) : '-';
+            ->editColumn('amount', function ($query) {
+                $price = !empty($query->amount) ? getPriceFormat($query->amount) : '-';
                 return $price;
             })
-            ->addColumn('action', function($plan){
-                return view('contactus.action',compact('plan'))->render();
+            ->addColumn('action', function ($plan) {
+                return view('contactus.action', compact('plan'))->render();
             })
             ->addIndexColumn()
-            ->rawColumns(['title','action','status','check'])
+            ->rawColumns(['title', 'action', 'status', 'check'])
             ->toJson();
     }
 
@@ -140,19 +137,33 @@ class ContactUsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(ContactUsRequest $request)
     {
+        $notification_data = [
+            'id' => $request->user()->id,
+            'type' => 'اضافه شدن تماس با ما',
+            'subject' => 'ثبت تماس با ما',
+            'message' => 'یک تماس با ما ثبت شد',
+            'notification-type' => 'تماس با ما',
+        ];
+
         $contactUsCreated = ContactUs::create($request->validated());
         $res = $contactUsCreated->id > 0;
+
+        if ($res) {
+            sendNotification('user', auth()->user(), $notification_data);
+            session()->flash("contact-us-created");
+        }
+        return redirect()->route('frontend.index');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -163,7 +174,7 @@ class ContactUsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -174,8 +185,8 @@ class ContactUsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -186,20 +197,20 @@ class ContactUsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
 
         $cotactus = ContactUs::find($id);
-        $msg= __('messages.msg_fail_to_delete',['item' => __('messages.contactus')] );
+        $msg = __('messages.msg_fail_to_delete', ['item' => __('messages.contactus')]);
 
-        if($cotactus!='') {
+        if ($cotactus != '') {
 
             $cotactus->delete();
-            $msg= __('messages.msg_deleted',['name' => __('messages.contactus')] );
+            $msg = __('messages.msg_deleted', ['name' => __('messages.contactus')]);
         }
-        return comman_custom_response(['message'=> $msg, 'status' => true]);
+        return comman_custom_response(['message' => $msg, 'status' => true]);
     }
 }

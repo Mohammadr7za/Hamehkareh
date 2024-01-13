@@ -49,7 +49,7 @@ class BookingRating extends Model
 
     public function scopeMyRating($query){
         $user = auth()->user();
-        if($user->hasRole('admin') || $user->hasRole('demo_admin')) {
+        if($user->hasRole('admin') || $user->hasRole('manager')) {
             $query =  $query;
         }
 

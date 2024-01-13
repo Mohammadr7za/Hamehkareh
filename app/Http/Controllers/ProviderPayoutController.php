@@ -45,7 +45,7 @@ class ProviderPayoutController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->newquery();
         }
-        
+
         return $datatable->eloquent($query)
         ->addColumn('check', function ($row) {
             return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
@@ -73,6 +73,7 @@ class ProviderPayoutController extends Controller
             return ($payout->amount != null && isset($payout->amount)) ? getPriceFormat($payout->amount) : '-';
         })
         ->editColumn('created_at', function($payout) {
+            return jdate($payout->created_at);
             return $payout->created_at;
         })
         ->addColumn('action', function($providerpayout){
@@ -150,7 +151,7 @@ class ProviderPayoutController extends Controller
         $provider_earning_value = number_format((float)$provider_earning['number_format'], 2, '.', '');
 
         $payoutdata->amount =(double)$provider_earning_value;
-    
+
         $payoutdata->provider_id = $id;
 
         return view('providerpayout.create', compact('pageTitle' ,'payoutdata' ,'auth_user' ));
@@ -181,7 +182,7 @@ class ProviderPayoutController extends Controller
               switch($payment_gateway){
 
                case 'razorpayx':
-                
+
                  $response=providerpayout_rezopayX($data);
 
                  if($response==''){
@@ -192,7 +193,7 @@ class ProviderPayoutController extends Controller
 
                  $payout_details = json_decode($response,True);
                  $payout = $payout_details;
-                  
+
                 if($error=$payout['error']['description']  ==''){
 
                     $payout_id=$payout['id'] ;
@@ -206,8 +207,8 @@ class ProviderPayoutController extends Controller
                      $razorpay_message=$payout['error']['description'];
 
                      return  redirect()->back()->withErrors(trans('messages.razorpay_message',['razorpay_message' => $razorpay_message]))->withInput();
-                
-                   }  
+
+                   }
                break;
 
                case 'stripe':
@@ -230,14 +231,14 @@ class ProviderPayoutController extends Controller
 
                 }else{
 
-        
+
 
                  $payout_id=$response['id'];
 
                    $status='';
 
                    if($payout_id!=''){
-                       
+
                         $status="paid";
                     }
 
@@ -251,25 +252,25 @@ class ProviderPayoutController extends Controller
                 break;
 
             }
-             
+
          }
 
         $result = ProviderPayout::create($data);
-     
+
         $activity_data = [
             'type' => 'provider_payout',
             'activity_type' => 'payout',
             'user_id' => $result->provider_id,
-            'amount' => $result->amount,   
+            'amount' => $result->amount,
         ];
         savePayoutActivity($activity_data);
 
         if($result){
-         
+
             if($data['payment_method'] === 'wallet'){
                 $wallet = Wallet::where('user_id',$data['provider_id'])->first();
                 if($wallet){
-            
+
                     $wallet_amount = $wallet->amount;
                     $payout_amount = $result->amount;
                     $final_wallet_amount = $wallet_amount - $payout_amount;
@@ -280,7 +281,7 @@ class ProviderPayoutController extends Controller
                         'transfer_amount' => $payout_amount ,
                         'wallet' => $wallet,
                     ];
-            
+
                     saveWalletHistory($activity_data);
                 }
             }
@@ -320,17 +321,17 @@ class ProviderPayoutController extends Controller
     public function ProviderPayout_index_data(DataTables $datatable,$id)
     {
         $query = ProviderPayout::where('provider_id',$id);
-       
+
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->newquery();
         }
-        
+
         return $datatable ->eloquent($query)
         ->editColumn('payment_method', function($payout) {
             return !empty($payout->payment_method) ? $payout->payment_method : 'cash';
         })
         ->addColumn('bank_name', function($payout) {
-           
+
         if($payout->payment_method == 'bank'){
             $bank = Bank::where('id',$payout->bank_id)->value('bank_name');
             return $bank;
@@ -338,7 +339,7 @@ class ProviderPayoutController extends Controller
         else{
             return '-';
         }
-        
+
         })
         ->editColumn('provider_id', function($payout) {
             return ($payout->providers != null && isset($payout->providers)) ? $payout->providers->display_name : '-';
@@ -347,6 +348,7 @@ class ProviderPayoutController extends Controller
             return ($payout->amount != null && isset($payout->amount)) ? getPriceFormat($payout->amount) : '-';
         })
         ->editColumn('created_at', function($payout) {
+            return jdate($payout->created_at);
             return $payout->created_at;
         })
         ->addIndexColumn()
@@ -391,14 +393,13 @@ class ProviderPayoutController extends Controller
         }
         $providerpayout = ProviderPayout::find($id);
         $msg= __('messages.msg_fail_to_delete',['item' => __('messages.providerpayout')] );
-        
-        if($providerpayout != '') { 
+
+        if($providerpayout != '') {
             $providerpayout->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.providerpayout')] );
         }
         return comman_custom_response(['message'=> $msg, 'status' => true]);
     }
-    
+
 }
 
- 

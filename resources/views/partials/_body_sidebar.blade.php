@@ -417,7 +417,7 @@ $menu->pages->add('<span>'.__('messages.refund_cancellation_policy').'</span>', 
 ->link->attr(['class' => '']);
 
 $menu->pages->add('<span>'.__('messages.blog').'</span>', ['class' => 'sidebar-layout' ,'route' => 'blog.index'])
-->data('role', ['admin','provider','demo_admin'])
+->data('role', ['admin','provider','manager'])
 ->prepend('<svg width="15" height="15" class="sidebar-menu-icon" viewBox="0 0 15 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M6.4075 14H1.75V6.5H12.25V9.785L13.75 8.285V3.5C13.75 2.675 13.075 2 12.25 2H11.5V0.5H10V2H4V0.5H2.5V2H1.75C0.9175 2 0.2575 2.675 0.2575 3.5L0.25 14C0.25 14.825 0.9175 15.5 1.75 15.5H7.9075L6.4075 14ZM1.75 3.5H12.25V5H1.75V3.5ZM10.405 15.875L7.75 13.22L8.8075 12.1625L10.3975 13.7525L13.5775 10.5725L14.635 11.63L10.405 15.875ZM5.8075 9.5L7 10.6925L5.9425 11.75L4.75 10.5575L3.5575 11.75L2.5 10.6925L3.6925 9.5L2.5 8.3075L3.5575 7.25L4.75 8.4425L5.9425 7.25L7 8.3075L5.8075 9.5Z" fill="#6C757D" />
 </svg>')
@@ -555,7 +555,7 @@ return checkMenuRoleAndPermission($item);
             <img class="avatar-50 rounded-circle bg-light" alt="user-icon" src="{{ getSingleMedia(auth()->user(),'profile_image', null) }}">
             </div>
             <div class="user-info">
-                <h5 class="user-email">{{auth()->user()->email}}</h5>
+                <h5 class="user-email" style="word-break: break-word; text-align: left">{{auth()->user()->email}}</h5>
                 <span class="user-name">{{auth()->user()->display_name}}</span>
             </div>
         </div>

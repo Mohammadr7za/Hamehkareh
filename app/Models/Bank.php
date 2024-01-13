@@ -25,7 +25,7 @@ class Bank extends Model implements HasMedia
     }
     public function scopeMyBank($query){
         $user = auth()->user();
-        if($user->hasRole('admin') || $user->hasRole('demo_admin')) {
+        if($user->hasRole('admin') || $user->hasRole('manager')) {
             $query =  $query;
         }
 

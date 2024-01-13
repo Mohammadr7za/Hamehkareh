@@ -18,7 +18,7 @@ class Payment extends Model
         'discount'      => 'double',
         'total_amount'  => 'double',
     ];
-    
+
     public function customer(){
         return $this->belongsTo(User::class,'customer_id', 'id')->withTrashed();
     }
@@ -28,7 +28,7 @@ class Payment extends Model
     public function scopeMyPayment($query)
     {
         $user = auth()->user();
-        if($user->hasAnyRole(['admin', 'demo_admin'])){
+        if($user->hasAnyRole(['admin', 'manager'])){
             return $query;
         }
 

@@ -63,7 +63,7 @@
                                         'data-ajax--url' => route('ajax-list', ['type' => 'handymantype']),
                                     ]) }}
                             </div>
-                            @if(auth()->user()->hasAnyRole(['admin','demo_admin']))
+                            @if(auth()->user()->hasAnyRole(['admin','manager']))
                             <div class="form-group col-md-4">
                                 {{ Form::label('provider_id', __('messages.select_name',[ 'select' => __('messages.providers') ]).' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
                                 <br />

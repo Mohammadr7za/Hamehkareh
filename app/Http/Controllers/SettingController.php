@@ -32,7 +32,7 @@ class SettingController extends Controller
         $page = $request->page;
 
         if ($page == '') {
-            if ($auth_user->hasAnyRole(['admin', 'demo_admin'])) {
+            if ($auth_user->hasAnyRole(['admin', 'manager'])) {
                 $page = 'general-setting';
             } else {
                 $page = 'profile_form';
@@ -56,17 +56,17 @@ class SettingController extends Controller
 
             $current_time = \Carbon\Carbon::now();
             $time = $current_time->toTimeString();
-    
+
             $current_day = strtolower(date('D'));
-    
+
             $provider_id = $request->id ?? auth()->user()->id;
-    
+
             $days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
-    
+
             $slotsArray = ['days' => $days];
             $activeDay = 'mon';
-            $activeSlots = []; 
-    
+            $activeSlots = [];
+
             foreach ($days as $value) {
                 $slot = ProviderSlotMapping::where('provider_id', $provider_id)
                 ->where('days', $value)
@@ -74,16 +74,16 @@ class SettingController extends Controller
                 ->selectRaw("SUBSTRING(start_at, 1, 5) as start_at")
                 ->pluck('start_at')
                 ->toArray();
-            
+
                 $obj = [
                     "day" => $value,
                     "slot" => $slot,
                 ];
                 $slotsArray[] = $obj;
                 $activeSlots[$value] = $slot;
-    
+
             }
-            $pageTitle = __('messages.slot', ['form' => __('messages.slot')]);    
+            $pageTitle = __('messages.slot', ['form' => __('messages.slot')]);
         }
         if (count($envSettting) > 0) {
             $envSettting_value = Setting::whereIn('key', array_keys($envSettting))->get();
@@ -101,13 +101,13 @@ class SettingController extends Controller
                 $data  = view('setting.' . $page, compact('settings', 'user_data', 'page'))->render();
                 break;
             case 'profile_form':
-                $why_choose_me = json_decode($user_data->why_choose_me, true); 
+                $why_choose_me = json_decode($user_data->why_choose_me, true);
 
                 if ($why_choose_me !== null && is_array($why_choose_me)) {
                     $user_data['title'] = $why_choose_me['title'] ?? null;
                     $user_data['about_description'] = $why_choose_me['about_description'] ?? null;
                     $user_data['reason'] = $why_choose_me['reason'] ?? null;
-  
+
                 } else {
                     $user_data['title'] =  null;
                     $user_data['about_description'] = null;
@@ -155,7 +155,7 @@ class SettingController extends Controller
                 if(!empty($othersetting['value'])){
                     $decodedata = json_decode($othersetting['value']);
 
-                
+
                     $othersetting['social_login'] = $decodedata->social_login;
                     $othersetting['google_login'] = $decodedata->google_login;
                     $othersetting['apple_login'] = $decodedata->apple_login;
@@ -175,10 +175,10 @@ class SettingController extends Controller
                     $othersetting['advanced_payment_setting'] = $decodedata->advanced_payment_setting;
                     $othersetting['wallet'] = $decodedata->wallet;
                     // $othersetting['maintenance_mode_secret_code'] = $decodedata->maintenance_mode_secret_code;
-                    
+
                 }
 
-                  
+
                 $data = view('setting.' . $page, compact('settings', 'page','othersetting'))->render();
                 break;
             default:
@@ -466,7 +466,7 @@ class SettingController extends Controller
         storeMediaFile($res, $request->app_image, 'app_image');
         return redirect()->route('setting.index', ['page' => 'config-setting'])->withSuccess(__('messages.updated'));
     }
-    
+
 
     public function dashboardtogglesetting(Request $request)
     {
@@ -516,7 +516,7 @@ class SettingController extends Controller
     public function sendPushNotification(Request $request)
     {
         $data = $request->all();
-       
+
         if ($data['type'] === 'alldata') {
             $data['service_id'] = 0;
         }
@@ -531,7 +531,7 @@ class SettingController extends Controller
             "en" => $data['description']
         );
         if($data['is_type'] == 'provider'){
-          
+
             $fields = array(
                 'app_id' => ENV('ONESIGNAL_APP_ID_PROVIDER'),
                 'included_segments' => array(
@@ -563,7 +563,7 @@ class SettingController extends Controller
             $fields = json_encode($fields);
             $rest_api_key = ENV('ONESIGNAL_REST_API_KEY');
         }
-        
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
@@ -612,7 +612,7 @@ class SettingController extends Controller
         return view('setting.comission', compact('pageTitle', 'providerdata', 'auth_user'));
     }
 
-    /* advance earnning setting */ 
+    /* advance earnning setting */
     public function advanceEarningSetting(Request $request)
         {
             $data = $request->all();
@@ -624,7 +624,7 @@ class SettingController extends Controller
             else{
                 $data['value'] = 0;
             }
-            $data = [ 
+            $data = [
                 'type' => 'ADVANCED_PAYMENT_SETTING',
                 'key'  => 'ADVANCED_PAYMENT',
                 'value' =>$data['value'],
@@ -641,14 +641,14 @@ class SettingController extends Controller
         $data = $request->all();
         $value = json_encode($request->except('_token'));
         $message = trans('messages.failed');
-        
+
         if($request->value == 'on'){
             $data['value'] = 1;
         }
         else{
             $data['value'] = 0;
         }
-        $data = [ 
+        $data = [
 
             'type' => 'USER_WALLET_SETTING',
             'key'  => 'ENABLE_USER_WALLET',
@@ -665,7 +665,7 @@ class SettingController extends Controller
   public function otherSetting(Request $request)
    {
     $data = $request->all();
-   
+
     $message = trans('messages.failed');
 
     $other_setting_data['social_login'] = (isset($data['social_login']) && $data['social_login'] == 'on') ? 1 : 0;
@@ -691,7 +691,7 @@ class SettingController extends Controller
     // if($other_setting_data['maintenance_mode']==1){
 
     //     \Artisan::call('down', ['--secret' => $other_setting_data['maintenance_mode_secret_code']]);
-       
+
     //   }else{
 
     //     \Artisan::call('up');
@@ -700,7 +700,7 @@ class SettingController extends Controller
     $data = [
         'type'  => 'OTHER_SETTING',
         'key'   => 'OTHER_SETTING',
-        'value' => json_encode($other_setting_data), 
+        'value' => json_encode($other_setting_data),
     ];
 
     $res = Setting::updateOrCreate(['type' => 'OTHER_SETTING', 'key' => 'OTHER_SETTING'], $data);
@@ -712,5 +712,5 @@ class SettingController extends Controller
     return redirect()->route('setting.index')->withSuccess($message);
   }
 
-    
+
 }

@@ -15,7 +15,7 @@ class ProviderAddressMapping extends Model
         'provider_id'   => 'integer',
         'status'        => 'integer',
     ];
-    
+
     public function providers(){
         return $this->belongsTo(User::class, 'provider_id','id');
     }
@@ -26,14 +26,14 @@ class ProviderAddressMapping extends Model
 
     public function scopeMyAddress($query){
         $user = auth()->user();
-        if($user->hasRole('admin') || $user->hasRole('demo_admin')) {
+        if($user->hasRole('admin') || $user->hasRole('manager')) {
             return $query;
         }
 
         if($user->hasRole('provider')) {
             return $query->where('provider_id', $user->id);
         }
-        
+
         return $query;
     }
 

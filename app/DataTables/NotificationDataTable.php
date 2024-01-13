@@ -29,6 +29,7 @@ class NotificationDataTable extends DataTable
                 return $row->data['message'];
             })
             ->editColumn('created_at', function ($row) {
+                return jdate($row->created_at)->format('Y/m/d');
                 return dateAgoFormate($row->created_at,true);
             })
 
@@ -37,6 +38,7 @@ class NotificationDataTable extends DataTable
             })
 
             ->editColumn('updated_at', function ($row) {
+                return jdate($row->updated_at);
                 return dateAgoFormate($row->updated_at,true);
             })
             ->editColumn('action', function ($row) {

@@ -38,7 +38,7 @@
                                 {{ Form::text('username',old('username'),['placeholder' => __('messages.username'),'class' =>'form-control','required']) }}
                                 <small class="help-block with-errors text-danger"></small>
                             </div>
-                            @if(auth()->user()->hasAnyRole(['admin','demo_admin']))
+                            @if(auth()->user()->hasAnyRole(['admin','manager']))
                             <div class="form-group col-md-4">
                                 {{ Form::label('user_type',__('messages.user_type').' <span class="text-danger">*</span>',['class'=>'form-control-label'], false ) }}
                                 <select class='form-control select2js' id='user_type' name="user_type">

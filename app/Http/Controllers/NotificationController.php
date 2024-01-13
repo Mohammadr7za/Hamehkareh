@@ -29,9 +29,11 @@ class NotificationController extends Controller
                 return $row->data['message'];
             })
             ->editColumn('created_at', function ($row) {
+                return jdate($row->created_at);
                 return (jdate($row->created_at));
             })
             ->editColumn('updated_at', function ($row) {
+                return jdate($row->created_at);
                 return (jdate($row->updated_at));
             })
             ->setRowClass(function ($user) {

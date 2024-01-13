@@ -40,7 +40,7 @@ class HandymanPayoutController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->newquery();
         }
-        
+
         return $datatable->eloquent($query)
         ->addColumn('check', function ($row) {
             return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
@@ -68,6 +68,7 @@ class HandymanPayoutController extends Controller
             return ($payout->amount != null && isset($payout->amount)) ? getPriceFormat($payout->amount) : '-';
         })
         ->editColumn('created_at', function($payout) {
+            return jdate($payout->created_at);
             return $payout->created_at;
         })
         ->addColumn('action', function($handymanpayout){
@@ -126,7 +127,7 @@ class HandymanPayoutController extends Controller
         $get_commission = HandymanType::withTrashed()->where('id',$handymantype_id)->first();
 
         $totalEarning = HandymanPayout::where('handyman_id',$id)->sum('amount');
-        
+
         $commission = $get_commission->commission;
 
         $handyman_bookings = BookingHandymanMapping::with('bookings')->where('handyman_id',$id)->whereHas('bookings',function ($q){
@@ -140,7 +141,7 @@ class HandymanPayoutController extends Controller
         $total = array_reduce($all_booking_total, function ($value1, $value2) {
             return $value1 + $value2;
         }, 0);
-        
+
         $earning =   ($commission * count($handyman_bookings));
         if($get_commission->type === 'percent'){
             $earning =  ($total) * $commission / 100;
@@ -148,7 +149,7 @@ class HandymanPayoutController extends Controller
         $final_amount = $earning - $totalEarning;
 
         $providerEarning = ProviderPayout::where('provider_id',$handymandata->provider_id)->sum('amount');
-       
+
         if($earning <= 0){
             if (request()->wantsJson()) {
                 return response()->json(['messages' => __('messages.provider_earning_error'), 'status' => false]);
@@ -156,7 +157,7 @@ class HandymanPayoutController extends Controller
                 return redirect()->route('home')->with('error', __('messages.provider_earning_error'));
             }
         }
-        
+
 
         $payoutdata->amount = number_format((float)$final_amount, 2, '.', '');
 
@@ -194,7 +195,7 @@ class HandymanPayoutController extends Controller
             'amount' => $result->amount,
         ];
         savePayoutActivity($activity_data);
-    
+
         return redirect()->route('handymanEarning')->with('success', __('messages.created_success',['form' => 'Handyman Payout']));
     }
 
@@ -245,8 +246,8 @@ class HandymanPayoutController extends Controller
         }
         $handymanpayout = HandymanPayout::find($id);
         $msg= __('messages.msg_fail_to_delete',['item' => __('messages.handymanpayout')] );
-        
-        if($handymanpayout != '') { 
+
+        if($handymanpayout != '') {
             $handymanpayout->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.handymanpayout')] );
         }

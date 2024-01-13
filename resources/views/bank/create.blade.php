@@ -19,7 +19,7 @@
                         {{ Form::model($bankdata,['method' => 'POST','route'=>'bank.store', 'enctype'=>'multipart/form-data', 'data-toggle'=>"validator" ,'id'=>'bank'] ) }}
                         {{ Form::hidden('id') }}
                         <div class="row">
-                            @if(auth()->user()->hasAnyRole(['admin','demo_admin']))
+                            @if(auth()->user()->hasAnyRole(['admin','manager']))
                             <div class="form-group col-md-4">
                                 {{ Form::label('name', __('messages.select_name',[ 'select' => __('messages.user') ]).' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
                                 <br />

@@ -11,7 +11,7 @@
         <div class="d-flex flex-wrap flex-xxl-nowrap gap-3" data-select2-id="select2-data-8-5c7s">
             <div class="w3-third">
                 @if($bookingdata->handymanAdded->count() == 0)
-                    @hasanyrole('admin|demo_admin|provider')
+                    @hasanyrole('admin|manager|provider')
                         <a href="{{ route('booking.assign_form',['id'=> $bookingdata->id ]) }}"
                         class="float-right btn btn-sm btn-primary loadRemoteModel"><i class="lab la-telegram-plane"></i>
                         {{ __('messages.assign') }}</a>
@@ -39,7 +39,7 @@
             <div class="row mb-2">
                 <div class="col-sm-6"><span>{{__('messages.booking_status')}} :</span></div>
                 <div class="col-sm-6 align-text">
-                    <span class="c1" id="booking_status__span">{{  App\Models\BookingStatus::bookingStatus($bookingdata->status)}}</span>      
+                    <span class="c1" id="booking_status__span">{{  App\Models\BookingStatus::bookingStatus($bookingdata->status)}}</span>
                 </div>
                 @if($bookingdata->status === "cancelled")
                     <div class="col-sm-6"><span>{{__('messages.reason')}} :</span></div>
@@ -241,7 +241,7 @@
                             <td>{{__('messages.subtotal_vat')}}</td>
                             <td class="bk-value">{{getPriceFormat($bookingdata->final_sub_total)}}</td>
                         </tr>
-                         
+
                         @if($bookingdata->bookingExtraCharge->count() > 0 )
                         <tr>
                             <td>{{__('messages.extra_charge')}} </td>
@@ -255,13 +255,13 @@
                             <td class="text-right text-success">+{{getPriceFormat($addonTotalPrice)}}</td>
                         </tr>
                         @endif
-                      
+
                         <tr>
                             <td>{{__('messages.tax')}}</td>
                             <td class="text-right text-danger">{{getPriceFormat($bookingdata->final_total_tax)}}</td>
                         </tr>
-                     
-                      
+
+
                         <tr class="grand-total">
                             <td><strong>{{__('messages.grand_total')}}</strong></td>
                             <td class="bk-value">

@@ -35,7 +35,7 @@ class PaymentHistory extends Model
     public function scopeMyHistory($query)
     {
         $user = auth()->user();
-        if($user->hasAnyRole(['admin', 'demo_admin'])){
+        if($user->hasAnyRole(['admin', 'manager'])){
             return $query;
         }
 

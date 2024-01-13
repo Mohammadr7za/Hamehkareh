@@ -19,7 +19,7 @@
                         {{ Form::model($provider_document,['method' => 'POST','route'=>'providerdocument.store', 'enctype'=>'multipart/form-data', 'data-toggle'=>"validator" ,'id'=>'provider_document'] ) }}
                             {{ Form::hidden('id') }}
                             <div class="row">
-                                @if(auth()->user()->hasAnyRole(['admin','demo_admin']))
+                                @if(auth()->user()->hasAnyRole(['admin','manager']))
                                 <div class="form-group col-md-4">
                                     {{ Form::label('provider_id', __('messages.select_name',[ 'select' => __('messages.providers') ]).' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
                                     <br />
@@ -48,7 +48,7 @@
                                     }}
                                     <a href="{{ route('document.create') }}"><i class="fa fa-plus-circle mt-2"></i> {{ trans('messages.add_form_title',['form' => trans('messages.document')  ]) }}</a>
                                 </div>
-                                @if(auth()->user()->hasAnyRole(['admin','demo_admin']))
+                                @if(auth()->user()->hasAnyRole(['admin','manager']))
                                 <div class="form-group col-md-4">
                                     {{ Form::label('is_verified',trans('messages.is_verify').' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
                                     {{ Form::select('is_verified',['1' => __('messages.verified') , '0' => __('messages.unverified') ],old('is_verified'),[ 'id' => 'is_verified' ,'class' =>'form-control select2js','required']) }}
@@ -68,10 +68,10 @@
                                         <?php
                                             $file_extention = config('constant.IMAGE_EXTENTIONS');
                                             $image = getSingleMedia($provider_document,'provider_document');
-                                            
+
                                             $extention = in_array(strtolower(imageExtention($image)),$file_extention);
                                         ?>
-                                            @if($extention)   
+                                            @if($extention)
                                                 <img id="provider_document_preview" src="{{ $image }}" alt="#" class="attachment-image mt-1" >
                                             @else
                                                 <img id="provider_document_preview" src="{{ asset('images/file.png') }}" class="attachment-file">
@@ -95,15 +95,15 @@
                 </div>
             </div>
         </div>
-    </div>  
+    </div>
     @section('bottom_script')
         <script type="text/javascript">
             (function($) {
                 "use strict";
-                    $(document).ready(function(){ 
+                    $(document).ready(function(){
                         $(document).on('change' , '#document_id' , function (){
                             var data = $('#document_id').select2('data')[0];
-                           
+
                             if(data.is_required == 1)
                             {
                                 $('#document_required').text('*');

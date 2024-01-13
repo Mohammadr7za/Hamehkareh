@@ -36,6 +36,7 @@ class PayoutHistoryDataTable extends DataTable
                 return ($payout->amount != null && isset($payout->amount)) ? getPriceFormat($payout->amount) : '-';
             })
             ->editColumn('created_at', function($payout) {
+                return jdate($payout->created_at);
                 return $payout->created_at;
             })
             ->addIndexColumn();
@@ -50,7 +51,7 @@ class PayoutHistoryDataTable extends DataTable
     public function query(ProviderPayout $model)
     {
         return $model->newQuery()->myPayout();
-        
+
     }
     /**
      * Get columns.

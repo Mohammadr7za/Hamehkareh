@@ -24,7 +24,7 @@
                                 {{ Form::text('title',old('title'),['placeholder' => trans('messages.title'),'class' =>'form-control','required']) }}
                                 <small class="help-block with-errors text-danger"></small>
                             </div>
-                            @if(auth()->user()->hasAnyRole(['admin','demo_admin']))
+                            @if(auth()->user()->hasAnyRole(['admin','manager']))
                             <div class="form-group col-md-4">
                                 {{ Form::label('name', __('messages.select_name',[ 'select' => __('messages.author') ]),['class'=>'form-control-label'],false) }}
                                 <br />

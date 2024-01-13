@@ -19,7 +19,7 @@
                         {{ Form::model($provideraddress ?? '',['method' => 'POST','route'=>'provideraddress.store', 'data-toggle'=>"validator" ,'id'=>'provideraddress'] ) }}
                             {{ Form::hidden('id') }}
                             <div class="row">
-                                @if(auth()->user()->hasAnyRole(['admin','demo_admin']))
+                                @if(auth()->user()->hasAnyRole(['admin','manager']))
                                     <div class="form-group col-md-4">
                                         {{ Form::label('provider_id', __('messages.select_name',[ 'select' => __('messages.providers') ]).' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
                                         <br />
@@ -31,8 +31,8 @@
                                         ]) }}
                                     </div>
                                 @endif
-                              
-                                
+
+
                                 <div id="latFields" class="form-group col-md-4">
                                     {{ Form::label('latitude',__('messages.latitude').' ',['class'=>'form-control-label'], false ) }}
                                     {{ Form::number('latitude',old('latitude'), ['id' => 'latitude', 'placeholder' => '00.0000','class' =>'form-control','step'=>'any']) }}
@@ -52,7 +52,7 @@
                                     {{ Form::label('address',__('messages.address').' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
                                     {{ Form::textarea('address', null, ['id' => 'address-input', 'class'=>"form-control textarea" , 'required','rows'=>3  , 'placeholder'=> __('messages.address') ]) }}
                                     <small class="help-block with-errors text-danger"></small>
-                                </div>  
+                                </div>
                             </div>
                             {{ Form::submit( __('messages.save'), ['class'=>'btn btn-md btn-primary float-right']) }}
                         {{ Form::close() }}
@@ -76,7 +76,7 @@
                     var latitude = response.latitude;
                     var longitude = response.longitude;
                     if (latitude != null && longitude != null) {
-                       
+
                         $('#latitude').val(latitude);
                         $('#longitude').val(longitude);
                     }
@@ -85,7 +85,7 @@
                     console.error('Error:', error);
                 }
             });
-        } 
+        }
     });
 
 </script>

@@ -72,7 +72,7 @@ class HomeController extends Controller
         ];
 
         $total_revenue  = Payment::where('payment_status', 'paid');
-        if (auth()->user()->hasAnyRole(['admin', 'demo_admin'])) {
+        if (auth()->user()->hasAnyRole(['admin', 'manager'])) {
             $data['revenueData']    =  adminEarning();
         }
         if ($user->hasRole('provider')) {
@@ -85,12 +85,12 @@ class HomeController extends Controller
             $data['revenuelableData']    =    [];
             for ($i = 1; $i <= 12; $i++) {
                 $revenueData = 0;
-             
+
                 foreach ($revenuedata as $revenue) {
                     if ((int)$revenue['month'] == $i) {
                         $data['revenueData'][] = (int)$revenue['total'];
                         $revenueData++;
-                       
+
                     }
                 }
                 if ($revenueData == 0) {
@@ -111,10 +111,10 @@ class HomeController extends Controller
         if ($user->hasRole('handyman')) {
             $data['total_revenue']  = HandymanPayout::where('handyman_id', $user->id)->sum('amount') ?? 0;
 
-          
+
         }
 
-        if (auth()->user()->hasAnyRole(['admin', 'demo_admin'])) {
+        if (auth()->user()->hasAnyRole(['admin', 'manager'])) {
             return $this->adminDashboard($data);
         } else if (auth()->user()->hasAnyRole('provider')) {
             return $this->providerDashboard($data);
@@ -370,11 +370,11 @@ class HomeController extends Controller
                     $items = \App\Models\User::select('id', 'display_name as text')
                         ->where('user_type', 'provider')->orWhere('user_type','user')
                         ->where('status', 1);
-    
+
                     if ($value != '') {
                         $items->where('display_name', 'LIKE', $value . '%');
                     }
-    
+
                     $items = $items->get();
                     break;
 
@@ -416,14 +416,14 @@ class HomeController extends Controller
                 break;
             case 'service-list':
                     $items = \App\Models\Service::select('id', 'name as text')->where('status', 1)->where('service_type','service');
-    
+
                     if ($value != '') {
                         $items->where('name', 'LIKE', '%' . $value . '%');
                     }
                     if (isset($request->provider_id)) {
                         $items->where('provider_id', $request->provider_id);
                     }
-    
+
                     $items = $items->get();
                     break;
             case 'providertype':
@@ -448,7 +448,7 @@ class HomeController extends Controller
 
                 case 'bank':
                     $items = \App\Models\Bank::select('id', 'bank_name as text')->where('provider_id',$request->provider_id)->where('status',1);
-    
+
                     if ($value != '') {
                         $items->where('name', 'LIKE', $value . '%');
                     }

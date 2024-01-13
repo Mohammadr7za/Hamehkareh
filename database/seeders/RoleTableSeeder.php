@@ -14,12 +14,12 @@ class RoleTableSeeder extends Seeder
      */
     public function run()
     {
-        
+
 
         \DB::table('roles')->delete();
-        
+
         \DB::table('roles')->insert(array (
-            0 => 
+            0 =>
             array (
                 'id' => 1,
                 'name' => 'admin',
@@ -28,16 +28,16 @@ class RoleTableSeeder extends Seeder
                 'created_at' => '2021-06-03 12:23:01',
                 'updated_at' => '2021-06-03 12:23:03',
             ),
-            1 => 
+            1 =>
             array (
                 'id' => 2,
-                'name' => 'demo_admin',
+                'name' => 'manager',
                 'guard_name' => 'web',
                 'status' => 1,
                 'created_at' => '2021-06-03 12:23:16',
                 'updated_at' => '2021-06-04 10:24:13',
             ),
-            2 => 
+            2 =>
             array (
                 'id' => 3,
                 'name' => 'user',
@@ -46,7 +46,7 @@ class RoleTableSeeder extends Seeder
                 'created_at' => '2021-06-04 10:31:46',
                 'updated_at' => '2021-06-04 10:31:46',
             ),
-            3 => 
+            3 =>
             array (
                 'id' => 4,
                 'name' => 'provider',
@@ -55,7 +55,7 @@ class RoleTableSeeder extends Seeder
                 'created_at' => '2021-06-04 10:31:46',
                 'updated_at' => '2021-06-04 10:31:46',
             ),
-            4 => 
+            4 =>
             array (
                 'id' => 5,
                 'name' => 'handyman',
@@ -65,7 +65,7 @@ class RoleTableSeeder extends Seeder
                 'updated_at' => '2021-06-04 10:31:46',
             ),
         ));
-        
-        
+
+
     }
 }

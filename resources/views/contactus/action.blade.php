@@ -4,7 +4,7 @@
 ?>
 {{ Form::open(['route' => ['contactus.destroy', $plan->id], 'method' => 'delete','data--submit'=>'plan'.$plan->id]) }}
 <div class="d-flex justify-content-end align-items-center">
-    @if(auth()->user()->hasAnyRole(['admin','demo_admin']))
+    @if(auth()->user()->hasAnyRole(['admin','manager']))
         <a class="mr-3" href="{{ route('contactus.destroy', $plan->id) }}" data--submit="plan{{$plan->id}}"
             data--confirmation='true'
             data--ajax="true"

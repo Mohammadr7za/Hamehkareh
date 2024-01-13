@@ -38,7 +38,7 @@ class BookingRatingController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->newQuery();
         }
-        
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
@@ -74,7 +74,7 @@ class BookingRatingController extends Controller
         $ids = explode(',', $request->rowIds);
 
         $actionType = $request->action_type;
-       
+
         $message = 'Bulk Action Updated';
         switch ($actionType) {
             case 'change-status':

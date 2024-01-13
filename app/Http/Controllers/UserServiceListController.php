@@ -11,12 +11,12 @@ use App\Models\PackageServiceMapping;
 
 class UserServiceListController extends Controller
 {
-   
+
     public function index_data(DataTables $datatable,Request $request)
     {
-       
+
         $query = Service::query();
-        
+
 
         $filter = $request->filter;
 
@@ -28,7 +28,7 @@ class UserServiceListController extends Controller
         if(auth()->user()->hasAnyRole(['admin'])){
             $query = $query->where('service_type','user_post_service')->withTrashed();
         }
-        
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
 
@@ -50,7 +50,7 @@ class UserServiceListController extends Controller
             //     } else {
             //         return '';
             //     }
-                
+
             // })
             ->editColumn('customer_id', function ($service) {
                 $services = Service::with('serviceBooking.customer')->get();
@@ -60,7 +60,7 @@ class UserServiceListController extends Controller
                 } else {
                     return '-';
                 }
-                
+
             })
             ->filterColumn('customer_id',function($query,$keyword){
                 $query->whereHas('serviceBooking.customer',function ($q) use($keyword){
@@ -70,7 +70,7 @@ class UserServiceListController extends Controller
             ->editColumn('price' , function ($service){
                 return getPriceFormat($service->price).'-'.ucFirst($service->type);
             })
-            
+
             ->editColumn('discount' , function ($service){
                 return $service->discount ? $service->discount .'%' : '-';
             })
@@ -88,5 +88,5 @@ class UserServiceListController extends Controller
             })
             ->rawColumns(['check','action','status','is_featured'])
             ->toJson();
-    }   
+    }
 }

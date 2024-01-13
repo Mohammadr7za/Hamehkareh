@@ -40,7 +40,7 @@ class WalletController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->newquery();
         }
-        
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
@@ -113,12 +113,12 @@ class WalletController extends Controller
 
         $wallet = Wallet::find($id);
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.wallet')]);
-        
+
         if($wallet == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.wallet')]);
             $wallet = new Wallet;
         }
-        
+
         return view('wallet.create', compact('pageTitle' ,'wallet' ,'auth_user' ));
     }
 
@@ -145,14 +145,14 @@ class WalletController extends Controller
         }
         $result = Wallet::updateOrCreate(['id' => $data['id'] ],$data);
 
-       
+
         $message = trans('messages.update_form',['form' => trans('messages.wallet')]);
         if($result->wasRecentlyCreated){
             $activity_data = [
                 'activity_type' => 'add_wallet',
                 'wallet' => $result,
             ];
-    
+
             saveWalletHistory($activity_data);
             $message = trans('messages.save_form',['form' => trans('messages.wallet')]);
         }else{
@@ -168,7 +168,7 @@ class WalletController extends Controller
         if($request->is('api/*')) {
             return comman_message_response($message);
 		}
-        return redirect(route('wallet.index'))->withSuccess($message); 
+        return redirect(route('wallet.index'))->withSuccess($message);
     }
 
     /**
@@ -187,11 +187,11 @@ class WalletController extends Controller
 
     public function wallethistory_index_data(DataTables $datatable,$id){
         $query = WalletHistory::where('user_id',$id)->orderBy('id','desc')->newQuery();
-       
+
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->newquery();
         }
-        
+
         return $datatable ->eloquent($query)
         ->editColumn('user_id' , function ($history){
             return ($history->user_id != null && isset($history->providers)) ? $history->providers->display_name : '-';
@@ -239,8 +239,8 @@ class WalletController extends Controller
         }
         $wallet = Wallet::find($id);
         $msg= __('messages.msg_fail_to_delete',['item' => __('messages.wallet')] );
-        
-        if($wallet != '') { 
+
+        if($wallet != '') {
             $wallet->delete();
             $msg= __('messages.wallet_deleted');
         }

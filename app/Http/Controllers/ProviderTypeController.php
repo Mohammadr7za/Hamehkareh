@@ -41,18 +41,18 @@ class ProviderTypeController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->withTrashed();
         }
-        
+
         return $datatable->eloquent($query)
         ->addColumn('check', function ($row) {
             return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="providertype" onclick="dataTableRowCheck('.$row->id.',this)">';
         })
-         
 
-            ->editColumn('name', function($query){                
+
+            ->editColumn('name', function($query){
                 if (auth()->user()->can('providertype edit')) {
                     $link = '<a class="btn-link btn-link-hover" href='.route('providertype.create', ['id' => $query->id]).'>'.$query->name.'</a>';
                 } else {
-                    $link = $query->name; 
+                    $link = $query->name;
                 }
                 return $link;
             })
@@ -89,7 +89,7 @@ class ProviderTypeController extends Controller
         $actionType = $request->action_type;
 
         $message = 'Bulk Action Updated';
-        
+
         switch ($actionType) {
             case 'change-status':
                 $branches = ProviderType::whereIn('id', $ids)->update(['status' => $request->status]);
@@ -105,7 +105,7 @@ class ProviderTypeController extends Controller
                 ProviderType::whereIn('id', $ids)->restore();
                 $message = 'Bulk Provider Type Restored';
                 break;
-                
+
             case 'permanently-delete':
                 ProviderType::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Provider Type Permanently Deleted';
@@ -131,12 +131,12 @@ class ProviderTypeController extends Controller
 
         $providertypedata = ProviderType::find($id);
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.providertype')]);
-        
+
         if($providertypedata == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.providertype')]);
             $providertypedata = new ProviderType;
         }
-        
+
         return view('providertype.create', compact('pageTitle' ,'providertypedata' ,'auth_user' ));
     }
 
@@ -152,8 +152,8 @@ class ProviderTypeController extends Controller
             return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
         $data = $request->all();
-       
-       
+
+
         $result = ProviderType::updateOrCreate(['id' => $data['id'] ],$data);
 
         $message = trans('messages.update_form',['form' => trans('messages.providertype')]);
@@ -163,7 +163,7 @@ class ProviderTypeController extends Controller
         if($request->is('api/*')) {
             return comman_message_response($message);
 		}
-        return redirect(route('providertype.index'))->withSuccess($message);        
+        return redirect(route('providertype.index'))->withSuccess($message);
     }
 
     /**
@@ -213,8 +213,8 @@ class ProviderTypeController extends Controller
         }
         $providertype = ProviderType::find($id);
         $msg= __('messages.msg_fail_to_delete',['item' => __('messages.providertype')] );
-        
-        if($providertype != '') { 
+
+        if($providertype != '') {
             $providertype->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.providertype')] );
         }

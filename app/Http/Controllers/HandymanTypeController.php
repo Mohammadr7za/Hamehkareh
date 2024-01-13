@@ -42,17 +42,17 @@ class HandymanTypeController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->withTrashed();
         }
-        
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
             })
-          
-            ->editColumn('name', function($query){                
+
+            ->editColumn('name', function($query){
                 if (auth()->user()->can('handymantype edit')) {
                     $link = '<a class="btn-link btn-link-hover" href='.route('handymantype.create', ['id' => $query->id]).'>'.$query->name.'</a>';
                 } else {
-                    $link = $query->name; 
+                    $link = $query->name;
                 }
                 return $link;
             })
@@ -108,7 +108,7 @@ class HandymanTypeController extends Controller
                 HandymanType::whereIn('id', $ids)->restore();
                 $message = 'Bulk Handyman Type Restored';
                 break;
-                
+
             case 'permanently-delete':
                 HandymanType::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Handyman Type Permanently Deleted';
@@ -134,12 +134,12 @@ class HandymanTypeController extends Controller
 
         $handymantypedata = HandymanType::find($id);
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.handymantype')]);
-        
+
         if($handymantypedata == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.handymantype')]);
             $handymantypedata = new HandymanType;
         }
-        
+
         return view('handymantype.create', compact('pageTitle' ,'handymantypedata' ,'auth_user' ));
     }
 
@@ -155,7 +155,7 @@ class HandymanTypeController extends Controller
             return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
         $data = $request->all();
-       
+
         $result = HandymanType::updateOrCreate(['id' => $data['id'] ],$data);
 
         $message = trans('messages.update_form',['form' => trans('messages.handymantype')]);
@@ -165,7 +165,7 @@ class HandymanTypeController extends Controller
         if($request->is('api/*')) {
             return comman_message_response($message);
 		}
-        return redirect(route('handymantype.index'))->withSuccess($message);        
+        return redirect(route('handymantype.index'))->withSuccess($message);
     }
 
     /**
@@ -215,8 +215,8 @@ class HandymanTypeController extends Controller
         }
         $handymantype = HandymanType::find($id);
         $msg= __('messages.msg_fail_to_delete',['item' => __('messages.handymantype')] );
-        
-        if($handymantype != '') { 
+
+        if($handymantype != '') {
             $handymantype->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.handymantype')] );
         }

@@ -109,12 +109,12 @@ class ServiceAddonController extends Controller
         $auth_user = authSession();
         $serviceaddon = ServiceAddon::find($id);
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.service_addon')]);
-        
+
         if($serviceaddon == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.service_addon')]);
             $serviceaddon = new ServiceAddon;
         }
-        
+
         return view('serviceaddon.create', compact('pageTitle' ,'serviceaddon' ,'auth_user'));
     }
 
@@ -131,9 +131,9 @@ class ServiceAddonController extends Controller
             return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
         $data = $request->all();
-       
+
         $result = ServiceAddon::updateOrCreate(['id' => $data['id'] ],$data);
-        
+
         storeMediaFile($result,$request->serviceaddon_image, 'serviceaddon_image');
 
         $message = trans('messages.update_form',['form' => trans('messages.service_addon')]);
@@ -143,7 +143,7 @@ class ServiceAddonController extends Controller
         if($request->is('api/*')) {
             return comman_message_response($message);
 		}
-        return redirect(route('serviceaddon.index'))->withSuccess($message); 
+        return redirect(route('serviceaddon.index'))->withSuccess($message);
     }
 
     /**
@@ -194,8 +194,8 @@ class ServiceAddonController extends Controller
         }
         $serviceaddon = ServiceAddon::find($id);
         $msg= __('messages.msg_fail_to_delete',['item' => __('messages.service_addon')] );
-        
-        if($serviceaddon != '') { 
+
+        if($serviceaddon != '') {
             $serviceaddon->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.service_addon')] );
         }

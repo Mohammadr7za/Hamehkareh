@@ -24,7 +24,7 @@ class RatingReviewController extends Controller
     public function index_data(DataTables $datatable,Request $request)
     {
         $query = BookingRating::query();
-      
+
         if(auth()->user()->hasAnyRole(['admin'])){
             $query = $query->withTrashed();
         }
@@ -68,7 +68,7 @@ class RatingReviewController extends Controller
 
         $rating_review = BookingRating::with('customer')->find($id);
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.rating')]);
-        
+
         return view('ratingreview.create', compact('pageTitle' ,'rating_review' ,'auth_user' ));
     }
 
@@ -90,7 +90,7 @@ class RatingReviewController extends Controller
         $result = BookingRating::updateOrCreate(['id' => $data['id'] ],$data);
 
         $message = trans('messages.update_form',['form' => trans('messages.rating')]);
-        return redirect(route('ratingreview.index'))->withSuccess($message);       
+        return redirect(route('ratingreview.index'))->withSuccess($message);
     }
 
     /**
@@ -139,9 +139,9 @@ class RatingReviewController extends Controller
             return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
         $rating_review = BookingRating::find($id);
-        
-        if( $rating_review!='') { 
-        
+
+        if( $rating_review!='') {
+
             $rating_review->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.rating')] );
         }

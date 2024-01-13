@@ -42,17 +42,17 @@ class PlanController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->newQuery();
         }
-        
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
             })
-           
-            ->editColumn('title', function($query){                
+
+            ->editColumn('title', function($query){
                 if (auth()->user()->can('plan edit')) {
                     $link = '<a class="btn-link btn-link-hover" href='.route('plans.create', ['id' => $query->id]).'>'.$query->title.'</a>';
                 } else {
-                    $link = $query->title; 
+                    $link = $query->title;
                 }
                 return $link;
             })
@@ -67,7 +67,7 @@ class PlanController extends Controller
                 </div>';
             })
             ->editColumn('amount' , function ($query){
-                $price = !empty($query->amount)? getPriceFormat($query->amount) : '-'; 
+                $price = !empty($query->amount)? getPriceFormat($query->amount) : '-';
                 return $price;
             })
             ->addColumn('action', function($plan){
@@ -120,12 +120,12 @@ class PlanController extends Controller
         $plan_type = StaticData::where('type','plan_type')->get();
         $plan_limit = StaticData::where('type','plan_limit_type')->get();
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.plan')]);
-        
+
         if($plan == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.plan')]);
             $plan = new Plans;
         }
-        
+
         return view('plan.create', compact('pageTitle' ,'plan' ,'auth_user','plan_type','plan_limit' ));
     }
 
@@ -168,16 +168,16 @@ class PlanController extends Controller
                 'plan_id' =>  $result->id,
                 'plan_limitation' => $requestData['plan_limitation']
             ];
-            PlanLimit::updateOrCreate(['id' => $requestData['id'] ],$limitdata);            
+            PlanLimit::updateOrCreate(['id' => $requestData['id'] ],$limitdata);
         }
-        
+
         $message = trans('messages.update_form',['form' => trans('messages.plan')]);
 
         if($result->wasRecentlyCreated){
             $message = trans('messages.save_form',['form' => trans('messages.plan')]);
         }
 
-        return redirect(route('plans.index'))->withSuccess($message);        
+        return redirect(route('plans.index'))->withSuccess($message);
     }
 
     /**
@@ -227,7 +227,7 @@ class PlanController extends Controller
         }
         $plan = Plans::find($id);
         $msg= __('messages.msg_fail_to_delete',['item' => __('messages.plan')] );
-        
+
         if($plan!='') {
             if($plan->planlimit()->count() > 0)
             {

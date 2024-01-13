@@ -39,17 +39,18 @@ class DocumentsController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->withTrashed();
         }
-        
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="document" onclick="dataTableRowCheck('.$row->id.',this)">';
             })
-         
-            ->editColumn('name', function($query){                
+
+            ->editColumn('name', function($query){
+                $name = $query->name;
                 if (auth()->user()->can('document edit')) {
-                    $link = '<a class="btn-link btn-link-hover" href='.route('document.create', ['id' => $query->id]).'>'.$query->name.'</a>';
+                    $link = '<a class="btn-link btn-link-hover" href='.route('document.create', ['id' => $query->id]).'>'.__('messages.'.$name).'</a>';
                 } else {
-                    $link = $query->name; 
+                    $link = __('messages.'.$name);
                 }
                 return $link;
             })
@@ -93,7 +94,7 @@ class DocumentsController extends Controller
                 $branches = Documents::whereIn('id', $ids)->update(['status' => $request->status]);
                 $message = 'Bulk Documents Status Updated';
                 break;
-            
+
             case 'change-featured':
                 $branches = Documents::whereIn('id', $ids)->update(['is_required' => $request->is_required]);
                 $message = 'Bulk Documents Required Updated';
@@ -103,12 +104,12 @@ class DocumentsController extends Controller
                 Documents::whereIn('id', $ids)->delete();
                 $message = 'Bulk Documents Deleted';
                 break;
-                
+
             case 'restore':
                 Documents::whereIn('id', $ids)->restore();
                 $message = 'Bulk Documents Restored';
                 break;
-                
+
             case 'permanently-delete':
                 Documents::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Documents Permanently Deleted';
@@ -121,7 +122,7 @@ class DocumentsController extends Controller
 
         return response()->json(['status' => true, 'is_required' => true, 'message' => 'Bulk Action Updated']);
     }
-    
+
 
     /**
      * Show the form for creating a new resource.
@@ -135,12 +136,12 @@ class DocumentsController extends Controller
 
         $documentdata = Documents::find($id);
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.document')]);
-        
+
         if( $documentdata == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.document')]);
              $documentdata = new Documents;
         }
-        
+
         return view('document.create', compact('pageTitle' ,'documentdata' ,'auth_user' ));
     }
 
@@ -172,7 +173,7 @@ class DocumentsController extends Controller
         if($request->is('api/*')) {
             return comman_message_response($message);
 		}
-        return redirect(route('document.index'))->withSuccess($message);        
+        return redirect(route('document.index'))->withSuccess($message);
     }
 
     /**
@@ -222,9 +223,9 @@ class DocumentsController extends Controller
         }
         $document = Documents::find($id);
         $msg= __('messages.msg_fail_to_delete',['name' => __('messages.document')] );
-        
-        if( $document!='') { 
-        
+
+        if( $document!='') {
+
             $document->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.document')] );
         }
@@ -252,5 +253,5 @@ class DocumentsController extends Controller
 		}
         return comman_custom_response(['message'=> $msg , 'status' => true]);
     }
-    
+
 }

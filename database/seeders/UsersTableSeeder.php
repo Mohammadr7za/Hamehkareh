@@ -76,7 +76,7 @@ class UsersTableSeeder extends Seeder
                 'address' => NULL,
                 'player_id' => NULL,
                 'status' => 1,
-                'display_name' => 'Demo Admin',
+                'display_name' => 'Manager',
                 'providertype_id' => NULL,
                 'is_featured' => 0,
                 'time_zone' => 'UTC',

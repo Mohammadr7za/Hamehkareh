@@ -38,7 +38,7 @@
                                 <div class="form-group col-md-4">
                                     {{ Form::label('name', __('messages.select_name',[ 'select' => __('messages.document') ]).' <span class="text-danger">* </span>',['class'=>'form-control-label'],false) }}
                                     <br />
-                                    {{ Form::select('document_id', [optional($provider_document->document)->id => optional($provider_document->document)->name." ".$is_required], optional($provider_document->document)->id, [
+                                    {{ Form::select('document_id', [optional($provider_document->document)->id => __('messages.'.optional($provider_document->document)->name)." ".$is_required], optional($provider_document->document)->id, [
                                             'class' => 'select2js form-group document_id',
                                             'id' => 'document_id',
                                             'required',

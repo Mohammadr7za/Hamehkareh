@@ -42,7 +42,7 @@ class PostJobRequestController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->newQuery();
         }
-        
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
@@ -132,7 +132,7 @@ class PostJobRequestController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        $data['customer_id'] =  !empty($request->customer_id) ? $request->customer_id : auth()->user()->id; 
+        $data['customer_id'] =  !empty($request->customer_id) ? $request->customer_id : auth()->user()->id;
 
         $result = PostJobRequest::updateOrCreate(['id' => $request->id], $data);
 
@@ -163,7 +163,7 @@ class PostJobRequestController extends Controller
                 'post_job_id' => $result->id,
                 'post_job' => $result,
             ];
-    
+
             saveRequestJobActivity($activity_data);
         }
         $message = __('messages.update_form',[ 'form' => __('messages.postrequest') ] );
@@ -195,11 +195,11 @@ class PostJobRequestController extends Controller
     public function postrequest_index_data(DataTables $datatable,$id)
     {
         $query = PostJobBid::where('post_request_id',$id);
-       
+
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->newquery();
         }
-        
+
         return $datatable  ->eloquent($query)
         ->editColumn('post_request_id' , function ($post_job_bid){
             return ($post_job_bid->post_request_id != null && isset($post_job_bid->postrequest)) ? $post_job_bid->postrequest->title : '-';
@@ -260,7 +260,7 @@ class PostJobRequestController extends Controller
         $post_request = PostJobRequest::find($id);
         //$post_request->delete();
         $msg= __('messages.msg_fail_to_delete',['item' => __('messages.postrequest')] );
-        
+
         if($post_request!='') {
             if($post_request->postServiceMapping()->count() > 0)
             {
@@ -277,6 +277,6 @@ class PostJobRequestController extends Controller
             return comman_custom_response(['message'=> $msg , 'status' => true]);
         }
         return redirect()->back()->withSuccess($msg);
-    
+
     }
 }

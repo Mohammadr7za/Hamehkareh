@@ -154,7 +154,7 @@ class ContactUsController extends Controller
         $res = $contactUsCreated->id > 0;
 
         if ($res) {
-            sendNotification('user', auth()->user(), $notification_data);
+//            sendNotification('user', auth()->user(), $notification_data);
             session()->flash("contact-us-created");
         }
         return redirect()->route('frontend.index');

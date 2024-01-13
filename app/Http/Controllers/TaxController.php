@@ -41,18 +41,18 @@ class TaxController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->newquery();
         }
-        
+
         return $datatable->eloquent($query)
         ->addColumn('check', function ($row) {
             return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" onclick="dataTableRowCheck('.$row->id.')">';
         })
-     
-        ->editColumn('title', function($query){                
+
+        ->editColumn('title', function($query){
             if (auth()->user()->can('tax edit')) {
 
                 $link = '<a class="btn-link btn-link-hover" href='.route('tax.create', ['id' => $query->id]).'>'.$query->title.'</a>';
             } else {
-                $link = $query->title; 
+                $link = $query->title;
             }
             return $link;
         })
@@ -122,12 +122,12 @@ class TaxController extends Controller
 
         $taxdata = Tax::find($id);
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.tax')]);
-        
+
         if($taxdata == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.tax')]);
             $taxdata = new Tax;
         }
-        
+
         return view('taxes.create', compact('pageTitle' ,'taxdata' ,'auth_user' ));
     }
 
@@ -143,7 +143,7 @@ class TaxController extends Controller
             return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
         $data = $request->all();
-       
+
         $result = Tax::updateOrCreate(['id' => $data['id'] ],$data);
 
 
@@ -156,7 +156,7 @@ class TaxController extends Controller
             return comman_message_response($message);
 		}
 
-        return redirect(route('tax.index'))->withSuccess($message);        
+        return redirect(route('tax.index'))->withSuccess($message);
     }
 
     /**
@@ -206,8 +206,8 @@ class TaxController extends Controller
         }
         $tax = Tax::find($id);
         $msg= __('messages.msg_fail_to_delete',['item' => __('messages.tax')] );
-        
-        if($tax != '') { 
+
+        if($tax != '') {
             $tax->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.tax')] );
         }

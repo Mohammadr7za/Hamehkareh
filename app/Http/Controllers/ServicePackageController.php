@@ -54,13 +54,13 @@ class ServicePackageController extends Controller
                 </div>
             </div>';
         })
-            
 
-            ->editColumn('name', function($query){                
+
+            ->editColumn('name', function($query){
                 if (auth()->user()->can('service list')) {
                     $link ='<a class="btn-link btn-link-hover"  href='.route('servicepackage.service',$query->id).'>'.$query->name.'</a>';
                 } else {
-                    $link = $query->name; 
+                    $link = $query->name;
                 }
                 return $link;
             })
@@ -90,7 +90,7 @@ class ServicePackageController extends Controller
 
         $message = 'Bulk Action Updated';
 
-        
+
         switch ($actionType) {
             case 'change-status':
                 $branches = ServicePackage::whereIn('id', $ids)->update(['status' => $request->status]);
@@ -120,7 +120,7 @@ class ServicePackageController extends Controller
         $id = $request->id;
         $auth_user = authSession();
 
-        $servicepackage = ServicePackage::find($id);   
+        $servicepackage = ServicePackage::find($id);
         $pageTitle = trans('messages.update_form_title', ['form' => trans('messages.package')]);
 
         if ($servicepackage == null) {
@@ -276,9 +276,9 @@ class ServicePackageController extends Controller
         if($request->type === 'forcedelete'){
             $bookingPackageMappings = $servicepackage->bookingPackageMappings;
             foreach ($bookingPackageMappings as $bookingPackageMapping) {
-                $booking = $bookingPackageMapping->bookings; 
+                $booking = $bookingPackageMapping->bookings;
                 if ($booking) {
-                    $booking->delete(); 
+                    $booking->delete();
                 }
                 $bookingPackageMapping->delete();
             }

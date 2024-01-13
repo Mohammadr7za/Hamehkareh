@@ -38,17 +38,17 @@ class SliderController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->withTrashed();
         }
-        
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="slider" onclick="dataTableRowCheck('.$row->id.',this)">';
             })
-            
-            ->editColumn('title', function($query){                
+
+            ->editColumn('title', function($query){
                 if (auth()->user()->can('slider edit')) {
                     $link = '<a class="btn-link btn-link-hover" href='.route('slider.create', ['id' => $query->id]).'>'.$query->title.'</a>';
                 } else {
-                    $link = $query->title; 
+                    $link = $query->title;
                 }
                 return $link;
             })
@@ -96,12 +96,12 @@ class SliderController extends Controller
                 Slider::whereIn('id', $ids)->delete();
                 $message = 'Bulk Slider Deleted';
                 break;
-                
+
             case 'restore':
                 Slider::whereIn('id', $ids)->restore();
                 $message = 'Bulk Slider Restored';
                 break;
-                
+
             case 'permanently-delete':
                 Slider::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Slider Permanently Deleted';
@@ -111,7 +111,7 @@ class SliderController extends Controller
                 Slider::whereIn('id', $ids)->restore();
                 $message = 'Bulk Provider Restored';
                 break;
-                
+
             case 'permanently-delete':
                 Slider::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Provider Permanently Deleted';
@@ -137,12 +137,12 @@ class SliderController extends Controller
 
         $sliderdata = Slider::find($id);
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.slider')]);
-        
+
         if($sliderdata == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.slider')]);
             $sliderdata = new Slider;
         }
-        
+
         return view('slider.create', compact('pageTitle' ,'sliderdata' ,'auth_user' ));
     }
     /**
@@ -161,7 +161,7 @@ class SliderController extends Controller
 		$sliders['id']  = $request->id;
 
         $result = Slider::updateOrCreate(['id' => $request->id], $sliders);
-        
+
         storeMediaFile($result,$request->slider_image, 'slider_image');
 
         $message = __('messages.update_form',[ 'form' => __('messages.slider') ] );
@@ -221,8 +221,8 @@ class SliderController extends Controller
         }
         $slider = Slider::find($id);
         $msg = __('messages.msg_fail_to_delete',['item' => __('messages.slider')] );
-        
-        if($slider!='') {        
+
+        if($slider!='') {
             $slider->delete();
             $msg= __('messages.msg_deleted',['name' => __('messages.slider')] );
         }

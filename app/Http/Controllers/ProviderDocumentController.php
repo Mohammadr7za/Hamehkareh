@@ -85,7 +85,7 @@ class ProviderDocumentController extends Controller
             //     return ($query->provider_id != null && isset($query->providers)) ? '<a class="btn-link btn-link-hover" href='.route('providerdocument.create', ['id' => $query->id]).'>'.$query->providers->display_name.'</a>' : '';
             // })
             ->editColumn('document_id' , function ($query){
-                return ($query->document_id != null && isset($query->document)) ? $query->document->name : '';
+                return ($query->document_id != null && isset($query->document)) ? __('messages.'.$query->document->name) : '';
             })
             ->filterColumn('provider_id',function($query,$keyword){
                 $query->whereHas('providers',function ($q) use($keyword){

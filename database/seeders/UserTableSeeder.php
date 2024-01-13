@@ -65,7 +65,7 @@ class UserTableSeeder extends Seeder
                 'player_id' => NULL,
                 'provider_id' => NULL,
                 'is_featured' => 0,
-                'display_name' => 'Demo Admin',
+                'display_name' => 'Manager',
                 'providertype_id' => NULL,
                 'remember_token' => NULL,
                 'last_notification_seen' => NULL,

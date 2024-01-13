@@ -38,6 +38,7 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
+        self::lang('fa');
         $user = auth()->user();
 
         if (request()->ajax()) {

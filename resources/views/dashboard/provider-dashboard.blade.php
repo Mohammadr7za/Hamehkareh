@@ -109,27 +109,60 @@
 {{--                    </div>--}}
 {{--                </div>--}}
 {{--            </div>--}}
+{{--            <div class="col-md-6 col-sm-6">--}}
+{{--                <div class="card top-providers">--}}
+{{--                    <div class="card-header d-flex justify-content-between gap-10">--}}
+{{--                        <h4 class="font-weight-bold">{{ __('messages.top_customer') }}</h4>--}}
+{{--                        <a href="{{ route('user.index') }}" class="btn-link btn-link-hover"><u>{{__('messages.view_all')}}</u></a>--}}
+{{--                    </div>--}}
+{{--                    <div class="card-body p-0">--}}
+{{--                        <ul class="common-list list-unstyled">--}}
+{{--                            @foreach($data['dashboard']['new_customer'] as $customer)--}}
+{{--                            <li style="pointer-events:none;">--}}
+{{--                                <div class="media gap-3">--}}
+{{--                                    <div class="h-avatar is-medium h-5">--}}
+{{--                                        <img class="avatar-50 rounded-circle bg-light" alt="user-icon" src="{{ getSingleMedia($customer,'profile_image', null) }}">--}}
+{{--                                    </div>--}}
+{{--                                    <div class="media-body ">--}}
+{{--                                        <h5><span class="font-weight-bold">{{!empty($customer->display_name) ? $customer->display_name : '-'}}</span>  </h5>--}}
+{{--                                        {{(jdate($customer->created_at))}}--}}
+
+{{--                                    </div>--}}
+{{--                                </div>--}}
+{{--                            </li>--}}
+{{--                            @endforeach--}}
+{{--                        </ul>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
             <div class="col-md-6 col-sm-6">
                 <div class="card top-providers">
                     <div class="card-header d-flex justify-content-between gap-10">
-                        <h4 class="font-weight-bold">{{ __('messages.top_customer') }}</h4>
-                        <a href="{{ route('user.index') }}" class="btn-link btn-link-hover"><u>{{__('messages.view_all')}}</u></a>
+                        <h4 class="font-weight-bold">{{ __('messages.recent_provider') }}</h4>
+                        <a href="{{ route('provider.index') }}"
+                           class="btn-link btn-link-hover"><u>{{__('messages.view_all')}} </u></a>
                     </div>
                     <div class="card-body p-0">
                         <ul class="common-list list-unstyled">
-                            @foreach($data['dashboard']['new_customer'] as $customer)
-                            <li style="pointer-events:none;">
-                                <div class="media gap-3">
-                                    <div class="h-avatar is-medium h-5">
-                                        <img class="avatar-50 rounded-circle bg-light" alt="user-icon" src="{{ getSingleMedia($customer,'profile_image', null) }}">
-                                    </div>
-                                    <div class="media-body ">
-                                        <h5><span class="font-weight-bold">{{!empty($customer->display_name) ? $customer->display_name : '-'}}</span>  </h5>
-                                        {{(jdate($customer->created_at))}}
+                            @foreach($data['dashboard']['new_provider'] as $provider)
+                                <li style="pointer-events:none;">
+                                    <div class="media gap-3">
+                                        <div class="h-avatar is-medium h-5">
+                                            <img class="avatar-50 rounded-circle bg-light" alt="user-icon"
+                                                 src="{{ getSingleMedia($provider,'profile_image', null) }}">
+                                        </div>
 
+                                        <div class="media-body ">
+                                            <h5><span
+                                                    class="font-weight-bold">{{!empty($provider->display_name) ? $provider->display_name : '-'}}</span>
+                                            </h5>
+                                            <span class="common-list_rating d-flex gap-1">
+                                                <i class="ri-star-s-fill"></i>
+                                                {{round($provider->getServiceRating->avg('rating'), 1)}}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                            </li>
+                                </li>
                             @endforeach
                         </ul>
                     </div>

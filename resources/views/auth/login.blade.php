@@ -27,6 +27,7 @@
                                                     class="text-danger">*</span></label>
                                             <input id="contact_number" name="contact_number" value="{{old('contact_number')}}" class="form-control"
                                                    type="text"
+                                                   style="text-align: right"
                                                    placeholder="{{ __('auth.enter_mobile',['name' => __('auth.mobile')]) }}"
                                                    required autofocus>
                                             <small class="help-block with-errors text-danger"></small>
@@ -38,6 +39,7 @@
                                             <label class="text-secondary">{{__('auth.login_password')}} <span
                                                     class="text-danger">*</span></label>
                                             <input class="form-control" type="password"
+                                                   style="text-align: right"
                                                    placeholder="{{ __('auth.enter_name',['name' => __('auth.login_password') ]) }}"
                                                    name="password" required autocomplete="current-password">
                                             <small class="help-block with-errors text-danger"></small>

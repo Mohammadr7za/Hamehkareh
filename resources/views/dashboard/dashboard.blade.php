@@ -116,16 +116,19 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap">
-                            <h4 class="">{{__('messages.monthly_revenue')}}</h4>
-                        </div>
-                        <div id="monthly-revenue" class="custom-chart"></div>
-                    </div>
-                </div>
-            </div>
+
+{{--            //TODO Chart --}}
+{{--            <div class="col-md-12">--}}
+{{--                <div class="card">--}}
+{{--                    <div class="card-body">--}}
+{{--                        <div class="d-flex justify-content-between align-items-center flex-wrap">--}}
+{{--                            <h4 class="">{{__('messages.monthly_revenue')}}</h4>--}}
+{{--                        </div>--}}
+{{--                        <div id="monthly-revenue" class="custom-chart"></div>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+
             <div class="col-md-4 col-sm-6">
                 <div class="card top-providers">
                     <div class="card-header d-flex justify-content-between gap-10">

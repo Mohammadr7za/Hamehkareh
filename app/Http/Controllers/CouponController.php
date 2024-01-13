@@ -42,22 +42,22 @@ class CouponController extends Controller
         if (auth()->user()->hasAnyRole(['admin'])) {
             $query->withTrashed();
         }
-        
+
         return $datatable->eloquent($query)
             ->addColumn('check', function ($row) {
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="coupon" onclick="dataTableRowCheck('.$row->id.',this)">';
             })
-          
 
-            ->editColumn('code', function($query){                
+
+            ->editColumn('code', function($query){
                 if (auth()->user()->can('coupon edit')) {
                     $link = '<a class="btn-link btn-link-hover" href='.route('coupon.create', ['id' => $query->id]).'>'.$query->code.'</a>';
                 } else {
-                    $link = $query->code; 
+                    $link = $query->code;
                 }
                 return $link;
             })
-           
+
             ->editColumn('status' , function ($query){
                 $disabled = $query->trashed() ? 'disabled': '';
                 return '<div class="custom-control custom-switch custom-switch-text custom-switch-color custom-control-inline">
@@ -73,6 +73,12 @@ class CouponController extends Controller
                     $discount = $query->discount .'%';
                 }
                 return $discount;
+            })
+            ->editColumn('discount_type' , function ($query){
+                return __('messages.'.$query->discount_type);
+            })
+            ->editColumn('expire_date' , function ($query){
+                return jdate($query->expire_date);
             })
             ->addColumn('action', function($coupon){
                 return view('coupon.action',compact('coupon'))->render();
@@ -101,12 +107,12 @@ class CouponController extends Controller
                 Coupon::whereIn('id', $ids)->delete();
                 $message = 'Bulk Coupon Deleted';
                 break;
-                
+
             case 'restore':
                 Coupon::whereIn('id', $ids)->restore();
                 $message = 'Bulk Coupon Restored';
                 break;
-            
+
             case 'permanently-delete':
                 Coupon::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Coupon Permanently Deleted';
@@ -116,7 +122,7 @@ class CouponController extends Controller
                 Coupon::whereIn('id', $ids)->restore();
                 $message = 'Bulk Provider Restored';
                 break;
-                
+
             case 'permanently-delete':
                 Coupon::whereIn('id', $ids)->forceDelete();
                 $message = 'Bulk Provider Permanently Deleted';
@@ -142,12 +148,12 @@ class CouponController extends Controller
 
         $coupondata = Coupon::find($id);
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.coupon')]);
-        
+
         if($coupondata == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.coupon')]);
             $coupondata = new Coupon;
         }
-        
+
         return view('coupon.create', compact('pageTitle' ,'coupondata' ,'auth_user' ));
     }
 
@@ -188,7 +194,7 @@ class CouponController extends Controller
         if($request->is('api/*')) {
             return comman_message_response($message);
 		}
-            
+
         return redirect(route('coupon.index'))->withSuccess($message);
     }
 
@@ -238,10 +244,10 @@ class CouponController extends Controller
             return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
         $coupon = Coupon::find($id);
-        
+
         $msg = __('messages.msg_fail_to_delete',['item' => __('messages.coupon')] );
-        
-        if($coupon != '') { 
+
+        if($coupon != '') {
 
             $coupon->delete();
             $msg = __('messages.msg_deleted',['name' => __('messages.coupon')] );
@@ -255,7 +261,7 @@ class CouponController extends Controller
     public function action(Request $request)
     {
         $id = $request->id;
-        
+
         $coupon = Coupon::withTrashed()->where('id',$id)->first();
 
         $msg = __('messages.not_found_entry',['name' => __('messages.coupon')] );

@@ -201,7 +201,7 @@ return [
     'general_settings' => 'تنظیمات عمومی',
     'config_settings' => 'تنظیمات پیکربندی',
     'mail_settings' => 'تنظیمات نامه',
-    'my_profile' => 'نمایه من',
+    'my_profile' => 'پروفایل من',
     'booking_added' => 'رزرو جدید اضافه شده توسط :name',
     'booking_assigned' => 'رزرو به :name اختصاص داده شده است',
     'booking_transfer' => 'رزرو به :name منتقل شد',
@@ -728,5 +728,6 @@ return [
     'accept' => 'تایید',
     'created_at' => 'ایجاد شده در',
     'updated_at' => 'ویرایش شده در',
+    'free' => 'رایگان',
 
 ];

@@ -97,9 +97,9 @@ Route::group(['middleware' => ['auth', 'verified']], function()
         Route::post('category-action',[CategoryController::class, 'action'])->name('category.action');
         Route::post('category/{id}', [CategoryController::class, 'destroy'])->name('category.destroy');
         Route::post('check-in-trash', [CategoryController::class, 'check_in_trash'])->name('check-in-trash');
-        
+
     });
-     
+
     Route::group(['middleware' => ['permission:service list']], function () {
         Route::resource('service', ServiceController::class);
         Route::get('service-index-data',[ServiceController::class,'index_data'])->name('service.service-index-data');
@@ -108,7 +108,7 @@ Route::group(['middleware' => ['auth', 'verified']], function()
         Route::post('service-action',[ServiceController::class, 'action'])->name('service.action');
         Route::post('service/{id}', [ServiceController::class, 'destroy'])->name('service.destroy');
         Route::get('user-service-index-data',[UserServiceListController::class,'index_data'])->name('service.user-index-data');
-        
+
     });
     Route::get('provider-change-password', [ ProviderController::class , 'getChangePassword'])->name('provider.getchangepassword');
     Route::post('provider-change-password', [ ProviderController::class , 'changePassword'])->name('provider.changepassword');
@@ -187,9 +187,9 @@ Route::group(['middleware' => ['auth', 'verified']], function()
     Route::get('cash/history/{id?}', [PaymentController::class,'cashIndex'])->name('cash.index');
     Route::get('paymenthistory-index-data/{id}', [PaymentController::class,'paymenthistory_index_data'])->name('paymenthistory.index_data');
     Route::get('cash/approve/{id}',[PaymentController::class, 'cashApprove'])->name('cash.approve');
-    
+
     Route::post('save-payment',[App\Http\Controllers\API\PaymentController::class, 'savePayment'])->name('payment.save');
-    
+
     Route::get('user-change-password', [ CustomerController::class , 'getChangePassword'])->name('user.getchangepassword');
     Route::post('user-change-password', [ CustomerController::class , 'changePassword'])->name('user.changepassword');
     Route::group(['middleware' => ['permission:user list']], function () {
@@ -217,7 +217,7 @@ Route::group(['middleware' => ['auth', 'verified']], function()
     Route::post('handyman-dashboard-setting',[ SettingController::class , 'handymandashboardtogglesetting'])->name('handymantogglesetting');
     Route::post('config-save',[ SettingController::class , 'configUpdate'])->name('configUpdate');
 
-    
+
     Route::post('env-setting', [ SettingController::class , 'envChanges'])->name('envSetting');
     Route::post('update-profile', [ SettingController::class , 'updateProfile'])->name('updateProfile');
     Route::post('change-password', [ SettingController::class , 'changePassword'])->name('changePassword');
@@ -302,7 +302,7 @@ Route::group(['middleware' => ['auth', 'verified']], function()
     Route::get('providerpayout/create/{id}', [ProviderPayoutController::class,'create'])->name('providerpayout.create');
     Route::get('provider-payout-index-data/{id}',[ProviderPayoutController::class,'ProviderPayout_index_data'])->name('providerpayout.ProviderPayout_index_data');
 
-    Route::get('review/{id}',[ProviderController::class,'review'])->name('provider.review');     
+    Route::get('review/{id}',[ProviderController::class,'review'])->name('provider.review');
     Route::post('sidebar-reorder-save',[ SettingController::class, 'sequenceSave'])->name('reorderSave');
 
     Route::resource('handymanpayout', HandymanPayoutController::class);
@@ -362,7 +362,7 @@ Route::group(['middleware' => ['auth', 'verified']], function()
     Route::post('/provider-detail-page',[ ProviderController::class, 'providerDetail'])->name('provider_detail_pages');
     Route::post('/booking-layout-page/{id}',[ BookingController::class, 'bookingstatus'])->name('booking_layout_page');
     Route::get('/invoice_pdf/{id}', [BookingController::class, 'createPDF'])->name('invoice_pdf');
-    
+
     Route::group(['middleware' => ['permission:postjob list']], function () {
         Route::resource('post-job-request', PostJobRequestController::class);
         Route::get('post-job-index-data',[PostJobRequestController::class,'index_data'])->name('post-job.index_data');

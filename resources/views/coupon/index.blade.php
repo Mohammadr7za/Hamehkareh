@@ -33,7 +33,7 @@
                       <option value="restore">{{ __('messages.restore') }}</option>
                       <option value="permanently-delete">{{ __('messages.permanent_dlt') }}</option>
                   </select>
-                
+
                 <div class="select-status d-none quick-action-field" id="change-status-action" style="width:100%">
                     <select name="status" class="form-control select2" id="status" style="width:100%">
                       <option value="1">{{__('messages.active')}}</option>
@@ -46,9 +46,9 @@
                 data-title="{{ __('coupon',['form'=>  __('coupon') ]) }}"
                 title="{{ __('coupon',['form'=>  __('coupon') ]) }}"
                 data-message='{{ __("Do you want to perform this action?") }}' disabled>{{__('messages.apply')}}</button>
-            </div>
-          
+
             </form>
+            </div>
           </div>
               <div class="d-flex justify-content-end">
                 <div class="datatable-filter ml-auto">
@@ -63,7 +63,7 @@
                     <input type="text" class="form-control dt-search" placeholder="Search..." aria-label="Search" aria-describedby="addon-wrapping" aria-controls="dataTableBuilder">
                   </div>
               </div>
-               
+
               <div class="table-responsive">
                 <table id="datatable" class="table table-striped border">
 
@@ -134,9 +134,9 @@
                         searchable: false,
                         title: "{{__('messages.action')}}"
                     }
-                    
+
                 ]
-                
+
             });
       });
 

@@ -424,8 +424,8 @@
             </div>
             <div class="row">
                 <div class="col-lg-10 m-auto">
-                    {{--                    <form action="{{ route('backend.contactus.store') }}" method="post">--}}
-                    <form action="#" method="post">
+                    <form action="{{ route('contactus.store') }}" method="post">
+                        {{--                    <form action="#" method="post">--}}
                         @csrf
                         <div class="row">
                             <div class="col-lg-6 col-md-6">

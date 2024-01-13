@@ -301,6 +301,17 @@ $menu->add('<span>'.trans('messages.list_form_title',['form' => trans('messages.
 ->data('permission', 'post job');
 
 
+$menu->add(__('messages.contactus'), ['class' => 'category-main'])->data('permission', 'coupon list');
+
+$menu->add('<span>'.__('messages.contactus').'</span><span class="custom-tooltip"><span class="tooltip-text">'.__('messages.contactus').'</span></span>', ['class' => ''])
+->prepend('<svg width="15" height="15" class="sidebar-menu-icon" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M15.5 4.5V1.5C15.5 0.6675 14.825 0 14 0H2C1.175 0 0.5075 0.6675 0.5075 1.5V4.5C1.3325 4.5 2 5.175 2 6C2 6.825 1.3325 7.5 0.5 7.5V10.5C0.5 11.325 1.175 12 2 12H14C14.825 12 15.5 11.325 15.5 10.5V7.5C14.675 7.5 14 6.825 14 6C14 5.175 14.675 4.5 15.5 4.5ZM14 3.405C13.1075 3.9225 12.5 4.8975 12.5 6C12.5 7.1025 13.1075 8.0775 14 8.595V10.5H2V8.595C2.8925 8.0775 3.5 7.1025 3.5 6C3.5 4.89 2.9 3.9225 2.0075 3.405L2 1.5H14V3.405ZM7.25 8.25H8.75V9.75H7.25V8.25ZM7.25 5.25H8.75V6.75H7.25V5.25ZM7.25 2.25H8.75V3.75H7.25V2.25Z" fill="#6C757D" />
+</svg>')
+->nickname('contactus')
+->data('permission', 'contactus list')
+->link->attr(["class" => ""])
+->href('contactus');
+
 $menu->add(__('messages.promotion'), ['class' => 'category-main'])->data('permission', 'coupon list');
 
 $menu->add('<span>'.__('messages.coupon').'</span><span class="custom-tooltip"><span class="tooltip-text">'.__('messages.coupon').'</span></span>', ['class' => ''])

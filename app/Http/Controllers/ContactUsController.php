@@ -2,15 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ContactUsRequest;
 use App\Models\ContactUs;
-use App\Models\PlanLimit;
-use App\Models\Plans;
-use App\Models\StaticData;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 
 class ContactUsController extends Controller
 {
+
+    public function __construct()
+    {
+        // Middleware only applied to these methods
+        $this->middleware('throttle:3', [
+            'only' => [
+                'store' // Could add bunch of more methods too
+            ]
+        ]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -71,7 +79,7 @@ class ContactUsController extends Controller
                 return $price;
             })
             ->addColumn('action', function($plan){
-                return view('plan.action',compact('plan'))->render();
+                return view('contactus.action',compact('plan'))->render();
             })
             ->addIndexColumn()
             ->rawColumns(['title','action','status','check'])
@@ -135,49 +143,10 @@ class ContactUsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(ContactUsRequest $request)
     {
-//        if(demoUserPermission()){
-//            return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
-//        }
-//        $requestData = $request->all();
-//        $plans = ContactUs::where('title', '=', $requestData['title'])->first();
-//        if ($plans !== null && $request->id == null) {
-//            return  redirect()->back()->withErrors(__('validation.unique',['attribute'=>__('messages.plan')]));
-//        }
-//
-//        $planData = [
-//            'title' => $requestData['title'],
-//            'amount' => $requestData['amount'],
-//            'status' => $requestData['status'],
-//            'duration' => $requestData['duration'],
-//            'description' => $requestData['description'],
-//            'plan_type' => $requestData['plan_type'],
-//            'type'=> $requestData['type']
-//        ];
-//        if(empty($request->id) && $request->id == null){
-//            $planData['identifier'] = strtolower($requestData['title']);
-//        }
-//        $result = ContactUs::updateOrCreate(['id' => $requestData['id'] ],$planData);
-//        if($result){
-//            if($result->planlimit()->count() > 0)
-//            {
-//                $result->planlimit()->delete();
-//            }
-//            $limitdata = [
-//                'plan_id' =>  $result->id,
-//                'plan_limitation' => $requestData['plan_limitation']
-//            ];
-//            PlanLimit::updateOrCreate(['id' => $requestData['id'] ],$limitdata);
-//        }
-//
-//        $message = trans('messages.update_form',['form' => trans('messages.plan')]);
-//
-//        if($result->wasRecentlyCreated){
-//            $message = trans('messages.save_form',['form' => trans('messages.plan')]);
-//        }
-//
-//        return redirect(route('plans.index'))->withSuccess($message);
+        $contactUsCreated = ContactUs::create($request->validated());
+        $res = $contactUsCreated->id > 0;
     }
 
     /**
@@ -222,9 +191,7 @@ class ContactUsController extends Controller
      */
     public function destroy($id)
     {
-        if(demoUserPermission()){
-            return  redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
-        }
+
         $cotactus = ContactUs::find($id);
         $msg= __('messages.msg_fail_to_delete',['item' => __('messages.contactus')] );
 

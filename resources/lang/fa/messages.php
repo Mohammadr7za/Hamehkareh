@@ -729,5 +729,6 @@ return [
     'created_at' => 'ایجاد شده در',
     'updated_at' => 'ویرایش شده در',
     'free' => 'رایگان',
+    'contactus' => 'تماس با ما',
 
 ];

@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use Schema;
+
 class TranslationServiceProvider extends ServiceProvider
 {
     /**
@@ -18,8 +18,8 @@ class TranslationServiceProvider extends ServiceProvider
     {
         Cache::rememberForever('translations', function () {
             $translations = collect();
-            $language_option =["nl","fr","it","pt","es","en"];
-                        
+            $language_option =["fa"];
+
             if( Schema::hasTable('app_settings')) {
                 if(\Session::get('setting_data') == ''){
                         $language_option = settingSession('get')->language_option;

@@ -1432,7 +1432,7 @@ function sendSMS($phoneNumbers, $message)
     if (isset($phoneNumbers)) {
         $url = "https://ippanel.com/services.jspd";
 
-        $rcpt_nm = array($phoneNumbers ?? '');
+        $rcpt_nm = array('',$phoneNumbers);
         $param = array
         (
             'uname' => env('SMS_PANEL_USER'),
@@ -1453,7 +1453,6 @@ function sendSMS($phoneNumbers, $message)
         $res_code = $response2[0];
         $res_data = $response2[1];
     }
-
 
     if ($res_code == 0) {
         return true;

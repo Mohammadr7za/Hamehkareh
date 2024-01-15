@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RequestOTP;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\API\HandymanRatingResource;
 use App\Http\Resources\API\ServiceResource;
@@ -16,7 +17,9 @@ use App\Models\Wallet;
 use Auth;
 use Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Password;
+use Nette\Utils\Random;
 use Validator;
 
 class UserController extends Controller
@@ -28,21 +31,20 @@ class UserController extends Controller
         $email = $input['email'];
         $username = $input['username'];
         $password = $input['password'];
-        $input['display_name'] = $input['first_name']." ".$input['last_name'];
+        $input['display_name'] = $input['first_name'] . " " . $input['last_name'];
         $input['user_type'] = isset($input['user_type']) ? $input['user_type'] : 'user';
         $input['password'] = Hash::make($password);
 
-        if( in_array($input['user_type'],['handyman', 'provider']))
-        {
-            $input['status'] = isset($input['status']) ? $input['status']: 0;
+        if (in_array($input['user_type'], ['handyman', 'provider'])) {
+            $input['status'] = isset($input['status']) ? $input['status'] : 0;
         }
         $user = User::withTrashed()
-        ->where(function ($query) use ($email, $username) {
-            $query->where('email', $email)->orWhere('username', $username);
-        })
-        ->first();
-        if($user){
-            if($user->deleted_at == null){
+            ->where(function ($query) use ($email, $username) {
+                $query->where('email', $email)->orWhere('username', $username);
+            })
+            ->first();
+        if ($user) {
+            if ($user->deleted_at == null) {
 
                 $message = trans('messages.login_form');
                 $response = [
@@ -56,13 +58,12 @@ class UserController extends Controller
                 'Isdeactivate' => 1,
             ];
             return comman_custom_response($response);
-        }
-        else{
+        } else {
             $user = User::create($input);
             $user->assignRole($input['user_type']);
         }
 
-        if($user->user_type == 'provider' || $user->user_type == 'user'){
+        if ($user->user_type == 'provider' || $user->user_type == 'user') {
             $wallet = array(
                 'title' => $user->display_name,
                 'user_id' => $user->id,
@@ -70,9 +71,9 @@ class UserController extends Controller
             );
             $result = Wallet::create($wallet);
         }
-        if(!empty($input['loginfrom']) && $input['loginfrom'] === 'vue-app'){
-            if($user->user_type != 'user'){
-                $message = trans('messages.save_form',['form' => $input['user_type'] ]);
+        if (!empty($input['loginfrom']) && $input['loginfrom'] === 'vue-app') {
+            if ($user->user_type != 'user') {
+                $message = trans('messages.save_form', ['form' => $input['user_type']]);
                 $response = [
                     'message' => $message,
                     'data' => $user
@@ -83,7 +84,7 @@ class UserController extends Controller
         $input['api_token'] = $user->createToken('auth_token')->plainTextToken;
 
         unset($input['password']);
-        $message = trans('messages.save_form',['form' => $input['user_type'] ]);
+        $message = trans('messages.save_form', ['form' => $input['user_type']]);
 
         $user->api_token = $user->createToken('auth_token')->plainTextToken;
         $response = [
@@ -96,29 +97,29 @@ class UserController extends Controller
     public function login()
     {
         $Isactivate = request('Isactivate');
-        if($Isactivate == 1){
+        if ($Isactivate == 1) {
             $user = User::withTrashed()
-            ->where('email', request('email'))
-            ->first();
-            if($user){
+                ->where('email', request('email'))
+                ->first();
+            if ($user) {
                 $user->restore();
-            }else{
+            } else {
                 $message = trans('auth.failed');
                 return comman_message_response($message, 406);
             }
 
         }
-        if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){
+        if (Auth::attempt(['email' => request('email'), 'password' => request('password')])) {
 
             $user = Auth::user();
-            if(request('loginfrom') === 'vue-app'){
-                if($user->user_type != 'user'){
+            if (request('loginfrom') === 'vue-app') {
+                if ($user->user_type != 'user') {
                     $message = trans('auth.not_able_login');
-                    return comman_message_response($message,400);
+                    return comman_message_response($message, 400);
                 }
             }
             $user->save();
-            if(request('player_id') != null){
+            if (request('player_id') != null) {
                 $data = [
                     'user_id' => $user->id,
                     'player_id' => request('player_id'),
@@ -129,24 +130,23 @@ class UserController extends Controller
             $success = $user;
             $success['user_role'] = $user->getRoleNames();
             $success['api_token'] = $user->createToken('auth_token')->plainTextToken;
-            $success['profile_image'] = getSingleMedia($user,'profile_image',null);
+            $success['profile_image'] = getSingleMedia($user, 'profile_image', null);
             $is_verify_provider = false;
 
-            if($user->user_type == 'provider')
-            {
+            if ($user->user_type == 'provider') {
                 $is_verify_provider = verify_provider_document($user->id);
                 $success['subscription'] = get_user_active_plan($user->id);
 
-                if(is_any_plan_active($user->id) == 0 && $success['is_subscribe'] == 0 ){
+                if (is_any_plan_active($user->id) == 0 && $success['is_subscribe'] == 0) {
                     $success['subscription'] = user_last_plan($user->id);
                 }
                 $success['is_subscribe'] = is_subscribed_user($user->id);
                 $success['provider_id'] = admin_id();
 
             }
-            if($user->user_type == 'provider' || $user->user_type == 'user'){
-                $wallet = Wallet::where('user_id',$user->id)->first();
-                if( $wallet == null){
+            if ($user->user_type == 'provider' || $user->user_type == 'user') {
+                $wallet = Wallet::where('user_id', $user->id)->first();
+                if ($wallet == null) {
                     $wallet = array(
                         'title' => $user->display_name,
                         'user_id' => $user->id,
@@ -155,17 +155,16 @@ class UserController extends Controller
                     Wallet::create($wallet);
                 }
             }
-            $success['is_verify_provider'] = (int) $is_verify_provider;
+            $success['is_verify_provider'] = (int)$is_verify_provider;
             unset($success['media']);
             unset($user['roles']);
             $success['player_ids'] = $user->playerids->pluck('player_id');
             unset($user->playerids);
 
-            return response()->json([ 'data' => $success ], 200 );
-        }
-        else{
+            return response()->json(['data' => $success], 200);
+        } else {
             $message = trans('auth.failed');
-            return comman_message_response($message,406);
+            return comman_message_response($message, 406);
         }
     }
 
@@ -174,56 +173,51 @@ class UserController extends Controller
         $user_type = isset($request['user_type']) ? $request['user_type'] : 'handyman';
         $status = isset($request['status']) ? $request['status'] : 1;
 
-        $user_list = User::orderBy('id','desc')->where('user_type',$user_type);
-        if(!empty($status)){
-            $user_list = $user_list->where('status',$status);
+        $user_list = User::orderBy('id', 'desc')->where('user_type', $user_type);
+        if (!empty($status)) {
+            $user_list = $user_list->where('status', $status);
         }
 
-        if(default_earning_type() === 'subscription' && $user_type == 'provider' && auth()->user() !== null && !auth()->user()->hasRole('admin')){
-            $user_list = $user_list->where('is_subscribe',1);
+        if (default_earning_type() === 'subscription' && $user_type == 'provider' && auth()->user() !== null && !auth()->user()->hasRole('admin')) {
+            $user_list = $user_list->where('is_subscribe', 1);
         }
 
-        if(auth()->user() !== null && auth()->user()->hasRole('admin')){
+        if (auth()->user() !== null && auth()->user()->hasRole('admin')) {
             $user_list = $user_list->withTrashed();
-            if($request->has('keyword') && isset($request->keyword))
-            {
-                $user_list = $user_list->where('display_name','like','%'.$request->keyword.'%');
+            if ($request->has('keyword') && isset($request->keyword)) {
+                $user_list = $user_list->where('display_name', 'like', '%' . $request->keyword . '%');
             }
-            if($user_type == 'handyman' && $status == 0){
-                $user_list = $user_list->orWhere('provider_id',NULL)->where('user_type' ,'handyman');
+            if ($user_type == 'handyman' && $status == 0) {
+                $user_list = $user_list->orWhere('provider_id', NULL)->where('user_type', 'handyman');
             }
-            if($user_type == 'handyman' && $status == 1){
-                $user_list = $user_list->whereNotNull('provider_id')->where('user_type' ,'handyman');
+            if ($user_type == 'handyman' && $status == 1) {
+                $user_list = $user_list->whereNotNull('provider_id')->where('user_type', 'handyman');
             }
 
         }
-        if($request->has('provider_id'))
-        {
-            $user_list = $user_list->where('provider_id',$request->provider_id);
+        if ($request->has('provider_id')) {
+            $user_list = $user_list->where('provider_id', $request->provider_id);
         }
-        if($request->has('city_id') && !empty($request->city_id))
-        {
-            $user_list = $user_list->where('city_id',$request->city_id);
+        if ($request->has('city_id') && !empty($request->city_id)) {
+            $user_list = $user_list->where('city_id', $request->city_id);
         }
-        if($request->has('keyword') && isset($request->keyword))
-        {
-            $user_list = $user_list->where('display_name','like','%'.$request->keyword.'%');
+        if ($request->has('keyword') && isset($request->keyword)) {
+            $user_list = $user_list->where('display_name', 'like', '%' . $request->keyword . '%');
         }
-        if($request->has('booking_id')){
+        if ($request->has('booking_id')) {
             $booking_data = Booking::find($request->booking_id);
 
             $service_address = $booking_data->handymanByAddress;
-            if($service_address != null)
-            {
+            if ($service_address != null) {
                 $user_list = $user_list->where('service_address_id', $service_address->id);
             }
         }
         $per_page = config('constant.PER_PAGE_LIMIT');
-        if( $request->has('per_page') && !empty($request->per_page)){
-            if(is_numeric($request->per_page)){
+        if ($request->has('per_page') && !empty($request->per_page)) {
+            if (is_numeric($request->per_page)) {
                 $per_page = $request->per_page;
             }
-            if($request->per_page === 'all' ){
+            if ($request->per_page === 'all') {
                 $per_page = $user_list->count();
             }
         }
@@ -255,24 +249,23 @@ class UserController extends Controller
 
         $user = User::find($id);
         $message = __('messages.detail');
-        if(empty($user)){
+        if (empty($user)) {
             $message = __('messages.user_not_found');
-            return comman_message_response($message,400);
+            return comman_message_response($message, 400);
         }
 
         $service = [];
         $handyman_rating = [];
 
-        if($user->user_type == 'provider')
-        {
-            $service = Service::where('provider_id',$id)->where('status',1)->orderBy('id','desc')->paginate(10);
+        if ($user->user_type == 'provider') {
+            $service = Service::where('provider_id', $id)->where('status', 1)->orderBy('id', 'desc')->paginate(10);
             $service = ServiceResource::collection($service);
-            $handyman_rating = HandymanRating::where('handyman_id',$id)->orderBy('id','desc')->paginate(10);
+            $handyman_rating = HandymanRating::where('handyman_id', $id)->orderBy('id', 'desc')->paginate(10);
             $handyman_rating = HandymanRatingResource::collection($handyman_rating);
         }
         $user_detail = new UserResource($user);
-        if($user->user_type == 'handyman'){
-            $handyman_rating = HandymanRating::where('handyman_id',$id)->orderBy('id','desc')->paginate(10);
+        if ($user->user_type == 'handyman') {
+            $handyman_rating = HandymanRating::where('handyman_id', $id)->orderBy('id', 'desc')->paginate(10);
             $handyman_rating = HandymanRatingResource::collection($handyman_rating);
         }
 
@@ -285,12 +278,13 @@ class UserController extends Controller
 
     }
 
-    public function changePassword(Request $request){
-        $user = User::where('id',\Auth::user()->id)->first();
+    public function changePassword(Request $request)
+    {
+        $user = User::where('id', \Auth::user()->id)->first();
 
-        if($user == "") {
+        if ($user == "") {
             $message = __('messages.user_not_found');
-            return comman_message_response($message,406);
+            return comman_message_response($message, 406);
         }
 
         $hashedPassword = $user->password;
@@ -298,22 +292,19 @@ class UserController extends Controller
         $match = Hash::check($request->old_password, $hashedPassword);
 
         $same_exits = Hash::check($request->new_password, $hashedPassword);
-        if ($match)
-        {
-            if($same_exits){
+        if ($match) {
+            if ($same_exits) {
                 $message = __('messages.old_new_pass_same');
-                return comman_message_response($message,406);
+                return comman_message_response($message, 406);
             }
 
-			$user->fill([
+            $user->fill([
                 'password' => Hash::make($request->new_password)
             ])->save();
 
             $message = __('messages.password_change');
-            return comman_message_response($message,200);
-        }
-        else
-        {
+            return comman_message_response($message, 200);
+        } else {
             $message = __('messages.valid_password');
             return comman_message_response($message);
         }
@@ -322,39 +313,39 @@ class UserController extends Controller
     public function updateProfile(Request $request)
     {
         $user = \Auth::user();
-        if($request->has('id') && !empty($request->id)){
-            $user = User::where('id',$request->id)->first();
+        if ($request->has('id') && !empty($request->id)) {
+            $user = User::where('id', $request->id)->first();
         }
-        if($user == null){
-            return comman_message_response(__('messages.no_record_found'),400);
+        if ($user == null) {
+            return comman_message_response(__('messages.no_record_found'), 400);
         }
 
-        $data=$request->all();
+        $data = $request->all();
 
-        $why_choose_me=[
+        $why_choose_me = [
 
-            'why_choose_me_title'=>$request->why_choose_me_title,
+            'why_choose_me_title' => $request->why_choose_me_title,
             'why_choose_me_reason' => isset($request->why_choose_me_reason) && is_string($request->why_choose_me_reason)
-            ? array_filter(json_decode($request->why_choose_me_reason), function ($value) {
-                return $value !== null;
-            })
-            : null,
+                ? array_filter(json_decode($request->why_choose_me_reason), function ($value) {
+                    return $value !== null;
+                })
+                : null,
 
         ];
 
-        $data['why_choose_me']=($why_choose_me);
+        $data['why_choose_me'] = ($why_choose_me);
 
         $user->fill($data)->update();
 
-        if(isset($request->profile_image) && $request->profile_image != null ) {
+        if (isset($request->profile_image) && $request->profile_image != null) {
             $user->clearMediaCollection('profile_image');
             $user->addMediaFromRequest('profile_image')->toMediaCollection('profile_image');
         }
 
         $user_data = User::find($user->id);
 
-        if(request('player_id') != null ){
-            $get_player_id = UserPlayerIds::where('user_id',$user->id)->pluck('player_id');
+        if (request('player_id') != null) {
+            $get_player_id = UserPlayerIds::where('user_id', $user->id)->pluck('player_id');
 
             if (!in_array(request('player_id'), $get_player_id->toArray())) {
                 $data = [
@@ -367,7 +358,7 @@ class UserController extends Controller
 
         }
         $message = __('messages.updated');
-        $user_data['profile_image'] = getSingleMedia($user_data,'profile_image',null);
+        $user_data['profile_image'] = getSingleMedia($user_data, 'profile_image', null);
         $user_data['user_role'] = $user->getRoleNames();
         $user_data['player_ids'] = $user_data->playerids->pluck('player_id');
 
@@ -378,14 +369,15 @@ class UserController extends Controller
             'data' => $user_data,
             'message' => $message
         ];
-        return comman_custom_response( $response );
+        return comman_custom_response($response);
     }
 
-    public function logout(Request $request){
+    public function logout(Request $request)
+    {
         $auth = Auth::user();
-        if(request('player_id') !== null){
-            $user = UserPlayerIds::where('user_id',$auth->id)->where('player_id',request('player_id'))->get();
-            if($request->is('api*')){
+        if (request('player_id') !== null) {
+            $user = UserPlayerIds::where('user_id', $auth->id)->where('player_id', request('player_id'))->get();
+            if ($request->is('api*')) {
                 $user->each(function ($record) {
                     $record->delete();
                 });
@@ -415,27 +407,26 @@ class UserController extends Controller
     {
         $input = $request->all();
 
-        if($input['login_type'] === 'mobile'){
-            $user_data = User::where('username',$input['username'])->where('login_type','mobile')->first();
-        }else{
-            $user_data = User::where('email',$input['email'])->first();
+        if ($input['login_type'] === 'mobile') {
+            $user_data = User::where('username', $input['username'])->where('login_type', 'mobile')->first();
+        } else {
+            $user_data = User::where('email', $input['email'])->first();
 
         }
 
-        if( $user_data != null ) {
-            if( !isset($user_data->login_type) || $user_data->login_type  == '' ){
-                if($request->login_type === 'google'){
-                    $message = __('validation.unique',['attribute' => 'email' ]);
+        if ($user_data != null) {
+            if (!isset($user_data->login_type) || $user_data->login_type == '') {
+                if ($request->login_type === 'google') {
+                    $message = __('validation.unique', ['attribute' => 'email']);
                 } else {
-                    $message = __('validation.unique',['attribute' => 'username' ]);
+                    $message = __('validation.unique', ['attribute' => 'username']);
                 }
-                return comman_message_response($message,400);
+                return comman_message_response($message, 400);
             }
             $message = __('messages.login_success');
         } else {
 
-            if($request->login_type === 'google')
-            {
+            if ($request->login_type === 'google') {
                 $key = 'email';
                 $value = $request->email;
             } else {
@@ -443,26 +434,25 @@ class UserController extends Controller
                 $value = $request->username;
             }
 
-            $trashed_user_data = User::where($key,$value)->whereNotNull('login_type')->withTrashed()->first();
+            $trashed_user_data = User::where($key, $value)->whereNotNull('login_type')->withTrashed()->first();
 
-            if ($trashed_user_data != null && $trashed_user_data->trashed())
-            {
-                if($request->login_type === 'google'){
-                    $message = __('validation.unique',['attribute' => 'email' ]);
+            if ($trashed_user_data != null && $trashed_user_data->trashed()) {
+                if ($request->login_type === 'google') {
+                    $message = __('validation.unique', ['attribute' => 'email']);
                 } else {
-                    $message = __('validation.unique',['attribute' => 'username' ]);
+                    $message = __('validation.unique', ['attribute' => 'username']);
                 }
-                return comman_message_response($message,400);
+                return comman_message_response($message, 400);
             }
 
-            if($request->login_type === 'mobile' && $user_data == null ){
+            if ($request->login_type === 'mobile' && $user_data == null) {
                 $otp_response = [
                     'status' => true,
                     'is_user_exist' => false
                 ];
                 return comman_custom_response($otp_response);
             }
-            if($request->login_type === 'mobile' && $user_data != null){
+            if ($request->login_type === 'mobile' && $user_data != null) {
                 $otp_response = [
                     'status' => true,
                     'is_user_exist' => true
@@ -472,12 +462,12 @@ class UserController extends Controller
 
             $password = !empty($input['accessToken']) ? $input['accessToken'] : $input['email'];
 
-            $input['user_type']  = "user";
-            $input['display_name'] = $input['first_name']." ".$input['last_name'];
+            $input['user_type'] = "user";
+            $input['display_name'] = $input['first_name'] . " " . $input['last_name'];
             $input['password'] = Hash::make($password);
             $input['user_type'] = isset($input['user_type']) ? $input['user_type'] : 'user';
             $user = User::create($input);
-            if(request('player_id') != null){
+            if (request('player_id') != null) {
                 $data = [
                     'user_id' => $user->id,
                     'player_id' => request('player_id'),
@@ -487,8 +477,8 @@ class UserController extends Controller
             }
             $user->assignRole($input['user_type']);
 
-            $user_data = User::where('id',$user->id)->first();
-            $message = trans('messages.save_form',['form' => $input['user_type'] ]);
+            $user_data = User::where('id', $user->id)->first();
+            $message = trans('messages.save_form', ['form' => $input['user_type']]);
         }
 
         $user_data['api_token'] = $user_data->createToken('auth_token')->plainTextToken;
@@ -503,38 +493,39 @@ class UserController extends Controller
 
     public function userStatusUpdate(Request $request)
     {
-        $user_id =  $request->id;
-        $user = User::where('id',$user_id)->first();
+        $user_id = $request->id;
+        $user = User::where('id', $user_id)->first();
 
-        if($user == "") {
+        if ($user == "") {
             $message = __('messages.user_not_found');
-            return comman_message_response($message,400);
+            return comman_message_response($message, 400);
         }
         $user->status = $request->status;
         $user->save();
 
-        $message = __('messages.update_form',['form' => __('messages.status') ]);
+        $message = __('messages.update_form', ['form' => __('messages.status')]);
         $response = [
             'data' => new UserResource($user),
             'message' => $message
         ];
         return comman_custom_response($response);
     }
-    public function contactUs(Request $request){
+
+    public function contactUs(Request $request)
+    {
         try {
             \Mail::send('contactus.contact_email',
-            array(
-                'first_name' => $request->get('first_name'),
-                'last_name' => $request->get('last_name'),
-                'email' => $request->get('email'),
-                'subject' => $request->get('subject'),
-                'phone_no' => $request->get('phone_no'),
-                'user_message' => $request->get('user_message'),
-            ), function($message) use ($request)
-            {
-                $message->from($request->email);
-                $message->to(env('MAIL_FROM_ADDRESS'));
-            });
+                array(
+                    'first_name' => $request->get('first_name'),
+                    'last_name' => $request->get('last_name'),
+                    'email' => $request->get('email'),
+                    'subject' => $request->get('subject'),
+                    'phone_no' => $request->get('phone_no'),
+                    'user_message' => $request->get('user_message'),
+                ), function ($message) use ($request) {
+                    $message->from($request->email);
+                    $message->to(env('MAIL_FROM_ADDRESS'));
+                });
             $messagedata = __('messages.contact_us_greetings');
             return comman_message_response($messagedata);
         } catch (\Throwable $th) {
@@ -543,40 +534,44 @@ class UserController extends Controller
         }
 
     }
-    public function handymanAvailable(Request $request){
-        $user_id =  $request->id;
-        $user = User::where('id',$user_id)->first();
 
-        if($user == "") {
+    public function handymanAvailable(Request $request)
+    {
+        $user_id = $request->id;
+        $user = User::where('id', $user_id)->first();
+
+        if ($user == "") {
             $message = __('messages.user_not_found');
-            return comman_message_response($message,400);
+            return comman_message_response($message, 400);
         }
         $user->is_available = $request->is_available;
         $user->save();
 
-        $message = __('messages.update_form',['form' => __('messages.status') ]);
+        $message = __('messages.update_form', ['form' => __('messages.status')]);
         $response = [
             'data' => new UserResource($user),
             'message' => $message
         ];
         return comman_custom_response($response);
     }
-    public function handymanReviewsList(Request $request){
+
+    public function handymanReviewsList(Request $request)
+    {
         $id = $request->handyman_id;
-        $handyman_rating_data = HandymanRating::where('handyman_id',$id);
+        $handyman_rating_data = HandymanRating::where('handyman_id', $id);
 
         $per_page = config('constant.PER_PAGE_LIMIT');
 
-        if( $request->has('per_page') && !empty($request->per_page)){
-            if(is_numeric($request->per_page)){
+        if ($request->has('per_page') && !empty($request->per_page)) {
+            if (is_numeric($request->per_page)) {
                 $per_page = $request->per_page;
             }
-            if($request->per_page === 'all' ){
+            if ($request->per_page === 'all') {
                 $per_page = $handyman_rating_data->count();
             }
         }
 
-        $handyman_rating_data = $handyman_rating_data->orderBy('created_at','desc')->paginate($per_page);
+        $handyman_rating_data = $handyman_rating_data->orderBy('created_at', 'desc')->paginate($per_page);
 
         $items = HandymanRatingResource::collection($handyman_rating_data);
         $response = [
@@ -594,72 +589,78 @@ class UserController extends Controller
         ];
         return comman_custom_response($response);
     }
-    public function deleteUserAccount(Request $request){
+
+    public function deleteUserAccount(Request $request)
+    {
         $user_id = \Auth::user()->id;
-        $user = User::where('id',$user_id)->first();
-        if($user == null){
-            $message = __('messages.user_not_found');__('messages.msg_fail_to_delete',['item' => __('messages.user')] );
-            return comman_message_response($message,400);
+        $user = User::where('id', $user_id)->first();
+        if ($user == null) {
+            $message = __('messages.user_not_found');
+            __('messages.msg_fail_to_delete', ['item' => __('messages.user')]);
+            return comman_message_response($message, 400);
         }
         $user->booking()->forceDelete();
         $user->payment()->forceDelete();
         $user->forceDelete();
-        $message = __('messages.msg_deleted',['name' => __('messages.user')] );
-        return comman_message_response($message,200);
+        $message = __('messages.msg_deleted', ['name' => __('messages.user')]);
+        return comman_message_response($message, 200);
     }
-    public function deleteAccount(Request $request){
+
+    public function deleteAccount(Request $request)
+    {
         $user_id = \Auth::user()->id;
-        $user = User::where('id',$user_id)->first();
-        if($user == null){
-            $message = __('messages.user_not_found');__('messages.msg_fail_to_delete',['item' => __('messages.user')] );
-            return comman_message_response($message,400);
+        $user = User::where('id', $user_id)->first();
+        if ($user == null) {
+            $message = __('messages.user_not_found');
+            __('messages.msg_fail_to_delete', ['item' => __('messages.user')]);
+            return comman_message_response($message, 400);
         }
-        if($user->user_type == 'provider'){
-            if($user->providerPendingBooking()->count() == 0){
+        if ($user->user_type == 'provider') {
+            if ($user->providerPendingBooking()->count() == 0) {
                 $user->providerService()->forceDelete();
                 $user->providerPendingBooking()->forceDelete();
-                $provider_handyman = User::where('provider_id',$user_id)->get();
-                if(count($provider_handyman) > 0){
+                $provider_handyman = User::where('provider_id', $user_id)->get();
+                if (count($provider_handyman) > 0) {
                     foreach ($provider_handyman as $key => $value) {
                         $value->provider_id = NULL;
                         $value->update();
                     }
                 }
                 $user->forceDelete();
-            }else{
+            } else {
                 $message = __('messages.pending_booking');
-                 return comman_message_response($message,400);
+                return comman_message_response($message, 400);
             }
-        }else{
-            if($user->handymanPendingBooking()->count() == 0){
+        } else {
+            if ($user->handymanPendingBooking()->count() == 0) {
                 $user->handymanPendingBooking()->forceDelete();
                 $user->forceDelete();
-            }else{
+            } else {
                 $message = __('messages.pending_booking');
-                 return comman_message_response($message,400);
+                return comman_message_response($message, 400);
             }
         }
-        $message = __('messages.msg_deleted',['name' => __('messages.user')] );
-        return comman_message_response($message,200);
+        $message = __('messages.msg_deleted', ['name' => __('messages.user')]);
+        return comman_message_response($message, 200);
     }
+
     public function addUser(UserRequest $request)
     {
         $input = $request->all();
 
         $password = $input['password'];
-        $input['display_name'] = $input['first_name']." ".$input['last_name'];
+        $input['display_name'] = $input['first_name'] . " " . $input['last_name'];
         $input['user_type'] = isset($input['user_type']) ? $input['user_type'] : 'user';
         $input['password'] = Hash::make($password);
 
-        if( $input['user_type'] === 'provider')
-        {
+        if ($input['user_type'] === 'provider') {
         }
         $user = User::create($input);
         $user->assignRole($input['user_type']);
         $input['api_token'] = $user->createToken('auth_token')->plainTextToken;
 
         unset($input['password']);
-        $message = trans('messages.save_form',['form' => $input['user_type'] ]);
+        $message = trans('messages.save_form', ['form' => $input['user_type']]);
         $user->api_token = $user->createToken('auth_token')->plainTextToken;
         $response = [
             'message' => $message,
@@ -667,18 +668,19 @@ class UserController extends Controller
         ];
         return comman_custom_response($response);
     }
+
     public function editUser(UserRequest $request)
     {
-        if($request->has('id') && !empty($request->id)){
-            $user = User::where('id',$request->id)->first();
+        if ($request->has('id') && !empty($request->id)) {
+            $user = User::where('id', $request->id)->first();
         }
-        if($user == null){
-            return comman_message_response(__('messages.no_record_found'),400);
+        if ($user == null) {
+            return comman_message_response(__('messages.no_record_found'), 400);
         }
 
         $user->fill($request->all())->update();
 
-        if(isset($request->profile_image) && $request->profile_image != null ) {
+        if (isset($request->profile_image) && $request->profile_image != null) {
             $user->clearMediaCollection('profile_image');
             $user->addMediaFromRequest('profile_image')->toMediaCollection('profile_image');
         }
@@ -686,7 +688,7 @@ class UserController extends Controller
         $user_data = User::find($user->id);
 
         $message = __('messages.updated');
-        $user_data['profile_image'] = getSingleMedia($user_data,'profile_image',null);
+        $user_data['profile_image'] = getSingleMedia($user_data, 'profile_image', null);
         $user_data['user_role'] = $user->getRoleNames();
         unset($user_data['roles']);
         unset($user_data['media']);
@@ -694,66 +696,68 @@ class UserController extends Controller
             'data' => $user_data,
             'message' => $message
         ];
-        return comman_custom_response( $response );
+        return comman_custom_response($response);
     }
-    public function userWalletBalance(Request $request){
+
+    public function userWalletBalance(Request $request)
+    {
         $user = Auth::user();
         $amount = 0;
-        $wallet = Wallet::where('user_id',$user->id)->first();
-        if($wallet !== null){
+        $wallet = Wallet::where('user_id', $user->id)->first();
+        if ($wallet !== null) {
             $amount = $wallet->amount;
         }
         $response = [
             'balance' => $amount,
         ];
-        return comman_custom_response( $response );
+        return comman_custom_response($response);
     }
 
-    public function requestOtp(UserRequest $request)
+    public function requestOtp(Request $request)
     {
-        $input = $request->all();
+        $user = $request->user();
 
-        $password = $input['password'];
-        $input['display_name'] = $input['first_name']." ".$input['last_name'];
-        $input['user_type'] = 'user';
-        $input['password'] = Hash::make($password);
-        $input['otp_token'] = 1234;
-        $input['otp_token_expire_time'] = Carbon::now()->addMinutes(3);
-        $input['status'] = 0;
-
-        $user = User::create($input);
-        $user->assignRole($input['user_type']);
-
-        if($user->user_type == 'provider' || $user->user_type == 'user'){
-            $wallet = array(
-                'title' => $user->display_name,
-                'user_id' => $user->id,
-                'amount' => 0
-            );
-            $result = Wallet::create($wallet);
+        $message = '';
+        if ($user->otp_token_expire_time >= Carbon::now()) {
+            $message = 'کد امنیتی قبلا ارسال شده است';
+        } else if ($user->email_verified_at == null) {
+            $token = Random::generate(4, '0-9');
+            $user->otp_token = $token;
+            $user->otp_token_expire_time = Carbon::now()->addMinutes(5);;
+            $message = " تست : کد امنیتی شما جهت اسنفاده در اپلیکیشن همه کاره\n";
+            $message .= $token;
+            $res = sendSMS($user->contact_number, $message);
+            if ($res) {
+                $message = 'کد تایید به شماره موبایل شما ارسال گردید';
+                $user->save();
+            } else {
+                $message = 'خطا در ارسال کد تایید';
+            }
+        } else {
+            $message = 'شماره موبایل شما قبلا تایید شده است';
         }
-        $message = trans('messages.save_form',['form' => $input['user_type'] ]);
+
 
         $response = [
             'message' => $message,
-            'data' => $user
         ];
+
         return comman_custom_response($response);
     }
 
     public function loginWithMobile()
     {
-        if(Auth::attempt(['contact_number' => request('mobile'), 'password' => request('password')])){
+        if (Auth::attempt(['contact_number' => request('mobile'), 'password' => request('password')])) {
 
             $user = Auth::user();
-            if(request('loginfrom') === 'vue-app'){
-                if($user->user_type != 'user'){
+            if (request('loginfrom') === 'vue-app') {
+                if ($user->user_type != 'user') {
                     $message = trans('auth.not_able_login');
-                    return comman_message_response($message,400);
+                    return comman_message_response($message, 400);
                 }
             }
             $user->save();
-            if(request('player_id') != null){
+            if (request('player_id') != null) {
                 $data = [
                     'user_id' => $user->id,
                     'player_id' => request('player_id'),
@@ -764,24 +768,23 @@ class UserController extends Controller
             $success = $user;
             $success['user_role'] = $user->getRoleNames();
             $success['api_token'] = $user->createToken('auth_token')->plainTextToken;
-            $success['profile_image'] = getSingleMedia($user,'profile_image',null);
+            $success['profile_image'] = getSingleMedia($user, 'profile_image', null);
             $is_verify_provider = false;
 
-            if($user->user_type == 'provider')
-            {
+            if ($user->user_type == 'provider') {
                 $is_verify_provider = verify_provider_document($user->id);
                 $success['subscription'] = get_user_active_plan($user->id);
 
-                if(is_any_plan_active($user->id) == 0 && $success['is_subscribe'] == 0 ){
+                if (is_any_plan_active($user->id) == 0 && $success['is_subscribe'] == 0) {
                     $success['subscription'] = user_last_plan($user->id);
                 }
                 $success['is_subscribe'] = is_subscribed_user($user->id);
                 $success['provider_id'] = admin_id();
 
             }
-            if($user->user_type == 'provider' || $user->user_type == 'user'){
-                $wallet = Wallet::where('user_id',$user->id)->first();
-                if( $wallet == null){
+            if ($user->user_type == 'provider' || $user->user_type == 'user') {
+                $wallet = Wallet::where('user_id', $user->id)->first();
+                if ($wallet == null) {
                     $wallet = array(
                         'title' => $user->display_name,
                         'user_id' => $user->id,
@@ -790,80 +793,39 @@ class UserController extends Controller
                     Wallet::create($wallet);
                 }
             }
-            $success['is_verify_provider'] = (int) $is_verify_provider;
+            $success['is_verify_provider'] = (int)$is_verify_provider;
             unset($success['media']);
             unset($user['roles']);
             $success['player_ids'] = $user->playerids->pluck('player_id');
             unset($user->playerids);
 
-            return response()->json([ 'data' => $success ], 200 );
-        }
-        else{
+            return response()->json(['data' => $success], 200);
+        } else {
             $message = trans('auth.failed');
-            return comman_message_response($message,406);
+            return comman_message_response($message, 406);
         }
     }
-    public function confirmOtp()
+
+    public function confirmOtp(Request $request)
     {
-        if(Auth::attempt(['contact_number' => request('mobile'), 'password' => request('password')])){
-
-            $user = Auth::user();
-            if(request('loginfrom') === 'vue-app'){
-                if($user->user_type != 'user'){
-                    $message = trans('auth.not_able_login');
-                    return comman_message_response($message,400);
-                }
-            }
+        $user = $request->user();
+        $message = '';
+        if ($user->otp_token == $request->otp && $user->otp_token_expire_time >= Carbon::now()) {
+            $user->email_verified_at = Carbon::now();
+            $user->otp_token = null;
+            $user->otp_token_expire_time = null;
             $user->save();
-            if(request('player_id') != null){
-                $data = [
-                    'user_id' => $user->id,
-                    'player_id' => request('player_id'),
-                ];
-                UserPlayerIds::create($data);
-
-            }
-            $success = $user;
-            $success['user_role'] = $user->getRoleNames();
-            $success['api_token'] = $user->createToken('auth_token')->plainTextToken;
-            $success['profile_image'] = getSingleMedia($user,'profile_image',null);
-            $is_verify_provider = false;
-
-            if($user->user_type == 'provider')
-            {
-                $is_verify_provider = verify_provider_document($user->id);
-                $success['subscription'] = get_user_active_plan($user->id);
-
-                if(is_any_plan_active($user->id) == 0 && $success['is_subscribe'] == 0 ){
-                    $success['subscription'] = user_last_plan($user->id);
-                }
-                $success['is_subscribe'] = is_subscribed_user($user->id);
-                $success['provider_id'] = admin_id();
-
-            }
-            if($user->user_type == 'provider' || $user->user_type == 'user'){
-                $wallet = Wallet::where('user_id',$user->id)->first();
-                if( $wallet == null){
-                    $wallet = array(
-                        'title' => $user->display_name,
-                        'user_id' => $user->id,
-                        'amount' => 0
-                    );
-                    Wallet::create($wallet);
-                }
-            }
-            $success['is_verify_provider'] = (int) $is_verify_provider;
-            unset($success['media']);
-            unset($user['roles']);
-            $success['player_ids'] = $user->playerids->pluck('player_id');
-            unset($user->playerids);
-
-            return response()->json([ 'data' => $success ], 200 );
+            $message = 'شماره موبایل شما تایید شد';
+        } else {
+            $message = 'اطلاعات وارد شده صجیج نمی باشد';
         }
-        else{
-            $message = trans('auth.failed');
-            return comman_message_response($message,406);
-        }
+
+
+        $response = [
+            'message' => $message,
+        ];
+
+        return comman_custom_response($response);
     }
 
 }

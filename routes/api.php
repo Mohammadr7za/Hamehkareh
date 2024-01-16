@@ -54,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::post('request_otp', [API\User\UserController::class, 'requestOtp']);
+    Route::get('splash', [API\User\UserController::class, 'splash']);
     Route::post('confirm-otp', [API\User\UserController::class, 'confirmOtp']);
 });
 Route::post('register', [API\User\UserController::class, 'register']);

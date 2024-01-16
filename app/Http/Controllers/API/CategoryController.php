@@ -11,7 +11,7 @@ use App\Http\Resources\API\CategoryResource;
 class CategoryController extends Controller
 {
     public function getCategoryList(Request $request){
-        $category = Category::where('status',1);
+        $category = Category::with('subCategories')->where('status',1);
         $auth_user = auth()->user();
         if(auth()->user() !== null){
             if(auth()->user()->hasRole('admin')){
@@ -49,7 +49,7 @@ class CategoryController extends Controller
             ],
             'data' => $items,
         ];
-        
+
         return comman_custom_response($response);
     }
 

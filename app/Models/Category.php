@@ -9,7 +9,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Traits\HasRoles;
 
-class Category extends BaseModel implements HasMedia 
+class Category extends BaseModel implements HasMedia
 {
     use HasFactory,HasRoles,InteractsWithMedia,SoftDeletes;
     protected $table = 'categories';
@@ -24,10 +24,13 @@ class Category extends BaseModel implements HasMedia
     public function services(){
         return $this->hasMany(Service::class, 'category_id','id');
     }
+    public function subCategories(){
+        return $this->hasMany(SubCategory::class, 'category_id','id');
+    }
     public function scopeList($query)
     {
         return $query->orderBy('updated_at', 'desc');
     }
-    
-    
+
+
 }

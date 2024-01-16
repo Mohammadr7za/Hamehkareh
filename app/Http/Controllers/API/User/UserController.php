@@ -8,6 +8,7 @@ use App\Http\Requests\UserRequest;
 use App\Http\Resources\API\HandymanRatingResource;
 use App\Http\Resources\API\ServiceResource;
 use App\Http\Resources\API\UserResource;
+use App\Http\Resources\SplashResource;
 use App\Models\Booking;
 use App\Models\HandymanRating;
 use App\Models\Service;
@@ -826,6 +827,18 @@ class UserController extends Controller
         ];
 
         return comman_custom_response($response);
+    }
+    public function splash(Request $request)
+    {
+        $user = User::where('id', $request->user()->id)
+            ->with('state')
+            ->with('city')
+            ->with('country')
+
+            ->first();
+
+
+        return comman_custom_response(SplashResource::make($user));
     }
 
 }

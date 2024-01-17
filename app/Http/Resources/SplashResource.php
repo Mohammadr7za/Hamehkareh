@@ -40,7 +40,7 @@ class SplashResource extends JsonResource
             "time_zone" => $this->time_zone,
             "email_verified_at" => $this->email_verified_at,
             "phone_verifed_at" => $this->email_verified_at,
-            "is_phone_verifed" => $this->email_verified_at != null && $this->email_verified_at > 0,
+            "is_phone_verifed" => $this->email_verified_at != null && strlen($this->email_verified_at) > 0,
             "service_address_id" => $this->service_address_id,
             "uid" => $this->uid,
             "handymantype_id" => $this->handymantype_id,

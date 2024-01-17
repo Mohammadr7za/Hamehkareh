@@ -9,6 +9,7 @@ use App\Http\Resources\API\HandymanRatingResource;
 use App\Http\Resources\API\ServiceResource;
 use App\Http\Resources\API\UserResource;
 use App\Http\Resources\SplashResource;
+use App\Http\Resources\UserProfileResource;
 use App\Models\Booking;
 use App\Models\HandymanRating;
 use App\Models\Service;
@@ -367,7 +368,7 @@ class UserController extends Controller
         unset($user_data['media']);
         unset($user_data->playerids);
         $response = [
-            'data' => $user_data,
+            'data' => UserProfileResource::make($user_data),
             'message' => $message
         ];
         return comman_custom_response($response);

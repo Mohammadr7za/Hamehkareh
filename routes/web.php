@@ -56,6 +56,7 @@ use App\Http\Controllers\ServiceAddonController;
 
 require __DIR__ . '/auth.php';
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
+
 Route::group(['prefix' => 'auth'], function () {
     Route::get('login', [HomeController::class, 'authLogin'])->name('auth.login');
     Route::get('register', [HomeController::class, 'authRegister'])->name('auth.register');

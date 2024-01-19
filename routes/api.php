@@ -89,6 +89,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('get-user-ratings', [API\BookingController::class, 'getUserRatings']);
 
     Route::post('save-favourite', [API\ServiceController::class, 'saveFavouriteService']);
+    Route::post('save-favourite-list', [API\ServiceController::class, 'saveFavouriteServiceList']);
     Route::post('delete-favourite', [API\ServiceController::class, 'deleteFavouriteService']);
     Route::get('user-favourite-service', [API\ServiceController::class, 'getUserFavouriteService']);
 

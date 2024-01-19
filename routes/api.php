@@ -27,6 +27,7 @@ require __DIR__ . '/admin-api.php';
 Route::get('category-list', [API\CategoryController::class, 'getCategoryList']);
 Route::get('subcategory-list', [API\SubCategoryController::class, 'getSubCategoryList']);
 Route::get('service-list', [API\ServiceController::class, 'getServiceList']);
+Route::get('service-list-combo', [API\ServiceController::class, 'getServiceListCombo']);
 Route::get('type-list', [API\CommanController::class, 'getTypeList']);
 Route::get('blog-list', [API\BlogController::class, 'getBlogList']);
 Route::post('blog-detail', [API\BlogController::class, 'getBlogDetail']);

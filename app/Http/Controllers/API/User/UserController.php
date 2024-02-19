@@ -817,6 +817,11 @@ class UserController extends Controller
         if (Auth::attempt(['contact_number' => request('mobile'), 'password' => request('password')])) {
 
             $user = Auth::user();
+
+            if ($user->staus == 0) {
+                return comman_message_response('اکانت شما غیر قعال می باشد', 406);
+            }
+
             if (request('loginfrom') === 'vue-app') {
                 if ($user->user_type != 'user') {
                     $message = trans('auth.not_able_login');

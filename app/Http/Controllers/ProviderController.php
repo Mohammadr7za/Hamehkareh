@@ -44,7 +44,7 @@ class ProviderController extends Controller
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = User::query();
+        $query = User::query()->orderByDesc('created_at');;
         $filter = $request->filter;
 
         if (isset($filter)) {

@@ -30,7 +30,7 @@ class ProviderTypeController extends Controller
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = ProviderType::query();
+        $query = ProviderType::query()->orderByDesc('created_at');;
         $filter = $request->filter;
 
         if (isset($filter)) {

@@ -27,7 +27,7 @@ class BookingRatingController extends Controller
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = BookingRating::query();
+        $query = BookingRating::query()->orderByDesc('created_at');;
         $filter = $request->filter;
 
         if (isset($filter)) {

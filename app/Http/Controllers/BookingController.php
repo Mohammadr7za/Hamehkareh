@@ -42,7 +42,7 @@ class BookingController extends Controller
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = Booking::query()->myBooking();
+        $query = Booking::query()->myBooking()->orderByDesc('created_at');
         $filter = $request->filter;
 
         if (isset($filter)) {
@@ -59,7 +59,7 @@ class BookingController extends Controller
                 return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="booking" onclick="dataTableRowCheck('.$row->id.',this)">';
             })
             ->editColumn('date', function($query) {
-                return jdate($query->datetime);
+                return jdate($query->created_at);
             })
             ->editColumn('id' , function ($query){
                 return "<a class='btn-link btn-link-hover' href=" .route('booking.show', $query->id).">#".$query->id ."</a>";

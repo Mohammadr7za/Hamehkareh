@@ -31,7 +31,7 @@ class PostJobRequestController extends Controller
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = PostJobRequest::query();
+        $query = PostJobRequest::query()->orderByDesc('created_at');;
         $filter = $request->filter;
 
         if (isset($filter)) {

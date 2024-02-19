@@ -27,7 +27,7 @@ class ServiceAddonController extends Controller
     }
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = ServiceAddon::query();
+        $query = ServiceAddon::query()->orderByDesc('created_at');;
 
         $filter = $request->filter;
 

@@ -150,7 +150,7 @@ class PaymentController extends Controller
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = Payment::query();
+        $query = Payment::query()->orderByDesc('created_at');;
         $filter = $request->filter;
 
         if (isset($filter)) {

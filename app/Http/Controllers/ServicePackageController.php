@@ -29,7 +29,7 @@ class ServicePackageController extends Controller
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = ServicePackage::query();
+        $query = ServicePackage::query()->orderByDesc('created_at');;
 
         $filter = $request->filter;
 

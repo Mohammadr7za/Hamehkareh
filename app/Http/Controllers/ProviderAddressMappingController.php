@@ -30,7 +30,7 @@ class ProviderAddressMappingController extends Controller
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = ProviderAddressMapping::query()->myAddress();
+        $query = ProviderAddressMapping::query()->myAddress()->orderByDesc('created_at');;
         $filter = $request->filter;
 
         if (isset($filter)) {

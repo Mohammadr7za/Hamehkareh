@@ -39,7 +39,7 @@ class ContactUsController extends Controller
 
     public function index_data(DataTables $datatable, Request $request)
     {
-        $query = ContactUs::query();
+        $query = ContactUs::query()->orderByDesc('created_at');;
         $filter = $request->filter;
 
         if (isset($filter)) {

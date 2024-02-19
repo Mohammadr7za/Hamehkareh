@@ -41,7 +41,7 @@ class CategoryController extends Controller
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = Category::query()->list();
+        $query = Category::query()->list()->orderByDesc('created_at');;
         $filter = $request->filter;
 
         if (isset($filter)) {

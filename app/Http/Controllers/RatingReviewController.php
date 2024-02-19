@@ -23,7 +23,7 @@ class RatingReviewController extends Controller
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = BookingRating::query();
+        $query = BookingRating::query()->orderByDesc('created_at');;
 
         if(auth()->user()->hasAnyRole(['admin'])){
             $query = $query->withTrashed();

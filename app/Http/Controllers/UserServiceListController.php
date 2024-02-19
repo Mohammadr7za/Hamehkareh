@@ -15,7 +15,7 @@ class UserServiceListController extends Controller
     public function index_data(DataTables $datatable,Request $request)
     {
 
-        $query = Service::query();
+        $query = Service::query()->orderByDesc('created_at');;
 
 
         $filter = $request->filter;

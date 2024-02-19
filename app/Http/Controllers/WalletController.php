@@ -29,7 +29,7 @@ class WalletController extends Controller
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = Wallet::query();
+        $query = Wallet::query()->orderByDesc('created_at');;
         $filter = $request->filter;
         $query = $query->orderBy('updated_at','desc');
         if (isset($filter)) {

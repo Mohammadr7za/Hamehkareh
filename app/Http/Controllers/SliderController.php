@@ -27,7 +27,7 @@ class SliderController extends Controller
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = Slider::query();
+        $query = Slider::query()->orderByDesc('created_at');;
         $filter = $request->filter;
 
         if (isset($filter)) {

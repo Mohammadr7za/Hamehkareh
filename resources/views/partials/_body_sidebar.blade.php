@@ -324,7 +324,7 @@ $menu->add('<span>'.__('messages.contactus').'</span><span class="custom-tooltip
 ->nickname('contactus')
 ->data('permission', 'contactus list')
 ->link->attr(["class" => ""])
-->href('contactus');
+->href('/contactus');
 
 $menu->add(__('messages.promotion'), ['class' => 'category-main'])->data('permission', 'coupon list');
 

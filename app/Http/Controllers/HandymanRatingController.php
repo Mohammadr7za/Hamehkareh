@@ -25,7 +25,7 @@ class HandymanRatingController extends Controller
 
     public function index_data(DataTables $datatable,Request $request)
     {
-        $query = HandymanRating::query();
+        $query = HandymanRating::query()->orderByDesc('created_at');;
         $filter = $request->filter;
 
         if (isset($filter)) {

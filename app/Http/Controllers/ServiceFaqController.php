@@ -14,7 +14,7 @@ class ServiceFaqController extends Controller
      */
     public function index(Request $request)
     {
-        
+
         $pageTitle = trans('messages.list_form_title',['form' => trans('messages.servicefaq')] );
         $auth_user = authSession();
         $assets = ['datatable'];
@@ -25,9 +25,9 @@ class ServiceFaqController extends Controller
     public function index_data(DataTables $datatable,Request $request)
     {
 
-        $query = ServiceFaq::where('service_id',$request->service_id);
-        
-        
+        $query = ServiceFaq::where('service_id',$request->service_id)->orderByDesc('created_at');;
+
+
         return $datatable ->eloquent($query)
         ->addColumn('check', function ($row) {
             return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-'.$row->id.'"  name="datatable_ids[]" value="'.$row->id.'" data-type="category" onclick="dataTableRowCheck('.$row->id.',this)">';
@@ -63,12 +63,12 @@ class ServiceFaqController extends Controller
         $auth_user = authSession();
         $servicefaq = ServiceFaq::find($id);
         $pageTitle = trans('messages.update_form_title',['form'=>trans('messages.servicefaq')]);
-        
+
         if($servicefaq == null){
             $pageTitle = trans('messages.add_button_form',['form' => trans('messages.servicefaq')]);
             $servicefaq = new ServiceFaq;
         }
-        
+
         return view('servicefaq.create', compact('pageTitle' ,'servicefaq' ,'auth_user','service_id' ));
     }
 
@@ -90,7 +90,7 @@ class ServiceFaqController extends Controller
             $message = trans('messages.save_form',['form' => trans('messages.servicefaq')]);
         }
 
-        return redirect(route('servicefaq.index',['id'=>$data['service_id']]))->withSuccess($message);   
+        return redirect(route('servicefaq.index',['id'=>$data['service_id']]))->withSuccess($message);
     }
 
     /**
@@ -140,11 +140,11 @@ class ServiceFaqController extends Controller
         }
         $servicefaq = ServiceFaq::find($id);
         $msg= __('messages.msg_fail_to_delete',['name' => __('messages.servicefaq')] );
-        
-        if($servicefaq!='') { 
+
+        if($servicefaq!='') {
 
             $servicefaq->delete();
-        
+
             $msg= __('messages.msg_deleted',['name' => __('messages.servicefaq')] );
         }
 

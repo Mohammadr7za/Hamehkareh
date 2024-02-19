@@ -31,7 +31,7 @@ class UserRequest extends FormRequest
 
         return [
                 'username'          => 'required|max:255|unique:users,username,'.$id,
-                'email'             => 'required|email|max:255|unique:users,email,'.$id,
+                'email'             => 'email|max:255',
                 'contact_number'    => 'nullable', //unique:users,contact_number,'.$id,
                 'profile_image'     => 'mimetypes:image/jpeg,image/png,image/jpg,image/gif',
         ];
@@ -52,7 +52,7 @@ class UserRequest extends FormRequest
                 'message' => $validator->errors()->first(),
                 'all_message' =>  $validator->errors()
             ];
-            
+
             throw new HttpResponseException(response()->json($data,406));
         }
 

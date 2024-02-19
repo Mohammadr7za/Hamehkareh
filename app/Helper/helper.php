@@ -1,6 +1,7 @@
 <?php
 
 use \Illuminate\Support\Facades\File;
+use Nette\Utils\Random;
 
 function authSession($force = false)
 {
@@ -24,6 +25,10 @@ function authSession($force = false)
 function comman_message_response($message, $status_code = 200)
 {
     return response()->json(['message' => $message], $status_code);
+}
+function generateOtpToken()
+{
+    return Random::generate(4, '0-9');
 }
 
 function comman_custom_response($response, $status_code = 200)

@@ -62,6 +62,8 @@ Route::post('register', [API\User\UserController::class, 'register']);
 Route::post('login', [API\User\UserController::class, 'login']);
 Route::post('login-with-mobile', [API\User\UserController::class, 'loginWithMobile']);
 Route::post('forgot-password', [API\User\UserController::class, 'forgotPassword']);
+Route::post('forgot-password-mobile', [API\User\UserController::class, 'forgotPasswordMobile']);
+Route::post('change-password-otp', [API\User\UserController::class, 'changePasswordWithOtp']);
 Route::post('social-login', [API\User\UserController::class, 'socialLogin']);
 Route::post('contact-us', [API\User\UserController::class, 'contactUs']);
 

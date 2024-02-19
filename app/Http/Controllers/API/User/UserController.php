@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\changePasswordWithOtp;
 use App\Http\Requests\RequestOTP;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\API\HandymanRatingResource;
@@ -18,9 +19,11 @@ use App\Models\UserPlayerIds;
 use App\Models\Wallet;
 use Auth;
 use Hash;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Nette\Utils\Random;
 use Validator;
 
@@ -30,7 +33,6 @@ class UserController extends Controller
     public function register(UserRequest $request)
     {
         $input = $request->all();
-        $email = $input['email'];
         $username = $input['username'];
         $password = $input['password'];
         $input['display_name'] = $input['first_name'] . " " . $input['last_name'];
@@ -41,8 +43,8 @@ class UserController extends Controller
             $input['status'] = isset($input['status']) ? $input['status'] : 0;
         }
         $user = User::withTrashed()
-            ->where(function ($query) use ($email, $username) {
-                $query->where('email', $email)->orWhere('username', $username);
+            ->where(function ($query) use ($username) {
+                $query->where('username', $username);
             })
             ->first();
         if ($user) {
@@ -405,6 +407,69 @@ class UserController extends Controller
             : response()->json(['message' => __($response), 'status' => false], 406);
     }
 
+    public function forgotPasswordMobile(Request $request)
+    {
+        $request->validate([
+            'mobile' => 'required|string|max:11',
+        ]);
+
+        $mobile = $request->mobile;
+
+        $user = User::where('contact_number', $mobile)->firstOrFail();
+        if ($user) {
+
+            $token = generateOtpToken();
+            $user->otp_token = $token;
+            $user->otp_token_expire_time = Carbon::now()->addMinutes(5);
+            $message = " تست : کد امنیتی شما جهت تغییر کلمه عبور در اپلیکیشن همه کاره\n";
+            $message .= $token;
+            $res = sendSMS($user->contact_number, $message);
+            if ($res) {
+                $user->save();
+                return response()->json(['message' => __("کد امنیتی به شماره همراه شما ارسال شد"), 'status' => true], 200);
+            } else {
+                return response()->json(['message' => __("خطا در ارسال کد تایید"), 'status' => false], 401);
+            }
+        }
+
+        return response()->json(['message' => __("اطلاعاتی یافت نشد"), 'status' => false], 400);
+    }
+
+    public function changePasswordWithOtp(changePasswordWithOtp $request)
+    {
+        try {
+            $request->validated();
+
+            $user = User::where('contact_number', $request->mobile)->firstOrFail();
+            if ($user) {
+
+                if (!empty($user->otp_token)
+                    && $user->otp_token == $request->otp
+                    && $user->otp_token_expire_time >= Carbon::now()
+                ) {
+                    // Successfully change password
+                    $user->otp_token = null;
+                    $user->otp_token_expire_time = Carbon::now()->addMinutes(-15);
+
+                    $user->forceFill([
+                        'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+                        'remember_token' => Str::random(60),
+                    ])->save();
+
+                    event(new PasswordReset($user));
+
+                    $message = " تست : کلمه عبور شما در اپلیکیشن همه کاره با موفقیت تغییر یافت";
+                    $res = sendSMS($user->contact_number, $message);
+                    return response()->json(['message' => __("کلمه عبور با موفقیت تغییر یافت"), 'status' => true], 200);
+                }
+            }
+
+            return response()->json(['message' => __("اطلاعات ارسالی نامعتبر می باشد"), 'status' => false], 400);
+        } catch (\Exception $exception) {
+            return response()->json(['message' => __("خطایی رخ داده است"), 'status' => false], 400);
+        }
+    }
+
     public function socialLogin(Request $request)
     {
         $input = $request->all();
@@ -725,7 +790,7 @@ class UserController extends Controller
         } else if ($user->email_verified_at == null) {
             $token = Random::generate(4, '0-9');
             $user->otp_token = $token;
-            $user->otp_token_expire_time = Carbon::now()->addMinutes(5);;
+            $user->otp_token_expire_time = Carbon::now()->addMinutes(5);
             $message = " تست : کد امنیتی شما جهت اسنفاده در اپلیکیشن همه کاره\n";
             $message .= $token;
             $res = sendSMS($user->contact_number, $message);
@@ -829,13 +894,13 @@ class UserController extends Controller
 
         return comman_custom_response($response);
     }
+
     public function splash(Request $request)
     {
         $user = User::where('id', $request->user()->id)
             ->with('state')
             ->with('city')
             ->with('country')
-
             ->first();
 
 

@@ -10,7 +10,7 @@ return [
     'array' => ':attribute باید یک آرایه باشد.',
     'before' => ':attribute باید تاریخی قبل از :date باشد.',
     'before_or_equal' => ':attribute باید تاریخ قبل یا برابر با :date باشد.',
-    'بین' => [
+    'between' => [
         'numeric' => ':attribute باید بین :min و :max باشد.',
         'file' => ':attribute باید بین :min و :max کیلوبایت باشد.',
         'string' => ':attribute باید بین :min و :max کاراکتر باشد.',
@@ -63,7 +63,7 @@ return [
         'string' => ':attribute باید کمتر یا مساوی کاراکترهای :value باشد.',
         'array' => ':attribute نباید بیش از آیتم های :value داشته باشد.',
     ],
-    'حداکثر' => [
+    'max' => [
         'numeric' => ':attribute نباید بزرگتر از :max باشد.',
         'file' => ':attribute نباید بیشتر از :max کیلوبایت باشد.',
         'string' => ':attribute نباید بیشتر از :max کاراکتر باشد.',
@@ -71,7 +71,7 @@ return [
     ],
     'mimes' => ':attribute باید فایلی از نوع: :values باشد.',
     'mimetypes' => ':attribute باید فایلی از نوع: :values باشد.',
-    'دقیقه' => [
+    'minute' => [
         'numeric' => ':attribute باید حداقل :min باشد.',
         'file' => ':attribute باید حداقل :min کیلوبایت باشد.',
         'string' => ':attribute باید حداقل کاراکتر :min باشد.',

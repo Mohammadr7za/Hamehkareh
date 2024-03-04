@@ -79,4 +79,8 @@ return [
         'ON_SITE' => 'On Site',
         'ONLINE' => 'Online',
     ],
+
+    'username_otp' => env('USERNAME_SMS_ACCOUNT'),
+    'password_otp' => env('PASSWORD_SMS_ACCOUNT'),
+    'sms_send_number' => env('SEND_NUMBER_SMS_ACCOUNT'),
 ];

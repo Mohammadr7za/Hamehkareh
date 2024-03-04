@@ -55,16 +55,16 @@ class WalletController extends Controller
         $request->validate([
             'amount' => 'required|integer',
         ]);
-        
+
         $user_id = $request->user_id ?? auth()->user()->id;
-        
+
         $wallet = Wallet::where('user_id', $user_id)->first();
-        
+
         if($wallet){
 
             $wallet->amount += $request->amount;
             $wallet->save();
-        
+
             $activity_data = [
 
                 'activity_type' => 'wallet_top_up',
@@ -81,11 +81,11 @@ class WalletController extends Controller
                 'message'=>  trans('messages.wallet_top_up', ['value' => getPriceFormat($wallet->amount)]),
                 'data' => $wallet,
             ];
- 
+
           return comman_custom_response($response);
 
           }
-    
+
     }
 
     public function getwalletlist(Request $request){
@@ -95,7 +95,7 @@ class WalletController extends Controller
 
             $wallet = $wallet->where('status',$status);
         }
-    
+
         $per_page = config('constant.PER_PAGE_LIMIT');
 
         if( $request->has('per_page') && !empty($request->per_page)){
@@ -123,14 +123,14 @@ class WalletController extends Controller
             ],
             'data' => $items,
         ];
-        
+
         return comman_custom_response($response);
 
-        
+
     }
     public function store(Request $request)
     {
-       
+
         if(demoUserPermission()){
             $message = __('messages.demo_permission_denied');
             return comman_message_response($message);
@@ -140,21 +140,21 @@ class WalletController extends Controller
         $wallet = Wallet::where('user_id',$data['user_id'])->first();
         if($wallet && !$data['id']){
             $message = __('messages.already_provider_wallet');
-            return comman_message_response($message,406);
+            return comman_message_response($message,200, false);
         }
         if($wallet !== null){
             $data['amount'] = $wallet->amount + $request->amount;
         }
         $result = Wallet::updateOrCreate(['id' => $data['id'] ],$data);
 
-       
+
         $message = trans('messages.update_form',['form' => trans('messages.wallet')]);
         if($result->wasRecentlyCreated){
             $activity_data = [
                 'activity_type' => 'add_wallet',
                 'wallet' => $result,
             ];
-    
+
             saveWalletHistory($activity_data);
             $message = trans('messages.save_form',['form' => trans('messages.wallet')]);
         }else{
@@ -168,6 +168,6 @@ class WalletController extends Controller
             }
         }
 
-        return comman_message_response($message); 
+        return comman_message_response($message);
     }
 }

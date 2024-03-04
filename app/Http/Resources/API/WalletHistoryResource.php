@@ -16,11 +16,11 @@ class WalletHistoryResource extends JsonResource
     {
         return [
             'id'                => $this->id,
-            'datetime'           => $this->datetime,
+            'datetime'           => jdate($this->datetime),
             'activity_type'             => $this->activity_type,
             'activity_message'        => $this->activity_message,
             'activity_data'            => $this->activity_data,
-            
+
         ];
     }
 }

@@ -172,7 +172,7 @@ class UserController extends Controller
             return response()->json(['data' => $success], 200);
         } else {
             $message = trans('auth.failed');
-            return comman_message_response($message, 406);
+            return comman_message_response($message, 200, false);
         }
     }
 
@@ -292,7 +292,7 @@ class UserController extends Controller
 
         if ($user == "") {
             $message = __('messages.user_not_found');
-            return comman_message_response($message, 406);
+            return comman_message_response($message, 200, false);
         }
 
         $hashedPassword = $user->password;
@@ -303,7 +303,7 @@ class UserController extends Controller
         if ($match) {
             if ($same_exits) {
                 $message = __('messages.old_new_pass_same');
-                return comman_message_response($message, 406);
+                return comman_message_response($message, 200, false);
             }
 
             $user->fill([
@@ -407,8 +407,8 @@ class UserController extends Controller
         );
 
         return $response == Password::RESET_LINK_SENT
-            ? response()->json(['message' => __($response), 'status' => true], 200)
-            : response()->json(['message' => __($response), 'status' => false], 406);
+            ? comman_message_response(['message' => __($response), 'status' => true], 200, true)
+            : comman_message_response(['message' => __($response), 'status' => false], 200, false);
     }
 
     public function forgotPasswordMobile(Request $request)
@@ -425,9 +425,10 @@ class UserController extends Controller
             $token = generateOtpToken();
             $user->otp_token = $token;
             $user->otp_token_expire_time = Carbon::now()->addMinutes(5);
-            $message = " تست : کد امنیتی شما جهت تغییر کلمه عبور در اپلیکیشن همه کاره\n";
+            $message = " تست -  کد امنیتی شما جهت تغییر کلمه عبور در اپلیکیشن همه کاره\n";
             $message .= $token;
-            $res = sendSMS($user->contact_number, $message);
+            $res = sendSmsToUser($user->contact_number, $message);
+            dd($res);
             if ($res) {
                 $user->save();
                 return response()->json(['message' => __("کد امنیتی به شماره همراه شما ارسال شد"), 'status' => true], 200);
@@ -462,15 +463,15 @@ class UserController extends Controller
 
                     event(new PasswordReset($user));
 
-                    $message = " تست : کلمه عبور شما در اپلیکیشن همه کاره با موفقیت تغییر یافت";
-                    $res = sendSMS($user->contact_number, $message);
-                    return response()->json(['message' => __("کلمه عبور با موفقیت تغییر یافت"), 'status' => true], 200);
+                    $message = " تست -  کلمه عبور شما در اپلیکیشن همه کاره با موفقیت تغییر یافت";
+                    $res = sendSmsToUser($user->contact_number, $message);
+                    return comman_message_response(__("کلمه عبور با موفقیت تغییر یافت"), 200, true);
                 }
             }
 
-            return response()->json(['message' => __("اطلاعات ارسالی نامعتبر می باشد"), 'status' => false], 400);
+            return comman_message_response("اطلاعات ارسالی نامعتبر می باشد", 200, false);
         } catch (\Exception $exception) {
-            return response()->json(['message' => __("خطایی رخ داده است"), 'status' => false], 400);
+            return comman_message_response(__("خطایی رخ داده است"), 200, false);
         }
     }
 
@@ -795,9 +796,9 @@ class UserController extends Controller
             $token = Random::generate(4, '0-9');
             $user->otp_token = $token;
             $user->otp_token_expire_time = Carbon::now()->addMinutes(5);
-            $message = " تست : کد امنیتی شما جهت اسنفاده در اپلیکیشن همه کاره\n";
+            $message = " تست -  کد امنیتی شما جهت اسنفاده در اپلیکیشن همه کاره\n";
             $message .= $token;
-            $res = sendSMS($user->contact_number, $message);
+            $res = sendSmsToUser($user->contact_number, $message);
             if ($res) {
                 $message = 'کد تایید به شماره موبایل شما ارسال گردید';
                 $user->save();
@@ -878,7 +879,7 @@ class UserController extends Controller
             return response()->json(['data' => $success], 200);
         } else {
             $message = trans('auth.failed');
-            return comman_message_response($message, 406);
+            return comman_message_response($message, 200, false);
         }
     }
 

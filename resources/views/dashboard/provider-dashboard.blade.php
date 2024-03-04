@@ -188,7 +188,7 @@
                                                 <div class="media-body ">
                                                     <h5>#{{$booking->id}}</h5>
 
-                                                        {{($booking->date)}}
+                                                        {{(jdate($booking->date))}}
                                                 </div>
                                         </div>
                                         <span class="badge rounded-pill py-2 px-3 badge-primary text-capitalize">{{$booking->status}}</span>

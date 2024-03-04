@@ -26,8 +26,8 @@ class BlogResource extends JsonResource
             'status'        => $this->status,
             'attchments' => getAttachments($this->getMedia('blog_attachment')),
             'attchments_array' => getAttachmentArray($this->getMedia('blog_attachment'),null),
-            'deleted_at'        => $this->deleted_at,
-            'created_at'        => $this->created_at,
+            'deleted_at'        => jdate($this->deleted_at),
+            'created_at'        => jdate($this->created_at),
         ];
     }
 }

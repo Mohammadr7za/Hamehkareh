@@ -36,7 +36,7 @@ $extraValue = 0;
         <div class="d-flex flex-column gap-30 w-100">
             @if($bookingdata->handymanAdded->count() !== 0 )
             <div class="c1-light-bg radius-10 py-3 px-3">
-               
+
                     @foreach($bookingdata->handymanAdded as $booking)
                     <h4 class="mb-2">{{__('messages.handyman_information')}}</h4>
                     <h5 class="c1 mb-3">{{optional($booking->handyman)->display_name ?? '-'}}</h5>
@@ -53,7 +53,7 @@ $extraValue = 0;
                         </li>
                     </ul>
                     @endforeach
-             
+
             </div>
             @endif
             <div class="c1-light-bg radius-10 py-3 px-3">
@@ -86,7 +86,7 @@ $extraValue = 0;
                             <div class="timeline-dots"></div>
                             <div class="d-flex justify-content-between gap-2">
                             <h6 class="mb-1">{{str_replace("_"," ",ucfirst($activity->activity_type))}}</h6>
-                            <small class="mb-1">{{$activity->datetime}}</small>
+                            <small class="mb-1">{{jdate($activity->datetime)}}</small>
                             </div>
                             <div class="d-inline-block w-100">
                                 <p>{{$activity->activity_message}}</p>

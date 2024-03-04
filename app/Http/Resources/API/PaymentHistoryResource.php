@@ -24,7 +24,7 @@ class PaymentHistoryResource extends JsonResource
             'status'   => $this->status,
             'sender_id'=> $this->sender_id,
             'receiver_id'        => $this->receiver_id,
-            'datetime' => $this->datetime,
+            'datetime' => jdate($this->datetime),
             'total_amount' =>  $this->total_amount,
             'txn_id' =>  $this->txn_id,
             'parent_id' =>  $this->parent_id,

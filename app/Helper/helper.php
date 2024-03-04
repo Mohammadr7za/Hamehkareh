@@ -1,5 +1,6 @@
 <?php
 
+use App\Helper\SendSMS;
 use \Illuminate\Support\Facades\File;
 use Nette\Utils\Random;
 
@@ -20,6 +21,34 @@ function authSession($force = false)
         $session = \Session::get('auth_user');
     }
     return $session;
+}
+
+function sendSmsToUser($phone, $message = "")
+{
+    $sms = new SendSMS;
+    $sms->user = config('constant.username_otp'); //your UserName
+    $sms->pass = config('constant.password_otp'); //your Password
+
+//GroupSms
+    $mobiles = $phone;   //ba camma (,) joda shavad
+    $send_number = config('constant.sms_send_number') ?? "50002660"; //Your SenderNumber
+    $sendOn = null; /* Null For Send Now Else in this format
+$datetime = new DateTime('2010-12-30 23:21:46');
+$sendOn=$datetime->format('c');*/
+    $sendType = 1;
+    $yourMessageIds = 'Your Message Ids'; //ba camma (,) joda shavad
+    $send = $sms->GroupSms($message, $mobiles, $send_number, $sendOn, $sendType, $yourMessageIds);
+    dd($send);
+    $obj = json_decode($send);
+    if ($obj->Status == 1) //successfull
+    {
+//            print_r($obj->NikIds);
+        return true;
+    } else {
+        return false;
+//        throw new \Error('خطا در ارسال پیامک');
+//            echo 'مراجعه شود به http://niksms.com/fa/Main/Api/HttpApiStatusCode#/groupSms';
+    }
 }
 
 function comman_message_response($message, $status_code = 200, $isSuccess = true, $data = [])
@@ -1433,39 +1462,39 @@ function sendNotification($type, $user, $data)
     );
 }
 
-function sendSMS($phoneNumbers, $message)
-{
-    if (isset($phoneNumbers)) {
-        $url = "https://ippanel.com/services.jspd";
-
-        $rcpt_nm = array('', $phoneNumbers);
-        $param = array
-        (
-            'uname' => env('SMS_PANEL_USER'),
-            'pass' => env('SMS_PANEL_PASS'),
-            'from' => '+98event',
-            'message' => $message,
-            'to' => json_encode($rcpt_nm),
-            'op' => 'send'
-        );
-
-        $handler = curl_init($url);
-        curl_setopt($handler, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($handler, CURLOPT_POSTFIELDS, $param);
-        curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
-        $response2 = curl_exec($handler);
-
-        $response2 = json_decode($response2);
-        $res_code = $response2[0];
-        $res_data = $response2[1];
-    }
-
-    if ($res_code == 0) {
-        return true;
-    }
-
-    return false;
-}
+//function sendSMS($phoneNumbers, $message)
+//{
+//    if (isset($phoneNumbers)) {
+//        $url = "https://ippanel.com/services.jspd";
+//
+//        $rcpt_nm = array('', $phoneNumbers);
+//        $param = array
+//        (
+//            'uname' => env('SMS_PANEL_USER'),
+//            'pass' => env('SMS_PANEL_PASS'),
+//            'from' => '+98event',
+//            'message' => $message,
+//            'to' => json_encode($rcpt_nm),
+//            'op' => 'send'
+//        );
+//
+//        $handler = curl_init($url);
+//        curl_setopt($handler, CURLOPT_CUSTOMREQUEST, "POST");
+//        curl_setopt($handler, CURLOPT_POSTFIELDS, $param);
+//        curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
+//        $response2 = curl_exec($handler);
+//
+//        $response2 = json_decode($response2);
+//        $res_code = $response2[0];
+//        $res_data = $response2[1];
+//    }
+//
+//    if ($res_code == 0) {
+//        return true;
+//    }
+//
+//    return false;
+//}
 
 function saveRequestJobActivity($data)
 {

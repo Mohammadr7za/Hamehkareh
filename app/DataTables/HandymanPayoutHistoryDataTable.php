@@ -37,7 +37,6 @@ class HandymanPayoutHistoryDataTable extends DataTable
             })
             ->editColumn('created_at', function($payout) {
                 return jdate($payout->created_at);
-                return $payout->created_at;
             })
             ->addIndexColumn();
     }

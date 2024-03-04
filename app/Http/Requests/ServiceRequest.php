@@ -52,7 +52,7 @@ class ServiceRequest extends FormRequest
                 'all_message' =>  $validator->errors()
             ];
 
-            throw new HttpResponseException(response()->json($data,406));
+            throw new HttpResponseException(comman_message_response($validator->errors()->first(),200, false, $data));
         }
 
         throw new HttpResponseException(redirect()->back()->withInput()->with('errors', $validator->errors()));

@@ -30,7 +30,7 @@ class PaymentResource extends JsonResource
             'discount'      =>isset($this->booking) ? optional($this->booking)->service->discount: 0,
             'extra_charges'         => isset($this->booking) ? BookingChargesResource::collection(optional($this->booking)->bookingExtraCharge):[],
             'booking_package'              => isset($this->booking) ? new BookingPackageResource($this->booking->bookingPackage) : null,
-            'date'          => $this->datetime,
+            'date'          => jdate($this->datetime),
             'advance_paid_amount'  => optional($this->booking)->advance_paid_amount == null ? 0:(double) optional($this->booking)->advance_paid_amount,
             'txn_id' => $this->txn_id
 

@@ -109,7 +109,7 @@ class UserController extends Controller
                 $user->restore();
             } else {
                 $message = trans('auth.failed');
-                return comman_message_response($message, 406);
+                return comman_message_response($message, 200, false);
             }
 
         }
@@ -117,8 +117,8 @@ class UserController extends Controller
 
             $user = Auth::user();
 
-            if ($user->staus == 0) {
-                return comman_message_response('اکانت شما غیر قعال می باشد', 406);
+            if ($user->status == 0) {
+                return comman_message_response('اکانت شما غیر قعال می باشد', 200, false);
             }
             if (request('loginfrom') === 'vue-app') {
                 if ($user->user_type != 'user') {
@@ -822,8 +822,8 @@ class UserController extends Controller
 
             $user = Auth::user();
 
-            if ($user->staus == 0) {
-                return comman_message_response('اکانت شما غیر قعال می باشد', 406);
+            if ($user->status == 0) {
+                return comman_message_response('اکانت شما غیر قعال می باشد', 200, false);
             }
 
             if (request('loginfrom') === 'vue-app') {

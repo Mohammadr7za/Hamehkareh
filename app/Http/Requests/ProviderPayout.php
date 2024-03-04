@@ -26,7 +26,7 @@ class ProviderPayout extends FormRequest
      *
      * @return array
      */
-  
+
     public function rules()
     {
         $method = request()->method();
@@ -50,14 +50,14 @@ class ProviderPayout extends FormRequest
         $provider_earning = calculate_commission($booking_data['total_amount'],$provider_commission,$provider_type,'provider', $providerEarning);
         if ( request()->is('api*')){
             $amount = request()->amount;
-        
+
         }else{
 
             $amount = number_format((float)$provider_earning['number_format'],2,'.','');
         }
         switch ($method) {
             case 'POST':
- 
+
                if($payment_method=='bank'){
 
                 return [
@@ -78,7 +78,7 @@ class ProviderPayout extends FormRequest
 
 
                 }
-                
+
                 break;
             case 'DELETE':
                 return [];
@@ -97,6 +97,7 @@ class ProviderPayout extends FormRequest
         if ( request()->is('api*')){
             $data = [
                 'status' => 'false',
+                'isSuccess' => false,
                 'message' => $validator->errors()->first(),
                 'all_message' =>  $validator->errors()
             ];

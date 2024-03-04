@@ -45,11 +45,12 @@ class BankRequest extends FormRequest
         if ( request()->is('api*')){
             $data = [
                 'status' => 'false',
+                'isSuccess' => false,
                 'message' => $validator->errors()->first(),
                 'all_message' =>  $validator->errors()
             ];
-            
-            throw new HttpResponseException(response()->json($data,422));
+
+            throw new HttpResponseException(response()->json($data,406));
         }
 
         throw new HttpResponseException(redirect()->back()->withInput()->with('errors', $validator->errors()));

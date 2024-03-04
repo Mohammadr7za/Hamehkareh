@@ -51,7 +51,7 @@ class HandymanPayoutRequest extends FormRequest
         $total = array_reduce($all_booking_total, function ($value1, $value2) {
             return $value1 + $value2;
         }, 0);
-        
+
         $earning =   ($commission * count($handyman_bookings));
         if($get_commission->type === 'percent'){
             $earning =  ($total) * $commission / 100;
@@ -84,6 +84,7 @@ class HandymanPayoutRequest extends FormRequest
         if ( request()->is('api*')){
             $data = [
                 'status' => 'false',
+                'isSuccess' => false,
                 'message' => $validator->errors()->first(),
                 'all_message' =>  $validator->errors()
             ];

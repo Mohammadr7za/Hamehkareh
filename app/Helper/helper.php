@@ -22,10 +22,11 @@ function authSession($force = false)
     return $session;
 }
 
-function comman_message_response($message, $status_code = 200)
+function comman_message_response($message, $status_code = 200, $isSuccess = true, $data = [])
 {
-    return response()->json(['message' => $message], $status_code);
+    return response()->json(['message' => $message, 'isSuccess' => $isSuccess, 'data' => $data], $status_code);
 }
+
 function generateOtpToken()
 {
     return Random::generate(4, '0-9');
@@ -1389,14 +1390,14 @@ function sendNotification($type, $user, $data)
     }
     if (isset($user->contact_number)) {
         $url = "https://ippanel.com/services.jspd";
-        $rcpt_nm = array('',$user->contact_number);
+        $rcpt_nm = array('', $user->contact_number);
         $param = array
         (
             'uname' => env('SMS_PANEL_USER'),
             'pass' => env('SMS_PANEL_PASS'),
             'from' => '+98event',
             'message' => $data['message'],
-            'to'=> json_encode($rcpt_nm),
+            'to' => json_encode($rcpt_nm),
             'op' => 'send'
         );
 
@@ -1437,7 +1438,7 @@ function sendSMS($phoneNumbers, $message)
     if (isset($phoneNumbers)) {
         $url = "https://ippanel.com/services.jspd";
 
-        $rcpt_nm = array('',$phoneNumbers);
+        $rcpt_nm = array('', $phoneNumbers);
         $param = array
         (
             'uname' => env('SMS_PANEL_USER'),

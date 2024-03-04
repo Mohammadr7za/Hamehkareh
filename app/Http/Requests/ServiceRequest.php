@@ -32,8 +32,8 @@ class ServiceRequest extends FormRequest
             'name'                           => 'required',
             'category_id'                    => 'required',
             'type'                           => 'required',
-            'price'                          => 'required|integer|min:0',   
-            // 'duration'                       => 'required',   
+            'price'                          => 'required|integer|min:0',
+            // 'duration'                       => 'required',
             'status'                         => 'required',
         ];
     }
@@ -47,11 +47,12 @@ class ServiceRequest extends FormRequest
         if ( request()->is('api*')){
             $data = [
                 'status' => 'false',
+                'isSuccess' => false,
                 'message' => $validator->errors()->first(),
                 'all_message' =>  $validator->errors()
             ];
-            
-            throw new HttpResponseException(response()->json($data,422));
+
+            throw new HttpResponseException(response()->json($data,406));
         }
 
         throw new HttpResponseException(redirect()->back()->withInput()->with('errors', $validator->errors()));

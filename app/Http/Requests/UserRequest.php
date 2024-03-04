@@ -49,11 +49,13 @@ class UserRequest extends FormRequest
         if ( request()->is('api*')){
             $data = [
                 'status' => 'false',
+                'isSuccess' => false,
                 'message' => $validator->errors()->first(),
                 'all_message' =>  $validator->errors()
             ];
 
-            throw new HttpResponseException(response()->json($data,406));
+            // TODO i change this if has error return back status to 406
+            throw new HttpResponseException(response()->json($data,200));
         }
 
         throw new HttpResponseException(redirect()->back()->withInput()->with('errors', $validator->errors()));

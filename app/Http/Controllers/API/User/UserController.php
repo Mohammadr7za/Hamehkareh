@@ -428,16 +428,15 @@ class UserController extends Controller
             $message = " تست -  کد امنیتی شما جهت تغییر کلمه عبور در اپلیکیشن همه کاره\n";
             $message .= $token;
             $res = sendSmsToUser($user->contact_number, $message);
-            dd($res);
             if ($res) {
                 $user->save();
-                return response()->json(['message' => __("کد امنیتی به شماره همراه شما ارسال شد"), 'status' => true], 200);
+                return comman_message_response(['message' => __("کد امنیتی به شماره همراه شما ارسال شد"), 'status' => true], 200, true);
             } else {
-                return response()->json(['message' => __("خطا در ارسال کد تایید"), 'status' => false], 401);
+                return comman_message_response(['message' => __("خطا در ارسال کد تایید"), 'status' => false], 200, false);
             }
         }
 
-        return response()->json(['message' => __("اطلاعاتی یافت نشد"), 'status' => false], 400);
+        return comman_message_response(['message' => __("اطلاعاتی یافت نشد"), 'status' => false], 200, false);
     }
 
     public function changePasswordWithOtp(changePasswordWithOtp $request)
@@ -793,7 +792,7 @@ class UserController extends Controller
         if ($user->otp_token_expire_time >= Carbon::now()) {
             $message = 'کد امنیتی قبلا ارسال شده است';
         } else if ($user->email_verified_at == null) {
-            $token = Random::generate(4, '0-9');
+            $token = generateOtpToken();
             $user->otp_token = $token;
             $user->otp_token_expire_time = Carbon::now()->addMinutes(5);
             $message = " تست -  کد امنیتی شما جهت اسنفاده در اپلیکیشن همه کاره\n";
@@ -887,22 +886,17 @@ class UserController extends Controller
     {
         $user = $request->user();
         $message = '';
-        if ($user->otp_token == $request->otp && $user->otp_token_expire_time >= Carbon::now()) {
+        if ($user->otp_token != null && $user->otp_token == $request->otp && $user->otp_token_expire_time >= Carbon::now()) {
             $user->email_verified_at = Carbon::now();
             $user->otp_token = null;
             $user->otp_token_expire_time = null;
             $user->save();
             $message = 'شماره موبایل شما تایید شد';
+            return comman_message_response($message, 200, true);
         } else {
             $message = 'اطلاعات وارد شده صجیج نمی باشد';
+            return comman_message_response($message, 200, false);
         }
-
-
-        $response = [
-            'message' => $message,
-        ];
-
-        return comman_custom_response($response);
     }
 
     public function splash(Request $request)
@@ -914,7 +908,7 @@ class UserController extends Controller
             ->first();
 
 
-        return comman_custom_response(SplashResource::make($user));
+        return comman_message_response('', 200, true, SplashResource::make($user));
     }
 
 }

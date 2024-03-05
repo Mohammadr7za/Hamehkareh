@@ -25,7 +25,6 @@ function authSession($force = false)
 
 function sendSmsToUser($phone, $message = "")
 {
-    return true;
     $sms = new SendSMS;
     $sms->user = config('constant.username_otp'); //your UserName
     $sms->pass = config('constant.password_otp'); //your Password
@@ -39,7 +38,6 @@ $sendOn=$datetime->format('c');*/
     $sendType = 1;
     $yourMessageIds = 'Your Message Ids'; //ba camma (,) joda shavad
     $send = $sms->GroupSms($message, $mobiles, $send_number, $sendOn, $sendType, $yourMessageIds);
-    dd($send);
     $obj = json_decode($send);
     if ($obj->Status == 1) //successfull
     {
@@ -59,8 +57,7 @@ function comman_message_response($message, $status_code = 200, $isSuccess = true
 
 function generateOtpToken()
 {
-    return 1234;
-    return Random::generate(4, '0-9');
+    return Random::generate(5, '0-9');
 }
 
 function comman_custom_response($response, $status_code = 200)

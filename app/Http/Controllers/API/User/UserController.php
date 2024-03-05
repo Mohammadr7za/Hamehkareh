@@ -795,7 +795,7 @@ class UserController extends Controller
             $token = generateOtpToken();
             $user->otp_token = $token;
             $user->otp_token_expire_time = Carbon::now()->addMinutes(5);
-            $message = " تست -  کد امنیتی شما جهت اسنفاده در اپلیکیشن همه کاره\n";
+            $message = " تست -  کد امنیتی شما جهت استفاده در اپلیکیشن همه کاره\n";
             $message .= $token;
             $res = sendSmsToUser($user->contact_number, $message);
             if ($res) {

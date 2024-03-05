@@ -1617,6 +1617,10 @@ function saveJobActivity($data)
 
 }
 
+function getDaysName()
+{
+    return ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+}
 function getServiceTimeSlot($provider_id)
 {
     $admin = \App\Models\AppSetting::first();
@@ -1626,7 +1630,7 @@ function getServiceTimeSlot($provider_id)
     $time = $current_time->toTimeString();
     $current_day = strtolower(date('D'));
 
-    $days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+    $days = getDaysName();
 
     $handyman_count = \App\Models\User::where('provider_id', $provider_id)->where('is_available', 1)->count() + 1;
 

@@ -266,6 +266,7 @@
         'upload_document' => 'Upload Document',
         'required_docs' => 'Please upload all required documenets',
         'review' => 'Review',
+        'slot' => 'asdasd',
         'best_offer' => 'Best Offer',
         'favorite_list' => 'Favourite List',
         'login' => 'Login',
@@ -623,7 +624,7 @@
         'approve' => "Approve",
         'is_verified' => "Is Verified",
         'approvecash' => "Approve Cash",
-        'required' => "Required",        
+        'required' => "Required",
         'wallet_added' => 'Wallet Added ',
         'wallet_amount' => 'Wallet Payout :value',
         'wallet_refund' => 'Refund From Booking #:Value',
@@ -653,7 +654,7 @@
         'wallet_credited' => 'Wallet is Credited',
         'already_provider_wallet' => 'A provider wallet already exists. Add a new amount to the wallet.',
         'login_form' => 'Your account is already exists.',
-        'deactivate' => 'Your account is deactivate.',  
+        'deactivate' => 'Your account is deactivate.',
         'text'   => 'Text',
         'digital_service' => 'Digital Service',
         'service_addon' => 'Service Addon',
@@ -687,6 +688,6 @@
         'client_id'=>'Client ID',
         'secret_key'=>'Secret Key',
         'enable_otp_login'=>'OTP Login'
-        
+
     )
     ?>

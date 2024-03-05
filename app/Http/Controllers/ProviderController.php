@@ -517,7 +517,7 @@ class ProviderController extends Controller
 
         $provider_id = $request->id ?? auth()->user()->id;
 
-        $days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        $days = getDaysName();
 
         $slotsArray = ['days' => $days];
         $activeDay ='mon';
@@ -551,7 +551,7 @@ class ProviderController extends Controller
 
         $provider_id = $request->id ?? auth()->user()->id;
 
-        $days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        $days = getDaysName();
 
         $slotsArray = ['days' => $days];
         $activeDay = 'mon';

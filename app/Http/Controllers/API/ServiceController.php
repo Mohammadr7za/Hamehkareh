@@ -409,48 +409,6 @@ class ServiceController extends Controller
         $categories = $service->pluck('category')->unique('id');
         $subCategories = $service->pluck('subcategory')->unique('id')->pluck('id');
 
-        // TODO working here
-
-//        $vendors = Category::with(['services.subCategories' => function($request){
-//            // your condition
-//        }])->whereHas('services', function($query) use($service) {
-//            $query->whereIn('id',$service->pluck('category')->unique('id')->pluck('id'));
-//
-////            $query->whereHas('subcategory', function($query) use($service) {
-////                $query->whereIn('id',$service->pluck('subcategory')->unique('id')->pluck('id'));
-////        });
-//
-//        })->get();
-
-        $vendors = Category::with(["services" => function ($query) use ($service) {
-            $query->whereIn('id', [31])->get();
-        }])->get();
-
-        return comman_message_response($vendors);
-
-        $realSubs = [];
-        foreach ($categories as $category) {
-            $temp = $category->subCategories()->whereIn('id', $subCategories)->get();
-            if (count($temp) > 0) {
-                $realSubs[] = $temp;
-            }
-        }
-
-
-        return comman_message_response(FullCategoryServiceResource::collection($categories)->additional(['meta' => [
-            'key' => 'value',
-        ]]));
-        return comman_message_response($realSubs);
-        return comman_message_response($categories);
-//
-//        foreach () {
-//        }
-        $realSubs[] = $category->subCategories()->whereIn('id', $subCategories)->get();
-        return comman_message_response($realSubs);
-
-
-        return comman_message_response($categories);
-        return comman_message_response($service->pluck('category')->unique('id'));
         $items = ServiceResource::collection($service);
 
         $userservices = null;

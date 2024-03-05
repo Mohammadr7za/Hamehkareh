@@ -19,7 +19,7 @@ class ProviderSlotController extends Controller
 
         $provider_id  = !empty($request->provider_id) ? $request->provider_id : auth()->user()->id;
 
-        $days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+        $days = getDaysName();
 
         $slotsArray = [];
         foreach ($days as $value) {
@@ -34,7 +34,7 @@ class ProviderSlotController extends Controller
             ];
             array_push($slotsArray, $obj);
         }
-        
+
         return comman_custom_response($slotsArray);
     }
 }

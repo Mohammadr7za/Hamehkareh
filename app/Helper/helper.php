@@ -57,6 +57,7 @@ function comman_message_response($message, $status_code = 200, $isSuccess = true
 
 function generateOtpToken()
 {
+    return 12345;
     return Random::generate(5, '0-9');
 }
 

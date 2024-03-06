@@ -743,6 +743,8 @@ return [
     'Driving License' => 'گواهینامه رانندگی',
     'Driving Licence' => 'گواهینامه رانندگی',
     'Ongoing' => 'در مسیر',
+    'contact_number_taken' => 'این شماره همراه در سیستم وجود دارد',
+    'username_taken' => 'این نام کاربری در سیستم وجود دارد',
     'download' => 'دانلود',
 
 ];

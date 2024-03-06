@@ -32,7 +32,7 @@ class UserRequest extends FormRequest
         return [
                 'username'          => 'required|max:255|unique:users,username,'.$id,
                 'email'             => 'email|max:255',
-                'contact_number'    => 'nullable', //unique:users,contact_number,'.$id,
+                'contact_number'    => 'unique:users,contact_number,'.$id, //'nullable',
                 'profile_image'     => 'mimetypes:image/jpeg,image/png,image/jpg,image/gif',
         ];
     }
@@ -40,7 +40,9 @@ class UserRequest extends FormRequest
     public function messages()
     {
         return [
-           'profile_image.*' => __('messages.image_png_gif')
+           'profile_image.*' => __('messages.image_png_gif'),
+           'contact_number.unique' => __('messages.contact_number_taken'),
+           'username.unique' => __('messages.username_taken')
         ];
     }
 

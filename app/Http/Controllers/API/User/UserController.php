@@ -425,7 +425,8 @@ class UserController extends Controller
             $token = generateOtpToken();
             $user->otp_token = $token;
             $user->otp_token_expire_time = Carbon::now()->addMinutes(5);
-            $message = " تست -  کد امنیتی شما جهت تغییر کلمه عبور در اپلیکیشن همه کاره\n";
+            $message = "اپلیکیشن همه کاره\n";
+            $message .= "جهت تغییر کلمه عبور از کد امنیتی ذیل استفاده نمایید. \n";
             $message .= $token;
             $res = sendSmsToUser($user->contact_number, $message);
             if ($res) {
@@ -462,7 +463,8 @@ class UserController extends Controller
 
                     event(new PasswordReset($user));
 
-                    $message = " تست -  کلمه عبور شما در اپلیکیشن همه کاره با موفقیت تغییر یافت";
+                    $message = "اپلیکیشن همه کاره\n";
+                    $message .= "کلمه عبور شما در اپلیکیشن همه کاره با موفقیت تغییر یافت";
                     $res = sendSmsToUser($user->contact_number, $message);
                     return comman_message_response(__("کلمه عبور با موفقیت تغییر یافت"), 200, true);
                 }
@@ -795,7 +797,8 @@ class UserController extends Controller
             $token = generateOtpToken();
             $user->otp_token = $token;
             $user->otp_token_expire_time = Carbon::now()->addMinutes(5);
-            $message = " تست -  کد امنیتی شما جهت استفاده در اپلیکیشن همه کاره\n";
+            $message = "اپلیکیشن همه کاره\n";
+            $message .= "جهت تکمیل ثبت نام و ورود از کد امنیتی ذیل استفاده نمائید\n";
             $message .= $token;
             $res = sendSmsToUser($user->contact_number, $message);
             if ($res) {

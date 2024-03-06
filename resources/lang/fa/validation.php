@@ -89,7 +89,7 @@ return [
     'username' => 'نام کاربری',
     'email' => 'ایمیل',
     'contact_number' => 'شماره موبایل',
-
+    'contact number' => 'شماره موبایل',
     'required_unless' => 'فیلد :attribute الزامی است مگر اینکه :other در :values باشد.',
     'required_with' => 'فیلد :attribute زمانی لازم است که :values وجود داشته باشد.',
     'required_with_all' => 'فیلد :attribute زمانی لازم است که :values وجود داشته باشد.',

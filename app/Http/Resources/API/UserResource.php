@@ -18,29 +18,28 @@ class UserResource extends JsonResource
         $providers_service_rating = (float) 0;
         $handyman_rating = (float) 0;
         $is_verify_provider = false;
-        if($this->user_type == 'provider')
+        if(isset($this->user_type) && $this->user_type == 'provider')
         {
             $providers_service_rating = (isset($this->getServiceRating) && count($this->getServiceRating) > 0 ) ? (float) number_format(max($this->getServiceRating->avg('rating'),0), 2) : 0;
             $is_verify_provider = verify_provider_document($this->id);
             $handyman_rating = (isset($this->handymanRating) && count($this->handymanRating) > 0 ) ? (float) number_format(max($this->handymanRating->avg('rating'),0), 2) : 0;
 
         }
-        if($this->user_type == 'handyman')
+        if(isset($this->user_type) && $this->user_type == 'handyman')
         {
             $handyman_rating = (isset($this->handymanRating) && count($this->handymanRating) > 0 ) ? (float) number_format(max($this->handymanRating->avg('rating'),0), 2) : 0;
         }
-        if($this->login_type != null){
+        if(isset($this->login_type) && $this->login_type != null){
             $profile_image = $this->social_image;
         }else{
             $profile_image = getSingleMedia($this, 'profile_image',null);
-        }  
+        }
         return [
             'id'                => $this->id,
             'first_name'        => $this->first_name,
             'last_name'         => $this->last_name,
             'username'          => $this->username,
             'provider_id'       => $this->provider_id,
-            'status'            => $this->status,
             'description'       => $this->description,
             'user_type'         => $this->user_type,
             'email'             => $this->email,

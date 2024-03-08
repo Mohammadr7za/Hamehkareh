@@ -3,31 +3,31 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\BookingStatusResponse;
-use Illuminate\Http\Request;
-use App\Models\Booking;
-use App\Models\BookingStatus;
-use App\Models\BookingRating;
-use App\Models\HandymanRating;
-use App\Models\BookingActivity;
-use App\Models\Payment;
-use App\Models\PaymentHistory;
-use App\Models\Wallet;
-use App\Models\User;
-use App\Models\BookingHandymanMapping;
-use App\Models\ServiceProof;
-use App\Http\Resources\API\BookingResource;
 use App\Http\Resources\API\BookingDetailResource;
 use App\Http\Resources\API\BookingRatingResource;
+use App\Http\Resources\API\BookingResource;
+use App\Http\Resources\API\HandymanRatingResource;
+use App\Http\Resources\API\HandymanResource;
+use App\Http\Resources\API\PostJobRequestResource;
+use App\Http\Resources\API\ServiceProofResource;
 use App\Http\Resources\API\ServiceResource;
 use App\Http\Resources\API\UserResource;
-use App\Http\Resources\API\HandymanResource;
-use App\Http\Resources\API\HandymanRatingResource;
-use App\Http\Resources\API\ServiceProofResource;
-use App\Http\Resources\API\PostJobRequestResource;
+use App\Http\Resources\BookingStatusResponse;
+use App\Models\Booking;
+use App\Models\BookingActivity;
+use App\Models\BookingHandymanMapping;
+use App\Models\BookingRating;
 use App\Models\BookingServiceAddonMapping;
-use App\Http\Resources\API\ServiceAddonResource;
+use App\Models\BookingStatus;
+use App\Models\HandymanRating;
+use App\Models\Payment;
+use App\Models\PaymentHistory;
+use App\Models\ServiceProof;
+use App\Models\User;
+use App\Models\Wallet;
 use Auth;
+use Illuminate\Http\Request;
+
 class BookingController extends Controller
 {
     public function getBookingList(Request $request){

@@ -30,8 +30,8 @@ class UserRequest extends FormRequest
         $id = request()->id;
 
         return [
-                'username'          => 'required|max:255|unique:users,username,'.$id,
-                'email'             => 'email|max:255',
+//                'username'          => 'required|max:255|unique:users,username,'.$id,
+//                'email'             => 'email|max:255',
                 'contact_number'    => 'unique:users,contact_number,'.$id, //'nullable',
                 'profile_image'     => 'mimetypes:image/jpeg,image/png,image/jpg,image/gif',
         ];

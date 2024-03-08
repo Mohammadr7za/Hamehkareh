@@ -128,45 +128,48 @@ function demoUserPermission()
 
 function getSingleMedia($model, $collection = 'profile_image', $skip = true)
 {
-    if (!\Auth::check() && $skip) {
-        return asset('images/user/user.png');
-    }
-    $media = null;
-    if ($model !== null) {
-        $media = $model->getFirstMedia($collection);
-    }
-
-    if (getFileExistsCheck($media)) {
-        return $media->getFullUrl();
-    } else {
-
-        switch ($collection) {
-            case 'image_icon':
-                $media = asset('images/user/user.png');
-                break;
-            case 'profile_image':
-                $media = asset('images/user/user.png');
-                break;
-            case 'service_attachment':
-                $media = asset('images/default.png');
-                break;
-            case 'site_logo':
-                $media = asset('images/logo.png');
-                break;
-            case 'site_favicon':
-                $media = asset('images/favicon.png');
-                break;
-            case 'app_image':
-                $media = asset('images/frontend/mb-serv-1.png');
-                break;
-            case 'app_image_full':
-                $media = asset('images/frontend/mb-serv-full.png');
-                break;
-            default:
-                $media = asset('images/default.png');
-                break;
+    try {
+        if (!\Auth::check() && $skip) {
+            return asset('images/user/user.png');
         }
-        return $media;
+        $media = null;
+        if ($model !== null) {
+            $media = $model->getFirstMedia($collection);
+        }
+
+        if (getFileExistsCheck($media)) {
+            return $media->getFullUrl();
+        } else {
+
+            switch ($collection) {
+                case 'image_icon':
+                    $media = asset('images/user/user.png');
+                    break;
+                case 'profile_image':
+                    $media = asset('images/user/user.png');
+                    break;
+                case 'service_attachment':
+                    $media = asset('images/default.png');
+                    break;
+                case 'site_logo':
+                    $media = asset('images/logo.png');
+                    break;
+                case 'site_favicon':
+                    $media = asset('images/favicon.png');
+                    break;
+                case 'app_image':
+                    $media = asset('images/frontend/mb-serv-1.png');
+                    break;
+                case 'app_image_full':
+                    $media = asset('images/frontend/mb-serv-full.png');
+                    break;
+                default:
+                    $media = asset('images/default.png');
+                    break;
+            }
+            return $media;
+        }
+    } catch (Exception $exception) {
     }
 }
 
@@ -1671,7 +1674,8 @@ function getServiceTimeSlot($provider_id)
 
 function bookingstatus($status)
 {
-    $statusName = __('messages.' . $status);
+//    $statusName = __('messages.' . $status);
+    $statusName = $status;
     switch ($status) {
         case 'Pending':
             $html = '<span class="badge badge-warning ">' . $statusName . '</span>';

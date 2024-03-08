@@ -19,8 +19,9 @@ $extraValue = 0;
         <div class="col-6 col-lg-3">
             <div>
                 <h4 class="c1  mb-2 pb-1">{{__('messages.payment_status')}}</h4>
-                <p class="opacity-75">{{ ucwords(str_replace('_', ' ',  optional($bookingdata->payment)->payment_status ?: 'pending'))}}</p>
-                <!-- <p class="opacity-75">{{ optional($bookingdata->payment)->payment_status ?: 'pending' }}</p> -->
+                <p class="opacity-75">                        {{ ucwords(str_replace('_', ' ',  __('messages.'.(optional($bookingdata->payment)->payment_status ?: 'pending')) ))}}
+                </p>
+                <!-- <p class="opacity-75">{{ `optional($bookingdata->payment)->payment_status ?: 'pending' }}</p> -->
             </div>
         </div>
         <div class="col-6 col-lg-3">

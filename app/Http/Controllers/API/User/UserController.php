@@ -33,18 +33,19 @@ class UserController extends Controller
     public function register(UserRequest $request)
     {
         $input = $request->all();
-        $username = $input['username'];
+        $contactNumber = $input['contact_number'];
         $password = $input['password'];
         $input['display_name'] = $input['first_name'] . " " . $input['last_name'];
         $input['user_type'] = isset($input['user_type']) ? $input['user_type'] : 'user';
         $input['password'] = Hash::make($password);
 
-        if (in_array($input['user_type'], ['handyman', 'provider'])) {
-            $input['status'] = isset($input['status']) ? $input['status'] : 0;
-        }
+//        if (in_array($input['user_type'], ['handyman', 'provider'])) {
+//            $input['status'] = isset($input['status']) ? $input['status'] : 0;
+//        }
+        $input['status'] = 0;
         $user = User::withTrashed()
-            ->where(function ($query) use ($username) {
-                $query->where('username', $username);
+            ->where(function ($query) use ($contactNumber) {
+                $query->where('contact_number', $contactNumber);
             })
             ->first();
         if ($user) {
@@ -419,7 +420,7 @@ class UserController extends Controller
 
         $mobile = $request->mobile;
 
-        $user = User::where('contact_number', $mobile)->firstOrFail();
+        $user = User::where('contact_number', $mobile)->first();
         if ($user) {
 
             $token = generateOtpToken();
@@ -806,6 +807,7 @@ class UserController extends Controller
                 $user->save();
             } else {
                 $message = 'خطا در ارسال کد تایید';
+                return comman_message_response($message, 200, false);
             }
         } else {
             $message = 'شماره موبایل شما قبلا تایید شده است';
@@ -816,7 +818,7 @@ class UserController extends Controller
             'message' => $message,
         ];
 
-        return comman_custom_response($response);
+        return comman_message_response($response);
     }
 
     public function loginWithMobile()
@@ -881,7 +883,7 @@ class UserController extends Controller
             return response()->json(['data' => $success], 200);
         } else {
             $message = trans('auth.failed');
-            return comman_message_response($message, 200, false);
+            return comman_message_response($message, 200,false, json_decode('{}'));
         }
     }
 
@@ -893,6 +895,7 @@ class UserController extends Controller
             $user->email_verified_at = Carbon::now();
             $user->otp_token = null;
             $user->otp_token_expire_time = null;
+            $user->status = 1;
             $user->save();
             $message = 'شماره موبایل شما تایید شد';
             return comman_message_response($message, 200, true);

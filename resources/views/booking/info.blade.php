@@ -57,7 +57,7 @@
                 <div class="col-sm-6 align-text">
                     <span id="payment_status__span"
                           class="{{ optional($bookingdata->payment)->payment_status == 'paid' ? 'text-success' : 'text-danger' }}">
-                        {{ ucwords(str_replace('_', ' ',  optional($bookingdata->payment)->payment_status ?: 'pending'))}}
+                        {{ ucwords(str_replace('_', ' ',  __('messages.'.(optional($bookingdata->payment)->payment_status ?: 'pending')) ))}}
                     </span>
                 </div>
             </div>

@@ -22,14 +22,13 @@ class BookingResource extends JsonResource
                 $extraValue += $chrage->price * $chrage->qty;
             }
         }
-
         return [
             'id' => $this->id,
             'address' => $this->address,
             'customer_id' => $this->customer_id,
             'service_id' => $this->service_id,
             'provider_id' => $this->provider_id,
-            'date' => jdate($this->date),
+            'date' => jdate($this->date)->toDateTimeString(),
             'price' => optional($this->service)->price,
             'type' => optional($this->service)->type,
             'discount' => optional($this->service)->discount,
@@ -45,7 +44,7 @@ class BookingResource extends JsonResource
             'provider_name' => optional($this->provider)->display_name,
             'customer_name' => optional($this->customer)->display_name,
             'service_name' => optional($this->service)->name,
-            'handyman' => isset($this->handymanAdded) ? ($this->handymanAdded) : [],
+            'handyman' => isset($this->handymanAdded) ? (HandymanResource::collection($this->handymanAdded)) : [],
             'service_attchments' => getAttachments(optional($this->service)->getMedia('service_attachment'), null),
             'duration_diff' => $this->duration_diff,
             'booking_address_id' => $this->booking_address_id,

@@ -204,6 +204,12 @@ class BookingController extends Controller
             $data['status'] = !empty($data['status']) ? $data['status'] : 'pending';
         }
         $data['date'] = isset($request->date) ? date('Y-m-d H:i:s', strtotime($request->date)) : date('Y-m-d H:i:s');
+
+        if ($data['date'] < Carbon::now()) {
+            return comman_message_response("تاریخ وارد شده صحیح نمی باشد", 200, false);
+        }
+
+
         $service_data = Service::find($data['service_id']);
         $data['provider_id'] = !empty($data['provider_id']) ? $data['provider_id'] : $service_data->provider_id;
         $data['customer_id'] = auth()->user()->id;

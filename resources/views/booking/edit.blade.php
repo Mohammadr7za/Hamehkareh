@@ -18,7 +18,7 @@
                     <div class="card-body">
                         {{ Form::model($bookingdata,['method' => 'patch', 'route'=>['booking.update',$bookingdata->id], 'data-toggle'=>"validator" ,'id'=>'booking'] ) }}
                             {{ Form::hidden('id') }}
-                            <div class="row">                            
+                            <div class="row">
                                 <div class="form-group col-md-4">
 
                                     {{ Form::label('status', __('messages.select_name',[ 'select' => __('messages.status') ]),['class'=>'form-control-label']) }}
@@ -45,7 +45,7 @@
                                 @if($bookingdata->payment_id != null)
                                 <div class="form-group col-md-4">
                                     {{ Form::label('payment_status',__('messages.payment_status').' <span class="text-danger">*</span>',['class'=>'form-control-label'],false) }}
-                                    {{ Form::select('payment_status',['pending' => __('messages.pending') , 'paid' => __('messages.paid') ,'failed' => __('messages.failed') ],optional($bookingdata->payment)->payment_status,[ 'id' => 'payment_status' ,'class' =>'form-control select2js','required']) }}
+                                    {{ Form::select('payment_status',['pending' => __('messages.pending') , 'paid' => __('messages.paid') ,'failed' => __('messages.failed') ],__('messages.'.(optional($bookingdata->payment)->payment_status ?: 'pending')) ,[ 'id' => 'payment_status' ,'class' =>'form-control select2js','required']) }}
                                 </div>
                                 @endif
                             </div>

@@ -205,10 +205,10 @@ class Booking extends Model
     public function getServiceTotalPrice(): float
     {
        $serviceTotalPrice = 0;
-
        if($this->service !== null && $this->service->type == 'hourly'){
         $serviceTotalPrice += $this->getHourlyPrice();
        }else{
+
         $serviceTotalPrice += ($this->amount) *  (!empty($this->quantity) ? $this->quantity : 1);
 
        }
@@ -283,4 +283,18 @@ class Booking extends Model
         }
         return $addonPrice;
     }
+
+    public function updateBookingPrice()
+    {
+        $this->final_total_service_price = $this->getServiceTotalPrice();
+        $this->final_total_tax = $this->getTaxesValue();
+        $this->final_sub_total = $this->getSubTotalValue();
+        $this->final_discount_amount = $this->getDiscountValue();
+        $this->final_coupon_discount_amount = $this->getCouponDiscountValue();
+
+        $this->save();
+        $this->total_amount = $this->getTotalValue();
+        $this->update();
+    }
+
 }

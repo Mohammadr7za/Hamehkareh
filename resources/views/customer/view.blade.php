@@ -37,14 +37,14 @@
                                                             <td>{{optional($booking->service)->name}}</td>
                                                             <td>
                                                                 <div class="d-flex align-items-center">
-                                            
-                                                                    <div>{{date("D, d M Y", strtotime($booking->date))}}</div>
+
+                                                                    <div style="direction: ltr">{{jdate($booking->date)}}</div>
                                                                 </div>
                                                             </td>
                                                             <td>
                                                                 <p class="mb-0  d-flex justify-content-start align-items-center">
-                                                                    
-                                                                    {{str_replace("_"," ",ucfirst($booking->status))}}
+
+                                                                    {{__('messages.'.$booking->status)}}
                                                                 </p>
                                                             </td>
                                                             <td>{{optional($booking->provider)->display_name ?? '-' }}</td>
@@ -81,8 +81,8 @@
                                                     @foreach($customer_pending_trans as $pending)
                                                         <tr class="white-space-no-wrap">
                                                             <td>{{$pending->booking->service->name}}</td>
-                                                            <td> <div class="d-flex align-items-center">{{date("D, d M Y", strtotime($pending->booking->date))}}</div></td>
-                                                            <td>{{ $pending->payment_status}}</td>
+                                                            <td> <div class="d-flex align-items-center" style="direction: ltr">{{jdate($pending->booking->date)}}</div></td>
+                                                            <td>{{__('messages.'.$pending->payment_status) }}</td>
                                                             <td class="text-right">{{ getPriceFormat($pending->total_amount)}}</td>
                                                         </tr>
                                                     @endforeach

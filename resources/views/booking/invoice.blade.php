@@ -1,9 +1,9 @@
-
 <!DOCTYPE html>
 <html>
 
 <head>
     <title>{{env('APP_NAME')}}</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
 </head>
 <style type="text/css">
     :root {
@@ -50,7 +50,7 @@
         --bs-black-rgb: 0, 0, 0;
         --bs-body-color-rgb: 33, 37, 41;
         --bs-body-bg-rgb: 255, 255, 255;
-        --bs-font-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji","DejaVu Sans";
+        --bs-font-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "DejaVu Sans";
         --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
         --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
         --bs-body-font-family: var(--bs-font-sans-serif);
@@ -168,7 +168,7 @@
 
     .bg-success {
         --bs-bg-opacity: 1;
-        background-color: #0a5231!important;
+        background-color: #0a5231 !important;
     }
 
     .ms-2 {
@@ -202,47 +202,55 @@
         --bs-text-opacity: 1;
         color: #6c757d !important;
     }
+
     .h2, h2 {
-    font-size: 2rem;
-}
-.h4, h4 {
-    font-size: 1.5rem;
-}
-.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
-    margin-top: 0;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    line-height: 1.2;
-}
-.h5, h5 {
-    font-size: 1.25rem;
-}
-.table {
-    --bs-table-color: var(--bs-body-color);
-    --bs-table-bg: transparent;
-    --bs-table-border-color: var(--bs-border-color);
-    --bs-table-accent-bg: transparent;
-    --bs-table-striped-color: var(--bs-body-color);
-    --bs-table-striped-bg: rgba(0, 0, 0, 0.05);
-    --bs-table-active-color: var(--bs-body-color);
-    --bs-table-active-bg: rgba(0, 0, 0, 0.1);
-    --bs-table-hover-color: var(--bs-body-color);
-    --bs-table-hover-bg: rgba(0, 0, 0, 0.075);
-    width: 100%;
-    margin-bottom: 1rem;
-    color: var(--bs-table-color);
-    vertical-align: top;
-    border-color: var(--bs-table-border-color);
-}
-.table>tbody {
-    vertical-align: inherit;
-}
-.table>:not(caption)>*>* {
-    padding: 0.5rem 0.5rem;
-    background-color: var(--bs-table-bg);
-    border-bottom-width: 1px;
-    box-shadow: inset 0 0 0 9999px var(--bs-table-accent-bg);
-}
+        font-size: 2rem;
+    }
+
+    .h4, h4 {
+        font-size: 1.5rem;
+    }
+
+    .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        line-height: 1.2;
+    }
+
+    .h5, h5 {
+        font-size: 1.25rem;
+    }
+
+    .table {
+        --bs-table-color: var(--bs-body-color);
+        --bs-table-bg: transparent;
+        --bs-table-border-color: var(--bs-border-color);
+        --bs-table-accent-bg: transparent;
+        --bs-table-striped-color: var(--bs-body-color);
+        --bs-table-striped-bg: rgba(0, 0, 0, 0.05);
+        --bs-table-active-color: var(--bs-body-color);
+        --bs-table-active-bg: rgba(0, 0, 0, 0.1);
+        --bs-table-hover-color: var(--bs-body-color);
+        --bs-table-hover-bg: rgba(0, 0, 0, 0.075);
+        width: 100%;
+        margin-bottom: 1rem;
+        color: var(--bs-table-color);
+        vertical-align: top;
+        border-color: var(--bs-table-border-color);
+    }
+
+    .table > tbody {
+        vertical-align: inherit;
+    }
+
+    .table > :not(caption) > * > * {
+        padding: 0.5rem 0.5rem;
+        background-color: var(--bs-table-bg);
+        border-bottom-width: 1px;
+        box-shadow: inset 0 0 0 9999px var(--bs-table-accent-bg);
+    }
+
     .mb-1 {
         margin-bottom: 0.25rem !important;
     }
@@ -442,78 +450,85 @@
     .right {
         float: right !important;
     }
-    .invoice{
+
+    .invoice {
         margin-top: -150px !important;
         float: right !important;
     }
+
     .invoice table .no {
-            color: #fff;
-            font-size: 1.6em;
-            background: rgb(65, 83, 179)
-        }
+        color: #fff;
+        font-size: 1.6em;
+        background: rgb(65, 83, 179)
+    }
 </style>
 <?php
-    $app = \App\Models\AppSetting::first();
-    $extraValue =0 ;
-    ?>
-<body>
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="invoice-title">
-                            
-                            <div class="mb-4">
-                                <h2 class="mb-1 text-muted">{{$data->site_name}}</h2>
-                            </div>
-                            <div class="text-muted">
-                                <p class="mb-1"><i class="uil uil-envelope-alt me-1"></i>{{$data->inquriy_email}}</p>
-                                <p><i class="uil uil-phone me-1"></i>{{$data->helpline_number}}</p>
+$app = \App\Models\AppSetting::first();
+$extraValue = 0;
+?>
+<body style="direction: rtl; text-align: right">
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="invoice-title">
+
+                        <div class="mb-4">
+                            <h2 class="mb-1 text-muted">{{$data->site_name}}</h2>
+                        </div>
+                        <div class="text-muted">
+                            <p class="mb-1"><i class="uil uil-envelope-alt me-1"></i>{{$data->inquriy_email}}</p>
+                            <p><i class="uil uil-phone me-1"></i>{{$data->helpline_number}}</p>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+                    <div class="row">
+                        <div class="col-sm-6  col-6">
+                            <div class="text-muted text-sm-end">
+                                <div>
+                                    <h5 class="font-size-15 mb-1">{{__('messages.Invoice_No')}}
+                                        : {{ $bookingdata->id ?? '-'}}</h5>
+                                </div>
                             </div>
                         </div>
 
-                        <hr class="my-4">
+                        <div class="col-sm-6 col-6">
+                            <div class="text-muted">
+                                <h5 class="font-size-16 mb-3">{{__('messages.Billed_To')}}
+                                    : {{optional($bookingdata->customer)->display_name ?? '-'}}</h5>
+                                <p class="mb-0">{{__('messages.contact_number')}}
+                                    : {{ optional($bookingdata->customer)->contact_number ?? '-' }}</p>
+                            </div>
+                        </div>
 
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <div class="text-muted">
-                                    <h5 class="font-size-16 mb-3">{{__('messages.Billed_To')}}:</h5>
-                                    <h5 class="c1 mb-3">{{optional($bookingdata->customer)->display_name ?? '-'}}</h5>
-                                    <p class="mb-0">{{ optional($bookingdata->customer)->contact_number ?? '-' }}</p>
-                                    <p class="mb-1">{{optional($bookingdata->customer)->email ?? '-' }}</p>
-                                </div>
-                            </div>
-                            <!-- end col -->
-                            <div class="col-sm-6 invoice">
-                                <div class="text-muted text-sm-end">
-                                    <div>
-                                        <h5 class="font-size-15 mb-1">{{__('messages.Invoice_No')}}:</h5>
-                                        <p>{{ '#' . $bookingdata->id ?? '-'}}</p>
-                                        
-                                    </div>
-                                    
-                                    
-                                </div>
-                            </div>
-                        </div><br>
-                        <div class="table-section bill-tbl w-100 mt-10">
-                            <table class="table w-100 mt-10">
-                                <tr> 
-                               
+                    </div>
+
+                    <br>
+
+                    <hr class="my-2">
+                    <h2 class="mb-1 text-muted">خدمات</h2>
+                    <div class="row">
+                        <div class="table-section bill-tbl mt-10">
+                            <table class="table mt-10">
+                                <tr>
                                     <th class="w-50">{{__('messages.SKU')}}</th>
                                     <th class="w-50">{{__('messages.Product_Name')}}</th>
                                     <th class="w-50">{{__('messages.Price')}}</th>
                                     <th class="w-50">{{__('messages.Qty')}}</th>
                                     <th class="w-50">{{__('messages.Subtotal')}}</th>
-                                    
+
                                 </tr>
                                 <tr align="center">
                                     <td class="no">1</td>
                                     <td class="text-wrap ps-lg-3">
-                                    {{optional($bookingdata->service)->name ?? '-'}}   
+                                        <h3>
+
+                                            {{optional($bookingdata->service)->name ?? '-'}}
+                                        </h3>
                                     </td>
-                                    <td>{{ isset($bookingdata->amount) ? getPriceFormat($bookingdata->amount) : 0 }}</td> 
+                                    <td>{{ isset($bookingdata->amount) ? getPriceFormat2($bookingdata->amount) : 0 }}</td>
                                     <td>{{!empty($bookingdata->quantity) ? $bookingdata->quantity : 0}}</td>
                                     @php
                                         if($bookingdata->service->type === 'fixed'){
@@ -521,11 +536,48 @@
                                         }else{
                                         $sub_total = $bookingdata->amount;
                                          }
-                                     @endphp
-                                   <td class="text-end">{{!empty($sub_total) ? getPriceFormat($sub_total) : 0}}</td>
+                                    @endphp
+                                    <td class="text-end">{{!empty($sub_total) ? getPriceFormat2($sub_total) : 0}}</td>
                                 </tr>
-                               
 
+
+                            </table>
+                        </div>
+                    </div>
+
+                    @if(count($bookingdata->bookingExtraCharge) > 0)
+                        <h4 class="mb-1 text-muted mt-3">خدمات اضافه</h4>
+                        <div class="row">
+                            <div class="table-section bill-tbl mt-10">
+                                <table class="table mt-10">
+                                    <tr>
+                                        <th class="w-50">{{__('messages.SKU')}}</th>
+                                        <th class="w-50">{{__('messages.title')}}</th>
+                                        <th class="w-50">{{__('messages.Qty')}}</th>
+                                        <th class="w-50">{{__('messages.Price')}}</th>
+                                    </tr>
+                                    @foreach($bookingdata->bookingExtraCharge as $extraCharge)
+                                        <tr align="center">
+                                            <td class="no">{{ ++$loop->index }}</td>
+                                            <td class="text-wrap ps-lg-3">
+                                                <h3>
+                                                    {{isset($extraCharge->title) ? $extraCharge->title : '-'}}
+                                                </h3>
+                                            </td>
+                                            <td>{{!empty($extraCharge->qty) ? $extraCharge->qty : 0}}</td>
+                                            <td>{{ isset($extraCharge->price) ? getPriceFormat2($extraCharge->price) : 0 }}</td>
+
+                                        </tr>
+
+                                    @endforeach
+                                </table>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="row">
+                        <div class="table-section bill-tbl mt-10">
+                            <table class="table mt-10">
                                 <tr>
                                     <td colspan="7">
                                         <div class="total-part">
@@ -536,70 +588,76 @@
                                                 <p>{{__('messages.Sub_Total')}}</p>
                                                 <p>{{__('messages.extra_charge')}}</p>
                                                 <p>{{__('messages.Total_Payable')}}</p>
-                                            </div> 
+                                            </div>
+                                            <div style="clear: both;"></div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="total-part">
                                             <div class="total-right w-15 float-left text-bold" align="right">
                                                 <p>{{!empty($bookingdata->discount) ? $bookingdata->discount : 0}}%</p>
                                                 @php
-                                                $discount = '';
-                                                if($bookingdata->couponAdded != null){
-                                                    $discount = optional($bookingdata->couponAdded)->discount ?? '-';
-                                                    $discount_type = optional($bookingdata->couponAdded)->discount_type ?? 'fixed';
-                                                    $discount = (float)$discount;
-                                                    if($discount_type == 'percentage'){
-                                                        $discount = $discount .'%';
+                                                    $discount = '';
+                                                    if($bookingdata->couponAdded != null){
+                                                        $discount = optional($bookingdata->couponAdded)->discount ?? '-';
+                                                        $discount_type = optional($bookingdata->couponAdded)->discount_type ?? 'fixed';
+                                                        $discount = (float)$discount;
+                                                        if($discount_type == 'percentage'){
+                                                            $discount = $discount .'%';
+                                                        }
                                                     }
-                                                }
                                                 @endphp
                                                 <p>{{ optional($bookingdata->couponAdded)->code ?? '-' }} {{ $discount }}</p>
                                                 @php
-                                                if($bookingdata->tax != ""){
-                                                    foreach(json_decode($bookingdata->tax) as $key => $value){
-                                                    if($value->type === 'percent'){
-                                                        $tax = $value->value;
-                                                        $tax_per = $sub_total * $tax / 100;
-                                                    }else{
-                                                        $tax_fix = $value->value;
+                                                    if($bookingdata->tax != ""){
+                                                        foreach(json_decode($bookingdata->tax) as $key => $value){
+                                                        if($value->type === 'percent'){
+                                                            $tax = $value->value;
+                                                            $tax_per = $sub_total * $tax / 100;
+                                                        }else{
+                                                            $tax_fix = $value->value;
+                                                        }
                                                     }
-                                                }
-                                                 $tax_amount = $tax_per ?? 0 + $tax_fix ?? 0;
-                                                }else{
-                                                    $tax_amount =0;
-                                                }
-                                            
+                                                     $tax_amount = $tax_per ?? 0 + $tax_fix ?? 0;
+                                                    }else{
+                                                        $tax_amount =0;
+                                                    }
+
                                                 @endphp
-                                                <p>{{!empty($tax_amount) ? getPriceFormat($tax_amount) : 0}}</p>
+                                                <p>{{!empty($tax_amount) ? getPriceFormat2($tax_amount) : 0}}</p>
                                                 @php
-                                                $sub_total = $bookingdata->amount + $tax_amount;
-                                                 @endphp
-                                                <p>{{!empty($sub_total) ? getPriceFormat($sub_total) : 0}}</p>
+                                                    $sub_total = $bookingdata->amount + $tax_amount;
+                                                @endphp
+                                                <p>{{!empty($sub_total) ? getPriceFormat2($sub_total) : 0}}</p>
                                                 @php
-                                                
+
                                                     $coupon_discount = $sub_total * (float)$discount / 100;
                                                     $discount = $sub_total * $bookingdata->discount / 100;
                                                     $total_amount = $sub_total - ($coupon_discount + $discount);
                                                 @endphp
 
                                                 @foreach($bookingdata->bookingExtraCharge as $chrage)
-                                                        @php
-                                                            $extraValue += $chrage->price * $chrage->qty;
-                                                        @endphp
+                                                    @php
+                                                        $extraValue += $chrage->price * $chrage->qty;
+                                                    @endphp
                                                 @endforeach
-                                                <p>{{!empty($extraValue) ? getPriceFormat($extraValue) : 0}}</p>
-                                                <p>{{!empty($total_amount) ? getPriceFormat($total_amount + $extraValue) : 0}}</p>
+                                                <p>{{!empty($extraValue) ? getPriceFormat2($extraValue) : 0}}</p>
+                                                <p>{{!empty($total_amount) ? getPriceFormat2($total_amount + $extraValue) : 0}}</p>
                                             </div>
-                                            <div style="clear: both;"></div>
                                         </div>
                                     </td>
                                 </tr>
                             </table>
                         </div>
-                       
-                        <footer>{{$app->site_copyright}}</footer>
                     </div>
+
+
+                    <footer>{{$app->site_copyright}}</footer>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 </body>
 </html>

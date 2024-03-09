@@ -214,10 +214,21 @@ class BookingController extends Controller
         $data['provider_id'] = !empty($data['provider_id']) ? $data['provider_id'] : $service_data->provider_id;
         $data['customer_id'] = auth()->user()->id;
         $data['address'] = $request->address;
+        $data['quantity'] = $data['quantity'] ?? 1;
+        $data['amount'] = $service_data->price * $data['quantity'];
+
+//        if (isset($data['discount']) && $data['discount'] > $service_data['discount']) {
+//            $mes = "مقدار تخفیف درخواست شده بیشتر از حد مجاز برای این سرویس می باشد";
+//            $mes .= "\n";
+//            $mes .= "بیشتر مقدار تخفیف برای این سرویس " . $service_data['discount'] . " درصد می باشد";
+//            return comman_message_response($mes, 200, false);
+//        }
+
 
         if ($request->has('tax') && $request->tax != null) {
             $data['tax'] = json_encode($request->tax);
         }
+
 
         if ($request->coupon_id != null) {
             $coupons = Coupon::with('serviceAdded')->where('code', $request->coupon_id)
@@ -233,6 +244,7 @@ class BookingController extends Controller
         }
 
         $result = Booking::updateOrCreate(['id' => $request->id], $data);
+//        $data['total_amount'] = $data['amount'] - $result->getDiscountValue();
 
         $activity_data = [
             'activity_type' => 'add_booking',
@@ -359,8 +371,7 @@ class BookingController extends Controller
         }
 
 
-        $bookingdata = Booking::with('bookingExtraCharge', 'payment')->myBooking()->find($id);
-
+        $bookingdata = Booking::with('bookingExtraCharge', 'payment', 'service')->myBooking()->find($id);
 
         $tabpage = 'info';
         if (empty($bookingdata)) {
@@ -370,6 +381,9 @@ class BookingController extends Controller
         if (count($auth_user->unreadNotifications) > 0) {
             $auth_user->unreadNotifications->where('data.id', $id)->markAsRead();
         }
+
+//        dd($bookingdata->id);
+        $bookingdata->updateBookingPrice();
 
         $pageTitle = __('messages.view_form_title', ['form' => __('messages.booking')]);
         return view('booking.view', compact('pageTitle', 'bookingdata', 'auth_user', 'tabpage'));

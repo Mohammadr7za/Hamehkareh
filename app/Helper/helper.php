@@ -57,8 +57,8 @@ function comman_message_response($message, $status_code = 200, $isSuccess = true
 
 function generateOtpToken()
 {
-    return 12345;
     return Random::generate(5, '0-9');
+    return 12345;
 }
 
 function comman_custom_response($response, $status_code = 200)
@@ -480,6 +480,10 @@ function getPriceFormat($price)
     }
 
     return $price;
+}
+function getPriceFormat2($price)
+{
+    return $price . " ریال";
 }
 
 function currency_data()
@@ -1625,6 +1629,7 @@ function getDaysName()
 {
     return ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 }
+
 function getServiceTimeSlot($provider_id)
 {
     $admin = \App\Models\AppSetting::first();
@@ -1714,6 +1719,60 @@ function bookingstatus($status)
             break;
 
         case 'Completed':
+            $html = '<span class="badge badge-success">' . $statusName . '</span>';
+
+            break;
+
+        case 'بلاتکلیف':
+            $html = '<span class="badge badge-warning ">' . $statusName . '</span>';
+
+            break;
+
+        case 'قبول شده':
+            $html = '<span class="badge badge-primary">' . $statusName . '</span>';
+
+            break;
+
+
+        case 'در حال حرکت':
+            $html = '<span class="badge badge-warning">' . $statusName . '</span>';
+
+            break;
+
+        case 'در حال انجام':
+            $html = '<span class="badge badge-info">' . $statusName . '</span>';
+
+            break;
+
+        case 'نگه داشته شده':
+            $html = '<span class="badge badge-dark text-white">' . $statusName . '</span>';
+
+            break;
+
+        case 'لغو شده':
+            $html = '<span class="badge badge-light">' . $statusName . '</span>';
+
+            break;
+
+        case 'نپذیرفتن':
+            $html = '<span class="badge badge-light">' . $statusName . '</span>';
+
+            break;
+
+        case 'خطا':
+            $html = '<span class="badge badge-success">' . $statusName . '</span>';
+
+            break;
+
+        case 'انجام شده':
+            $html = '<span class="badge badge-success">' . $statusName . '</span>';
+
+            break;
+        case 'در انتظار تایید':
+            $html = '<span class="badge badge-success">' . $statusName . '</span>';
+
+            break;
+        case 'در حال انتظار':
             $html = '<span class="badge badge-success">' . $statusName . '</span>';
 
             break;

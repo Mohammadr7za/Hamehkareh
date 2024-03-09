@@ -30,4 +30,12 @@ class changePasswordWithOtp extends FormRequest
             'password_confirmation' => 'required',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'password_confirmation.required' => __('messages.password_confirmation'),
+            'password.confirmed' => __('messages.password_confirmed_message'),
+        ];
+    }
 }

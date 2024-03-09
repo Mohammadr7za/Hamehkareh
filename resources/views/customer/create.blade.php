@@ -33,11 +33,11 @@
                                 <small class="help-block with-errors text-danger"></small>
                             </div>
 
-                            <div class="form-group col-md-4">
-                                {{ Form::label('username',__('messages.username').' <span class="text-danger">*</span>',['class'=>'form-control-label'], false ) }}
-                                {{ Form::text('username',old('username'),['placeholder' => __('messages.username'),'class' =>'form-control','required']) }}
-                                <small class="help-block with-errors text-danger"></small>
-                            </div>
+{{--                            <div class="form-group col-md-4">--}}
+{{--                                {{ Form::label('username',__('messages.username').' <span class="text-danger">*</span>',['class'=>'form-control-label'], false ) }}--}}
+{{--                                {{ Form::text('username',old('username'),['placeholder' => __('messages.username'),'class' =>'form-control','required']) }}--}}
+{{--                                <small class="help-block with-errors text-danger"></small>--}}
+{{--                            </div>--}}
                             @if(auth()->user()->hasAnyRole(['admin','manager']))
                             <div class="form-group col-md-4">
                                 {{ Form::label('user_type',__('messages.user_type').' <span class="text-danger">*</span>',['class'=>'form-control-label'], false ) }}
@@ -50,11 +50,11 @@
                                 </select>
                             </div>
                             @endif
-                            <div class="form-group col-md-4">
-                                {{ Form::label('email', __('messages.email').' <span class="text-danger">*</span>', ['class' => 'form-control-label'], false) }}
-                                {{ Form::email('email', old('email'), ['placeholder' => __('messages.email'), 'class' => 'form-control', 'required', 'pattern' => '[^@]+@[^@]+\.[a-zA-Z]{2,}', 'title' => 'Please enter a valid email address']) }}
-                                <small class="help-block with-errors text-danger"></small>
-                            </div>
+{{--                            <div class="form-group col-md-4">--}}
+{{--                                {{ Form::label('email', __('messages.email').' <span class="text-danger">*</span>', ['class' => 'form-control-label'], false) }}--}}
+{{--                                {{ Form::email('email', old('email'), ['placeholder' => __('messages.email'), 'class' => 'form-control', 'required', 'pattern' => '[^@]+@[^@]+\.[a-zA-Z]{2,}', 'title' => 'Please enter a valid email address']) }}--}}
+{{--                                <small class="help-block with-errors text-danger"></small>--}}
+{{--                            </div>--}}
 
 
                             @if (!isset($customerdata->id) || $customerdata->id == null)

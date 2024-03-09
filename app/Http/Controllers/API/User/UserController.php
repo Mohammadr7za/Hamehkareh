@@ -78,7 +78,7 @@ class UserController extends Controller
         }
         if (!empty($input['loginfrom']) && $input['loginfrom'] === 'vue-app') {
             if ($user->user_type != 'user') {
-                $message = trans('messages.save_form', ['form' => $input['user_type']]);
+                $message = trans('messages.save_form', ['form' => __("messages.".$input['user_type'])]);
                 $response = [
                     'message' => $message,
                     'data' => $user
@@ -89,7 +89,7 @@ class UserController extends Controller
         $input['api_token'] = $user->createToken('auth_token')->plainTextToken;
 
         unset($input['password']);
-        $message = trans('messages.save_form', ['form' => $input['user_type']]);
+        $message = trans('messages.save_form', ['form' => __("messages.".$input['user_type'])]);
 
         $user->api_token = $user->createToken('auth_token')->plainTextToken;
         $response = [
@@ -425,8 +425,8 @@ class UserController extends Controller
 
             $token = generateOtpToken();
             $user->otp_token = $token;
-            $user->otp_token_expire_time = Carbon::now()->addMinutes(5);
-            $message = "اپلیکیشن همه کاره\n";
+            $user->otp_token_expire_time = Carbon::now()->addMinutes(env('OtpExpireTime'));
+            $message = "تست اپلیکیشن همه کاره\n";
             $message .= "جهت تغییر کلمه عبور از کد امنیتی ذیل استفاده نمایید. \n";
             $message .= $token;
             $res = sendSmsToUser($user->contact_number, $message);
@@ -455,6 +455,7 @@ class UserController extends Controller
                 ) {
                     // Successfully change password
                     $user->otp_token = null;
+                    $user->status = 1;
                     $user->otp_token_expire_time = Carbon::now()->addMinutes(-15);
 
                     $user->forceFill([
@@ -464,7 +465,7 @@ class UserController extends Controller
 
                     event(new PasswordReset($user));
 
-                    $message = "اپلیکیشن همه کاره\n";
+                    $message = "تست اپلیکیشن همه کاره\n";
                     $message .= "کلمه عبور شما در اپلیکیشن همه کاره با موفقیت تغییر یافت";
                     $res = sendSmsToUser($user->contact_number, $message);
                     return comman_message_response(__("کلمه عبور با موفقیت تغییر یافت"), 200, true);
@@ -552,7 +553,7 @@ class UserController extends Controller
             $user->assignRole($input['user_type']);
 
             $user_data = User::where('id', $user->id)->first();
-            $message = trans('messages.save_form', ['form' => $input['user_type']]);
+            $message = trans('messages.save_form', ['form' => __("messages.".$input['user_type'])]);
         }
 
         $user_data['api_token'] = $user_data->createToken('auth_token')->plainTextToken;
@@ -734,7 +735,7 @@ class UserController extends Controller
         $input['api_token'] = $user->createToken('auth_token')->plainTextToken;
 
         unset($input['password']);
-        $message = trans('messages.save_form', ['form' => $input['user_type']]);
+        $message = trans('messages.save_form', ['form' => __("messages.".$input['user_type'])]);
         $user->api_token = $user->createToken('auth_token')->plainTextToken;
         $response = [
             'message' => $message,
@@ -797,8 +798,8 @@ class UserController extends Controller
         } else if ($user->email_verified_at == null) {
             $token = generateOtpToken();
             $user->otp_token = $token;
-            $user->otp_token_expire_time = Carbon::now()->addMinutes(5);
-            $message = "اپلیکیشن همه کاره\n";
+            $user->otp_token_expire_time = Carbon::now()->addMinutes(env('OtpExpireTime'));
+            $message = "تست اپلیکیشن همه کاره\n";
             $message .= "جهت تکمیل ثبت نام و ورود از کد امنیتی ذیل استفاده نمائید\n";
             $message .= $token;
             $res = sendSmsToUser($user->contact_number, $message);
@@ -834,7 +835,7 @@ class UserController extends Controller
             if (request('loginfrom') === 'vue-app') {
                 if ($user->user_type != 'user') {
                     $message = trans('auth.not_able_login');
-                    return comman_message_response($message, 400);
+                    return comman_message_response($message, 400, false);
                 }
             }
             $user->save();
@@ -879,8 +880,8 @@ class UserController extends Controller
             unset($user['roles']);
             $success['player_ids'] = $user->playerids->pluck('player_id');
             unset($user->playerids);
+            return comman_message_response('', 200,true, $success);
 
-            return response()->json(['data' => $success], 200);
         } else {
             $message = trans('auth.failed');
             return comman_message_response($message, 200,false, json_decode('{}'));

@@ -111,6 +111,9 @@ class BookingController extends Controller
 
         $booking_data = Booking::with('customer','provider','service','bookingRating','bookingPostJob','bookingAddonService')->where('id',$id)->first();
 
+        // update booking price
+        $booking_data->updateBookingPrice();
+
 
         if($booking_data == null){
             $message = __('messages.booking_not_found');
@@ -277,7 +280,7 @@ class BookingController extends Controller
             }
         }
 
-        if(($data['status'] == 'rejected' || $data['status'] == 'cancelled') && $data['payment_status'] =='advanced_paid'){
+        if(($data['status'] == 'rejected' || $data['status'] == 'cancelled') && isset($data['payment_status']) && $data['payment_status'] =='advanced_paid'){
             $advance_paid_amount = $bookingdata->advance_paid_amount;
 
             $user_wallet = Wallet::where('user_id', $bookingdata->customer_id)->first();

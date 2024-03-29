@@ -58,6 +58,8 @@ use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
+Route::get('request_provider', [\App\Http\Controllers\RequestProviderController::class, 'index'])->name('requestProvider');
+Route::post('request_provider', [RequestProviderController::class, 'store'])->name('requestProvider');
 
 Route::group(['prefix' => 'auth'], function () {
     Route::get('login', [HomeController::class, 'authLogin'])->name('auth.login');
@@ -342,8 +344,6 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     });
 
     Route::resource('contactus', \App\Http\Controllers\ContactUsController::class);
-    Route::get('request_provider', [\App\Http\Controllers\RequestProviderController::class, 'index'])->name('requestProvider');
-    Route::post('request_provider', [RequestProviderController::class, 'store'])->name('requestProvider');
     Route::get('contactus-index-data', [\App\Http\Controllers\ContactUsController::class, 'index_data'])->name('contactus.index_data');
     Route::post('contactus-bulk-action', [\App\Http\Controllers\ContactUsController::class, 'bulk_action'])->name('contactus.bulk-action');
     Route::post('contactus/{id}', [\App\Http\Controllers\ContactUsController::class, 'destroy'])->name('contactus.destroy');

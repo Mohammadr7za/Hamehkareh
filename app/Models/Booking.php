@@ -36,6 +36,10 @@ class Booking extends Model
         'final_total_tax',
         'final_sub_total',
         'final_discount_amount',
+        'latitude',
+        'longitude',
+        'coordinates',
+        'final_discount_amount',
         'final_coupon_discount_amount'
     ];
 

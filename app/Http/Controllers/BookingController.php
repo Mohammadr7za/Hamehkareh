@@ -213,7 +213,12 @@ class BookingController extends Controller
         $service_data = Service::find($data['service_id']);
         $data['provider_id'] = !empty($data['provider_id']) ? $data['provider_id'] : $service_data->provider_id;
         $data['customer_id'] = auth()->user()->id;
+        
         $data['address'] = $request->address;
+        $data['latitude'] = $request->latitude;
+        $data['longitude'] = $request->longitude;
+        $data['coordinates'] = $request->coordinates;
+
         $data['quantity'] = $data['quantity'] ?? 1;
         $data['amount'] = $service_data->price * $data['quantity'];
 

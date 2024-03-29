@@ -147,6 +147,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('save-service-proof', [API\BookingController::class, 'uploadServiceProof']);
     Route::post('handyman-update-available-status', [API\User\UserController::class, 'handymanAvailable']);
+    Route::post('handyman-update-gps', [API\User\UserController::class, 'handymanGps']);
     Route::post('delete-user-account', [API\User\UserController::class, 'deleteUserAccount']);
     Route::post('delete-account', [API\User\UserController::class, 'deleteAccount']);
 

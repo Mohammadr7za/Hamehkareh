@@ -27,7 +27,10 @@ class User extends Authenticatable implements HasMedia
         'display_name', 'providertype_id' , 'is_featured' , 'time_zone' ,'last_notification_seen' , 'login_type','service_address_id' , 'uid','is_subscribe',
         'social_image','is_available','designation','last_online_time',
         'otp_token','otp_token_expire_time',
-        'known_languages','skills','description'
+        'known_languages','skills','description',
+        'latitude',
+        'longitude',
+        'coordinates',
     ];
 
     /**

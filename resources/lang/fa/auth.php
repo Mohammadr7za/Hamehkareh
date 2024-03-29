@@ -38,4 +38,5 @@
     'delete' => 'حذف',
     'restore' => 'بازیابی',
     'password_mismatch_error'=> 'گذرواژه و تایید رمز عبور مطابقت ندارند',
+    'contact number' => 'شماره تماس',
 );

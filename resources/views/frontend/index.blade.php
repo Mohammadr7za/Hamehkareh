@@ -65,6 +65,11 @@
                     <a class="nav-link" href="{{ route('login') }}">ورود</a>
                 </li>
 
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('requestProvider') }}">درخواست نمایندگی</a>
+                </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="#overview">بررسی اپلیکیشن</a>
                 </li>

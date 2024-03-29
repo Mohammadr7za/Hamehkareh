@@ -69,6 +69,12 @@ return [
         'string' => ':attribute نباید بیشتر از :max کاراکتر باشد.',
         'array' => ':attribute نباید بیش از موارد :max داشته باشد.',
     ],
+    'min' => [
+        'numeric' => ':attribute نباید کوچپتر از :min باشد.',
+        'file' => ':attribute نباید کمتر از :min کیلوبایت باشد.',
+        'string' => ':attribute نباید کمتر از :min کاراکتر باشد.',
+        'array' => ':attribute نباید کم از موارد :min داشته باشد.',
+    ],
     'mimes' => ':attribute باید فایلی از نوع: :values باشد.',
     'mimetypes' => ':attribute باید فایلی از نوع: :values باشد.',
     'minute' => [
@@ -107,7 +113,8 @@ return [
     'uploaded' => ':attribute بارگذاری نشد.',
     'url' => 'قالب :attribute نامعتبر است.',
     'uuid' => ':attribute باید یک UUID معتبر باشد.',
-
+    'contact_number' => 'شماره تماس',
+    'contact number' => 'شماره تماس',
     'custom' => [
         'attribute-name' => [
             'rule-name' => 'custom-message',

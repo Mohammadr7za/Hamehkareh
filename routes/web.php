@@ -1,45 +1,47 @@
 <?php
 
-use App\Http\Controllers\HomeController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ServiceController;
-use App\Http\Controllers\ProviderTypeController;
-use App\Http\Controllers\ProviderController;
-use App\Http\Controllers\HandymanController;
-use App\Http\Controllers\CouponController;
+use App\Http\Controllers\BankController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\BookingController;
-use App\Http\Controllers\SliderController;
-use App\Http\Controllers\SettingController;
+use App\Http\Controllers\BookingRatingController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CouponController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DocumentsController;
+use App\Http\Controllers\EarningController;
+use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\HandymanController;
+use App\Http\Controllers\HandymanPayoutController;
+use App\Http\Controllers\HandymanRatingController;
+use App\Http\Controllers\HandymanTypeController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\FrontendController;
-use App\Http\Controllers\ProviderAddressMappingController;
-use App\Http\Controllers\DocumentsController;
-use App\Http\Controllers\ProviderDocumentController;
-use App\Http\Controllers\RatingReviewController;
 use App\Http\Controllers\PaymentGatewayController;
-use App\Http\Controllers\TaxController;
-use App\Http\Controllers\EarningController;
-use App\Http\Controllers\ProviderPayoutController;
-use App\Http\Controllers\HandymanPayoutController;
-use App\Http\Controllers\HandymanTypeController;
-use App\Http\Controllers\ServiceFaqController;
-use App\Http\Controllers\WalletController;
-use App\Http\Controllers\SubCategoryController;
 use App\Http\Controllers\PlanController;
-use App\Http\Controllers\BankController;
 use App\Http\Controllers\PostJobRequestController;
-use App\Http\Controllers\ServicePackageController;
-use App\Http\Controllers\BlogController;
-use App\Http\Controllers\BookingRatingController;
-use App\Http\Controllers\HandymanRatingController;
-use App\Http\Controllers\UserServiceListController;
+use App\Http\Controllers\ProviderAddressMappingController;
+use App\Http\Controllers\ProviderController;
+use App\Http\Controllers\ProviderDocumentController;
+use App\Http\Controllers\ProviderPayoutController;
 use App\Http\Controllers\ProviderSlotController;
+use App\Http\Controllers\ProviderTypeController;
+use App\Http\Controllers\RatingReviewController;
+use App\Http\Controllers\RequestProvider;
+use App\Http\Controllers\RequestProviderController;
 use App\Http\Controllers\ServiceAddonController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\ServiceFaqController;
+use App\Http\Controllers\ServicePackageController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SliderController;
+use App\Http\Controllers\SubCategoryController;
+use App\Http\Controllers\TaxController;
+use App\Http\Controllers\UserServiceListController;
+use App\Http\Controllers\WalletController;
+use Illuminate\Support\Facades\Route;
 
 
 /*
@@ -340,6 +342,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     });
 
     Route::resource('contactus', \App\Http\Controllers\ContactUsController::class);
+    Route::get('request_provider', [\App\Http\Controllers\RequestProviderController::class, 'index'])->name('requestProvider');
+    Route::post('request_provider', [RequestProviderController::class, 'store'])->name('requestProvider');
     Route::get('contactus-index-data', [\App\Http\Controllers\ContactUsController::class, 'index_data'])->name('contactus.index_data');
     Route::post('contactus-bulk-action', [\App\Http\Controllers\ContactUsController::class, 'bulk_action'])->name('contactus.bulk-action');
     Route::post('contactus/{id}', [\App\Http\Controllers\ContactUsController::class, 'destroy'])->name('contactus.destroy');

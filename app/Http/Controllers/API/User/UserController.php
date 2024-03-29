@@ -4,7 +4,6 @@ namespace App\Http\Controllers\API\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\changePasswordWithOtp;
-use App\Http\Requests\RequestOTP;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\API\HandymanRatingResource;
 use App\Http\Resources\API\ServiceResource;
@@ -24,7 +23,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
-use Nette\Utils\Random;
 use Validator;
 
 class UserController extends Controller
@@ -78,7 +76,7 @@ class UserController extends Controller
         }
         if (!empty($input['loginfrom']) && $input['loginfrom'] === 'vue-app') {
             if ($user->user_type != 'user') {
-                $message = trans('messages.save_form', ['form' => __("messages.".$input['user_type'])]);
+                $message = trans('messages.save_form', ['form' => __("messages." . $input['user_type'])]);
                 $response = [
                     'message' => $message,
                     'data' => $user
@@ -89,7 +87,7 @@ class UserController extends Controller
         $input['api_token'] = $user->createToken('auth_token')->plainTextToken;
 
         unset($input['password']);
-        $message = trans('messages.save_form', ['form' => __("messages.".$input['user_type'])]);
+        $message = trans('messages.save_form', ['form' => __("messages." . $input['user_type'])]);
 
         $user->api_token = $user->createToken('auth_token')->plainTextToken;
         $response = [
@@ -553,7 +551,7 @@ class UserController extends Controller
             $user->assignRole($input['user_type']);
 
             $user_data = User::where('id', $user->id)->first();
-            $message = trans('messages.save_form', ['form' => __("messages.".$input['user_type'])]);
+            $message = trans('messages.save_form', ['form' => __("messages." . $input['user_type'])]);
         }
 
         $user_data['api_token'] = $user_data->createToken('auth_token')->plainTextToken;
@@ -620,6 +618,28 @@ class UserController extends Controller
             return comman_message_response($message, 400);
         }
         $user->is_available = $request->is_available;
+        $user->save();
+
+        $message = __('messages.update_form', ['form' => __('messages.status')]);
+        $response = [
+            'data' => new UserResource($user),
+            'message' => $message
+        ];
+        return comman_custom_response($response);
+    }
+
+    public function handymanGps(Request $request)
+    {
+        $user_id = auth()->user()->id;
+        $user = User::where('id', $user_id)->first();
+
+        if ($user == "") {
+            $message = __('messages.user_not_found');
+            return comman_message_response($message, 400);
+        }
+        $user->latitude = $request->latitude;
+        $user->longitude = $request->longitude;
+        $user->coordinates = $request->coordinates;
         $user->save();
 
         $message = __('messages.update_form', ['form' => __('messages.status')]);
@@ -735,7 +755,7 @@ class UserController extends Controller
         $input['api_token'] = $user->createToken('auth_token')->plainTextToken;
 
         unset($input['password']);
-        $message = trans('messages.save_form', ['form' => __("messages.".$input['user_type'])]);
+        $message = trans('messages.save_form', ['form' => __("messages." . $input['user_type'])]);
         $user->api_token = $user->createToken('auth_token')->plainTextToken;
         $response = [
             'message' => $message,
@@ -880,11 +900,11 @@ class UserController extends Controller
             unset($user['roles']);
             $success['player_ids'] = $user->playerids->pluck('player_id');
             unset($user->playerids);
-            return comman_message_response('', 200,true, $success);
+            return comman_message_response('', 200, true, $success);
 
         } else {
             $message = trans('auth.failed');
-            return comman_message_response($message, 200,false, json_decode('{}'));
+            return comman_message_response($message, 200, false, json_decode('{}'));
         }
     }
 

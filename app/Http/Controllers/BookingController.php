@@ -213,7 +213,7 @@ class BookingController extends Controller
         $service_data = Service::find($data['service_id']);
         $data['provider_id'] = !empty($data['provider_id']) ? $data['provider_id'] : $service_data->provider_id;
         $data['customer_id'] = auth()->user()->id;
-        
+
         $data['address'] = $request->address;
         $data['latitude'] = $request->latitude;
         $data['longitude'] = $request->longitude;
@@ -523,7 +523,6 @@ class BookingController extends Controller
 
     public function bookingAssignForm(Request $request)
     {
-
         $bookingdata = Booking::find($request->id);
         $pageTitle = __('messages.assign_form_title', ['form' => __('messages.booking')]);
         return view('booking.assigned_form', compact('bookingdata', 'pageTitle'));

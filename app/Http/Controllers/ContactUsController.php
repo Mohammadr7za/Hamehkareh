@@ -18,6 +18,12 @@ class ContactUsController extends Controller
                 'store' // Could add bunch of more methods too
             ]
         ]);
+
+        $this->middleware('auth', [
+            'except' => [
+                'store' // Could add bunch of more methods too
+            ]
+        ]);
     }
 
     /**
@@ -47,7 +53,7 @@ class ContactUsController extends Controller
                 $query->where('status', $filter['column_status']);
             }
         }
-        if (auth()->user()->hasAnyRole(['admin'])) {
+        if (auth()->user()->hasAnyRole(['admin', 'manager'])) {
             $query->newQuery();
         }
 
@@ -142,21 +148,13 @@ class ContactUsController extends Controller
      */
     public function store(ContactUsRequest $request)
     {
-        $notification_data = [
-            'id' => $request->user()->id,
-            'type' => 'اضافه شدن تماس با ما',
-            'subject' => 'ثبت تماس با ما',
-            'message' => 'یک تماس با ما ثبت شد',
-            'notification-type' => 'تماس با ما',
-        ];
-
         $contactUsCreated = ContactUs::create($request->validated());
         $res = $contactUsCreated->id > 0;
 
         if ($res) {
-//            sendNotification('user', auth()->user(), $notification_data);
             session()->flash("contact-us-created");
         }
+
         return redirect()->route('frontend.index');
     }
 

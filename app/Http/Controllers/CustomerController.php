@@ -45,7 +45,7 @@ class CustomerController extends Controller
                 $query->where('status', $filter['column_status']);
             }
         }
-        if (auth()->user()->hasAnyRole(['admin'])) {
+        if (auth()->user()->hasAnyRole(['admin', 'manager'])) {
             $query->withTrashed();
         }
         if($request->list_status == 'all'){

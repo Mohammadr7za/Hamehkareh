@@ -28,7 +28,7 @@
             var $this = $('.payment-link').find('a.active');
             loadurl = "{{route('booking_layout_page',$bookingdata->id)}}?tabpage={{$tabpage}}";
             targ = $this.attr('data-target');
-            
+
             id = this.id || '';
 
             $.post(loadurl, {
@@ -41,7 +41,7 @@
         });
          $('.payment_paste_here').on('change','.booking-Status',function(){
             $.post("{{ route('bookingStatus.update') }}", {
-                '_token': $('meta[name=csrf-token]').attr('content'), 
+                '_token': $('meta[name=csrf-token]').attr('content'),
                 bookingId:"{{ request()->booking }}",
                 status: $(this).val(),
                 type: $(this).attr("type"),
@@ -49,7 +49,7 @@
              window.location.reload();
             });
         });
-        
+
 
     </script>
     @endsection

@@ -29,7 +29,6 @@ use App\Http\Controllers\ProviderPayoutController;
 use App\Http\Controllers\ProviderSlotController;
 use App\Http\Controllers\ProviderTypeController;
 use App\Http\Controllers\RatingReviewController;
-use App\Http\Controllers\RequestProvider;
 use App\Http\Controllers\RequestProviderController;
 use App\Http\Controllers\ServiceAddonController;
 use App\Http\Controllers\ServiceController;
@@ -60,6 +59,7 @@ require __DIR__ . '/auth.php';
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
 Route::get('request_provider', [\App\Http\Controllers\RequestProviderController::class, 'index'])->name('requestProvider');
 Route::post('request_provider', [RequestProviderController::class, 'store'])->name('requestProvider');
+Route::resource('contactus', \App\Http\Controllers\ContactUsController::class);
 
 Route::group(['prefix' => 'auth'], function () {
     Route::get('login', [HomeController::class, 'authLogin'])->name('auth.login');
@@ -343,7 +343,6 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
         Route::post('subcategory/{id}', [SubCategoryController::class, 'destroy'])->name('subcategory.destroy');
     });
 
-    Route::resource('contactus', \App\Http\Controllers\ContactUsController::class);
     Route::get('contactus-index-data', [\App\Http\Controllers\ContactUsController::class, 'index_data'])->name('contactus.index_data');
     Route::post('contactus-bulk-action', [\App\Http\Controllers\ContactUsController::class, 'bulk_action'])->name('contactus.bulk-action');
     Route::post('contactus/{id}', [\App\Http\Controllers\ContactUsController::class, 'destroy'])->name('contactus.destroy');
@@ -365,6 +364,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('/provider-detail-page', [ProviderController::class, 'providerDetail'])->name('provider_detail_pages');
     Route::post('/provider-detail-page', [ProviderController::class, 'providerDetail'])->name('provider_detail_pages');
     Route::post('/booking-layout-page/{id}', [BookingController::class, 'bookingstatus'])->name('booking_layout_page');
+    Route::get('/booking-layout-page/{id}', [BookingController::class, 'bookingstatus'])->name('booking_layout_page');
     Route::get('/invoice_pdf/{id}', [BookingController::class, 'createPDF'])->name('invoice_pdf');
 
     Route::group(['middleware' => ['permission:postjob list']], function () {

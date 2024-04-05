@@ -17,6 +17,7 @@ return [
     'address' => 'آدرس',
     'status' => 'وضعیت',
     'select_name' => 'انتخاب :select',
+    'manager' => 'مدیریت',
     'title_name' => 'نام :title',
     'title' => 'عنوان',
     'username' => 'نام کاربری',

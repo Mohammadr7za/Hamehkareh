@@ -60,7 +60,7 @@ class CategoryDataTable extends DataTable
      */
     public function query(Category $model)
     {
-        if(auth()->user()->hasAnyRole(['admin'])){
+        if(auth()->user()->hasAnyRole(['admin', 'manager'])){
             $model = $model->withTrashed();
         }
         $model = $model->orderBy('name', 'asc');

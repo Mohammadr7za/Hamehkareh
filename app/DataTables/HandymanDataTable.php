@@ -67,9 +67,9 @@ class HandymanDataTable extends DataTable
      */
     public function query(User $model)
     {
-        
+
         $model = $model->where('user_type','handyman');
-        if(auth()->user()->hasAnyRole(['admin'])){
+        if(auth()->user()->hasAnyRole(['admin', 'manager'])){
             $model = $model->withTrashed();
         }
         if(auth()->user()->hasRole('provider')) {
@@ -77,12 +77,12 @@ class HandymanDataTable extends DataTable
         }
         if($this->list_status == null){
             $model = $model->where('status',1)->whereNotNull('provider_id');
-        }   
+        }
         if($this->list_status == 'unassigned'){
             $model = $model->where('status',0)->orWhere('provider_id',NULL)->where('user_type','handyman');
         }
         return $model->list();
-       
+
     }
 
     /**

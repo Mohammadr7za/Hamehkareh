@@ -386,8 +386,8 @@ class HomeController extends Controller
             case 'handyman':
                 $items = \App\Models\User::select('id', 'display_name as text', 'is_available', 'latitude', 'longitude', 'coordinates', 'display_name')
                     ->where('user_type', 'handyman')
-                    ->where('status', 1);
-
+                    ->where('status', 1)
+                    ->orderBy('is_available', 'desc');
 
                 if (isset($request->provider_id)) {
                     $items->where('provider_id', $request->provider_id);
@@ -407,7 +407,7 @@ class HomeController extends Controller
                 }
                 $items = $items->get();
                 foreach ($items as $i) {
-                    $i->text = $i->HandymanDisplayName;
+                    $i->text = $i->getHandymanDisplayName($booking_data->latitude, $booking_data->longitude);
                 }
                 break;
             case 'service':

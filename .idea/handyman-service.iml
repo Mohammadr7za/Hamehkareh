@@ -183,6 +183,7 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/orangehill/iseed" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/beberlei/assert" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/morilog/jalali" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/malhal/laravel-geographical" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

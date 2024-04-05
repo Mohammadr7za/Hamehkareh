@@ -20,9 +20,9 @@
                     @php
                         if($bookingdata->booking_address_id != null)
                         {
-                            $route = route('ajax-list', ['type' => 'handyman', 'provider_id' => $bookingdata->provider_id, 'booking_id' => $bookingdata->id ]);
+                            $route = route('ajax-list', ['type' => 'handyman', 'provider_id' => $bookingdata->provider_id, 'booking_id' => $bookingdata->id]);
                         } else {
-                            $route = route('ajax-list', ['type' => 'handyman', 'provider_id' => $bookingdata->provider_id ]);
+                            $route = route('ajax-list', ['type' => 'handyman', 'provider_id' => $bookingdata->provider_id, 'booking_id' => $bookingdata->id ]);
                         }
                         $assigned_handyman = $bookingdata->handymanAdded->mapWithKeys(function ($item) {
                             return [$item->handyman_id => optional($item->handyman)->display_name];

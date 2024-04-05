@@ -52,14 +52,14 @@ class CustomerDataTable extends DataTable
      */
     public function query(User $model)
     {
-        if(auth()->user()->hasAnyRole(['admin'])){
+        if(auth()->user()->hasAnyRole(['admin', 'manager'])){
             $model = $model->withTrashed();
         }
         if($this->list_status == 'all'){
             $query = $model;
         }else{
             $query = $model->where('user_type','user');
-        } 
+        }
         $model = $model->orderBy('created_at', 'desc');
         $query = $model->list()->newQuery();
         return $query;

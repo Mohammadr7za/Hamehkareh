@@ -1,6 +1,7 @@
 <?php
 
 namespace App\DataTables;
+
 use App\Traits\DataTableTrait;
 
 use App\Models\Documents;
@@ -13,6 +14,7 @@ use Yajra\DataTables\Services\DataTable;
 class DocumentDataTable extends DataTable
 {
     use DataTableTrait;
+
     /**
      * Build DataTable class.
      *
@@ -23,32 +25,32 @@ class DocumentDataTable extends DataTable
     {
         return datatables()
             ->eloquent($query)
-            ->editColumn('name', function($document){
-                return '<a class="btn-link btn-link-hover" href='.route('document.create', ['id' => $document->id]).'>'.$document->name.'</a>';
+            ->editColumn('name', function ($document) {
+                return '<a class="btn-link btn-link-hover" href=' . route('document.create', ['id' => $document->id]) . '>' . $document->name . '</a>';
             })
-            ->editColumn('status' , function ($document){
-                $disabled = $document->trashed() ? 'disabled': '';
+            ->editColumn('status', function ($document) {
+                $disabled = $document->trashed() ? 'disabled' : '';
                 return '<div class="custom-control custom-switch custom-switch-text custom-switch-color custom-control-inline">
                     <div class="custom-switch-inner">
-                        <input type="checkbox" class="custom-control-input bg-primary change_status" data-type="document_status" '.($document->status ? "checked" : "").' '.$disabled.'  value="'.$document->id.'" id="'.$document->id.'" data-id="'.$document->id.'">
-                        <label class="custom-control-label" for="'.$document->id.'" data-on-label="" data-off-label=""></label>
+                        <input type="checkbox" class="custom-control-input bg-primary change_status" data-type="document_status" ' . ($document->status ? "checked" : "") . ' ' . $disabled . '  value="' . $document->id . '" id="' . $document->id . '" data-id="' . $document->id . '">
+                        <label class="custom-control-label" for="' . $document->id . '" data-on-label="" data-off-label=""></label>
                     </div>
                 </div>';
             })
-            ->editColumn('is_required' , function ($document){
-                $disabled = $document->trashed() ? 'disabled': '';
+            ->editColumn('is_required', function ($document) {
+                $disabled = $document->trashed() ? 'disabled' : '';
                 return '<div class="custom-control custom-switch custom-switch-text custom-switch-color custom-control-inline">
                     <div class="custom-switch-inner">
-                        <input type="checkbox" class="custom-control-input bg-primary change_status" data-type="document_required" data-name="is_required" '.($document->is_required ? "checked" : "").' '.$disabled.'  value="'.$document->id.'" id="f'.$document->id.'" data-id="'.$document->id.'">
-                        <label class="custom-control-label" for="f'.$document->id.'" data-on-label="'.__("messages.yes").'" data-off-label="'.__("messages.no").'"></label>
+                        <input type="checkbox" class="custom-control-input bg-primary change_status" data-type="document_required" data-name="is_required" ' . ($document->is_required ? "checked" : "") . ' ' . $disabled . '  value="' . $document->id . '" id="f' . $document->id . '" data-id="' . $document->id . '">
+                        <label class="custom-control-label" for="f' . $document->id . '" data-on-label="' . __("messages.yes") . '" data-off-label="' . __("messages.no") . '"></label>
                     </div>
                 </div>';
             })
-            ->addColumn('action', function($document){
-                return view('document.action',compact('document'))->render();
+            ->addColumn('action', function ($document) {
+                return view('document.action', compact('document'))->render();
             })
             ->addIndexColumn()
-            ->rawColumns(['name','action','status','is_required']);
+            ->rawColumns(['name', 'action', 'status', 'is_required']);
     }
 
     /**
@@ -59,11 +61,12 @@ class DocumentDataTable extends DataTable
      */
     public function query(Documents $model)
     {
-        if(auth()->user()->hasAnyRole(['admin'])){
+        if (auth()->user()->hasAnyRole(['admin', 'manager'])) {
             $model = $model->withTrashed();
         }
         return $model->newQuery();
     }
+
     /**
      * Get columns.
      *
@@ -79,15 +82,15 @@ class DocumentDataTable extends DataTable
             Column::make('name')
                 ->title(__('messages.name')),
             Column::make('is_required')
-            ->title(__('messages.is_required')),
+                ->title(__('messages.is_required')),
             Column::make('status')
                 ->title(__('messages.status')),
             Column::computed('action')
-                  ->exportable(false)
-                  ->printable(false)
-                  ->width(60)
-                  ->addClass('text-center')
-                  ->title(__('messages.action')),
+                ->exportable(false)
+                ->printable(false)
+                ->width(60)
+                ->addClass('text-center')
+                ->title(__('messages.action')),
         ];
     }
 

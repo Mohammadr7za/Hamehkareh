@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Malhal\Geographical\Geographical;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable implements HasMedia
 {
-    use HasApiTokens, Notifiable, HasRoles, InteractsWithMedia, SoftDeletes;
+    use HasApiTokens, Notifiable, HasRoles, InteractsWithMedia, SoftDeletes, Geographical;
 
     /**
      * The attributes that are mass assignable.
@@ -32,6 +33,8 @@ class User extends Authenticatable implements HasMedia
         'longitude',
         'coordinates',
     ];
+
+    protected static $kilometers = true;
 
     /**
      * The attributes that should be hidden for arrays.
@@ -182,14 +185,38 @@ class User extends Authenticatable implements HasMedia
         return $this->where($key, $value)->first();
     }
 
-    public function getHandymanDisplayNameAttribute()
+    public function getHandymanDisplayName($lat, $lon)
     {
-        $isAvailable = $this->is_available ? 'قعال' : 'غیرفعال';
+        $isAvailable = $this->is_available ? 'فعال' : '*غیرفعال*';
         $name = $this->display_name;
-        $destination = 'در فاصله ';
 
-        // TODO fixt destination later
-        return "$name ($isAvailable) -- $destination";
+        $destination = '';
+        if (isset($lat) && isset($lon) && $lon > 0 && $lat > 0) {
+            $destination .= '[در فاصله ';
+            $val = (int)$this->getDistance($this->latitude, $this->longitude, $lat, $lon, "K");
+            $destination .= $val . " کیلومتری]";
+        }
+
+        return "$name ($isAvailable) $destination";
+    }
+
+    public function getDistance($lat1, $lon1, $lat2, $lon2, $unit)
+    {
+
+        $theta = $lon1 - $lon2;
+        $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+        $dist = acos($dist);
+        $dist = rad2deg($dist);
+        $miles = $dist * 60 * 1.1515;
+        $unit = strtoupper($unit);
+
+        if ($unit == "K") {
+            return ($miles * 1.609344);
+        } else if ($unit == "N") {
+            return ($miles * 0.8684);
+        } else {
+            return $miles;
+        }
     }
 
     protected function handymanDisplayNameAssigned()

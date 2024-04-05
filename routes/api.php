@@ -81,6 +81,10 @@ Route::post('service-reviews', [API\ServiceController::class, 'serviceReviewsLis
 Route::get('post-job-status', [API\PostJobRequestController::class, 'postRequestStatus']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
+
+    Route::resource('upload-files', Controllers\WorkSampleController::class)->middleware('optimizeImages');
+    Route::get('upload-files/user/{id}', [Controllers\WorkSampleController::class,'getWorkSamplesByUserId']);
+
     Route::post('service-save', [App\Http\Controllers\ServiceController::class, 'store']);
     Route::post('service-delete/{id}', [App\Http\Controllers\ServiceController::class, 'destroy']);
     Route::post('booking-save', [App\Http\Controllers\BookingController::class, 'store']);

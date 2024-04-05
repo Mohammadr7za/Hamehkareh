@@ -347,6 +347,11 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::post('contactus-bulk-action', [\App\Http\Controllers\ContactUsController::class, 'bulk_action'])->name('contactus.bulk-action');
     Route::post('contactus/{id}', [\App\Http\Controllers\ContactUsController::class, 'destroy'])->name('contactus.destroy');
 
+    Route::get('worksamples', [\App\Http\Controllers\WorkSampleController::class, 'index']);
+    Route::get('worksamples-index-data', [\App\Http\Controllers\WorkSampleController::class, 'index_data'])->name('worksamples.index_data');
+    Route::post('worksamples-bulk-action', [\App\Http\Controllers\WorkSampleController::class, 'bulk_action'])->name('worksamples.bulk-action');
+    Route::get('worksamples/{id}/delete', [\App\Http\Controllers\WorkSampleController::class, 'delete'])->name('worksamples.delete');
+
     Route::resource('plans', PlanController::class);
     Route::get('plans-index-data', [PlanController::class, 'index_data'])->name('plans.index_data');
     Route::post('plans-bulk-action', [PlanController::class, 'bulk_action'])->name('plans.bulk-action');

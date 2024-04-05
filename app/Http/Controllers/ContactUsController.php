@@ -200,7 +200,6 @@ class ContactUsController extends Controller
      */
     public function destroy($id)
     {
-
         $cotactus = ContactUs::find($id);
         $msg = __('messages.msg_fail_to_delete', ['item' => __('messages.contactus')]);
 

@@ -325,6 +325,11 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(UserPlayerIds::class, 'user_id', 'id');
     }
 
+    public function workSamples()
+    {
+        return $this->hasMany(WorkSample::class, 'user_id', 'id');
+    }
+
     public function scopeList($query)
     {
         return $query->orderBy('deleted_at', 'asc');

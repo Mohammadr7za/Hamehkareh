@@ -1,4 +1,4 @@
-<?php return  array (
+<?php return array(
     'failed' => 'اطلاعات وارد شده صحیح نمی باشد.',
     'enter_email' => 'ایمیل را وارد کنید.',
     'password' => 'گذرواژه ارائه شده نادرست است.',
@@ -18,6 +18,7 @@
     'mobile' => 'شماره همراه',
     'confirm' => 'تأیید',
     'email' => 'ایمیل',
+    'file' => 'فایل',
     'login_password' => 'گذرواژه',
     'username' => 'Username',
     'first_name' => 'نام',
@@ -37,6 +38,6 @@
     'designation' => 'تعیین',
     'delete' => 'حذف',
     'restore' => 'بازیابی',
-    'password_mismatch_error'=> 'گذرواژه و تایید رمز عبور مطابقت ندارند',
+    'password_mismatch_error' => 'گذرواژه و تایید رمز عبور مطابقت ندارند',
     'contact number' => 'شماره تماس',
 );

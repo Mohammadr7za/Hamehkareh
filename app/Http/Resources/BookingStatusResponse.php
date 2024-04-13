@@ -17,7 +17,8 @@ class BookingStatusResponse extends JsonResource
         return [
             "id" => $this->id,
             "value" => $this->value,
-            "label" => (__('messages.'.$this->value)),
+//            "label" => (__('messages.'.$this->value)),
+            "label" => $this->label,
             "status" => $this->status,
             "sequence" => $this->sequence,
             "created_at" => $this->created_at,

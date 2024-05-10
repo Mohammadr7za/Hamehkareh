@@ -622,8 +622,8 @@ class UserController extends Controller
 
         $message = __('messages.update_form', ['form' => __('messages.status')]);
         $response = [
-            'data' => new UserResource($user),
-            'message' => $message
+            'message' => $message,
+            'data' => new UserResource($user)
         ];
         return comman_custom_response($response);
     }

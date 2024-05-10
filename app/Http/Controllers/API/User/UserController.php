@@ -610,8 +610,8 @@ class UserController extends Controller
 
     public function handymanAvailable(Request $request)
     {
-        $user_id = $request->id;
-        $user = User::where('id', $user_id)->first();
+        $user_id = auth()->user()->id;
+        $user = User::where('id', $user_id)->firstOrFail();
 
         if ($user == "") {
             $message = __('messages.user_not_found');

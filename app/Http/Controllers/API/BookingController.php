@@ -238,7 +238,8 @@ class BookingController extends Controller
 
         if ($data['status'] === 'hold') {
             if ($bookingdata->start_at == null && $bookingdata->end_at == null) {
-                $duration_diff = $data['duration_diff'];
+                // TODO find what is duration_diff and why im setting null
+                $duration_diff = $data['duration_diff'] ?? null;
                 $data['duration_diff'] = $duration_diff;
             } else {
                 if ($bookingdata->status == $data['status']) {
@@ -252,9 +253,9 @@ class BookingController extends Controller
                     $duration_diff = $bookingdata->duration_diff;
 
                     if ($bookingdata->start_at != null && $bookingdata->end_at != null) {
-                        $new_diff = $data['duration_diff'];
+                        $new_diff = $data['duration_diff'] ?? null;
                     } else {
-                        $new_diff = $data['duration_diff'];
+                        $new_diff = $data['duration_diff'] ?? null;
                     }
                     $data['duration_diff'] = $duration_diff + $new_diff;
                 }

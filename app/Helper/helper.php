@@ -47,8 +47,8 @@ function sendSmsToUser($phoneNumbers, $message)
         $response2 = curl_exec($handler);
 
         $response2 = json_decode($response2);
-        $res_code = $response2[0];
-        $res_data = $response2[1];
+        $res_code = $response2[0] ?? null;
+        $res_data = $response2[1] ?? null;
 
         if ($res_code == 0) {
             return true;
@@ -57,6 +57,58 @@ function sendSmsToUser($phoneNumbers, $message)
 
     return false;
 }
+
+function sendOtpTokenSmsToUser($phoneNumbers, $token)
+{
+    try {
+        $username = config('constant.username_otp');
+        $password = config('constant.password_otp');
+        $from = config('constant.sms_send_number') ?? '+98event';
+        $pattern_code = "zgzl1li61zhvkhr";
+        $to = array($phoneNumbers);
+        $input_data = array("code" => $token);
+        $url = "https://ippanel.com/patterns/pattern?username=" . $username . "&password=" . urlencode($password) . "&from=$from&to=" . json_encode($to) . "&input_data=" . urlencode(json_encode($input_data)) . "&pattern_code=$pattern_code";
+        $handler = curl_init($url);
+        curl_setopt($handler, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($handler, CURLOPT_POSTFIELDS, $input_data);
+        curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($handler);
+
+        if ($response != null && $response > 0) {
+            return true;
+        }
+
+        return false;
+
+    } catch (Exception $exception) {
+        dd($exception);
+    }
+}
+function sendPasswordChangeSmsToUser($phoneNumbers)
+{
+    try {
+        $username = config('constant.username_otp');
+        $password = config('constant.password_otp');
+        $from = config('constant.sms_send_number') ?? '+98event';
+        $pattern_code = "dolfur0ucur7f88";
+        $to = array($phoneNumbers);
+        $url = "https://ippanel.com/patterns/pattern?username=" . $username . "&password=" . urlencode($password) . "&from=$from&to=" . json_encode($to) . "&pattern_code=$pattern_code";
+        $handler = curl_init($url);
+        curl_setopt($handler, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($handler);
+
+        if ($response != null && $response > 0) {
+            return true;
+        }
+
+        return false;
+
+    } catch (Exception $exception) {
+        dd($exception);
+    }
+}
+
 
 // NikSMS
 //function sendSmsToUser($phone, $message = "")
@@ -93,7 +145,7 @@ function comman_message_response($message, $status_code = 200, $isSuccess = true
 
 function generateOtpToken()
 {
-    return Random::generate(5, '0-9');
+    return Random::generate(5, '1-9');
     return 12345;
 }
 

@@ -420,14 +420,19 @@ class UserController extends Controller
 
         $user = User::where('contact_number', $mobile)->first();
         if ($user) {
+            if ($user->otp_token_expire_time >= Carbon::now()) {
+                return comman_message_response(['message' => __("کد امنیتی قبلا ارسال شده است لطفا صبر نمایید"), 'status' => true], 200, false);
+            }
 
             $token = generateOtpToken();
             $user->otp_token = $token;
             $user->otp_token_expire_time = Carbon::now()->addMinutes(env('OtpExpireTime'));
-            $message = "تست اپلیکیشن همه کاره\n";
-            $message .= "جهت تغییر کلمه عبور از کد امنیتی ذیل استفاده نمایید. \n";
-            $message .= $token;
-            $res = sendSmsToUser($user->contact_number, $message);
+
+//            $message = "تست اپلیکیشن همه کاره\n";
+//            $message .= "جهت تغییر کلمه عبور از کد امنیتی ذیل استفاده نمایید. \n";
+//            $message .= $token;
+
+            $res = sendOtpTokenSmsToUser($user->contact_number, $token);
             if ($res) {
                 $user->save();
                 return comman_message_response(['message' => __("کد امنیتی به شماره همراه شما ارسال شد"), 'status' => true], 200, true);
@@ -463,10 +468,13 @@ class UserController extends Controller
 
                     event(new PasswordReset($user));
 
-                    $message = "تست اپلیکیشن همه کاره\n";
-                    $message .= "کلمه عبور شما در اپلیکیشن همه کاره با موفقیت تغییر یافت";
-                    $res = sendSmsToUser($user->contact_number, $message);
-                    return comman_message_response(__("کلمه عبور با موفقیت تغییر یافت"), 200, true);
+//                    $message = "تست اپلیکیشن همه کاره\n";
+//                    $message .= "کلمه عبور شما در اپلیکیشن همه کاره با موفقیت تغییر یافت";
+                    $res = sendPasswordChangeSmsToUser($user->contact_number);
+                    if ($res) {
+                        return comman_message_response(__("کلمه عبور با موفقیت تغییر یافت"), 200, true);
+                    }
+                    return comman_message_response(__("خطایی رخ داده است"), 200, false);
                 }
             }
 

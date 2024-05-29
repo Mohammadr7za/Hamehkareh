@@ -66,8 +66,12 @@
         </div>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
+        // function playAlertSound() {
+        //     alert("salm");
+        // }
 
+        let refreshTime = {!! config('constant.dataTableRefreshTime') !!};
+        document.addEventListener('DOMContentLoaded', (event) => {
             window.renderedDataTable = $('#datatable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -158,6 +162,13 @@
 
 
             });
+
+            setInterval(function () {
+                window.renderedDataTable.ajax.reload();
+            }, refreshTime);
+
+            // playAlertSound(); // Implemented by you somewhere else.
+
         });
 
         function resetQuickAction() {
@@ -205,6 +216,7 @@
                 form.submit();
             }
         });
+
 
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>

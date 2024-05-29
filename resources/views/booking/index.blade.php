@@ -71,6 +71,8 @@
         // }
 
         let refreshTime = {!! config('constant.dataTableRefreshTime') !!};
+        let nowDate = new Date();
+
         document.addEventListener('DOMContentLoaded', (event) => {
             window.renderedDataTable = $('#datatable').DataTable({
                 processing: true,
@@ -158,9 +160,18 @@
                 order: [
 
                     [9, 'desc']
-                ]
+                ],
+                "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                    let rDate = new Date(aData['created_at']);
 
+                    let difference = nowDate.getTime() - rDate.getTime(); // This will give difference in milliseconds
+                    let resultInMinutes = Math.round(difference / 60000);
 
+                    // Show LightGreen Reservation if createdAt under 15 minutes
+                    if (resultInMinutes <= 15) {
+                        $('td', nRow).css('background-color', 'lightgreen');
+                    }
+                }
             });
 
             setInterval(function () {

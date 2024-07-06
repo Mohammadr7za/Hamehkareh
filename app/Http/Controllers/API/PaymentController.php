@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Payment;
 use App\Models\Booking;
@@ -55,19 +56,175 @@ class PaymentController extends Controller
                     $message = __('messages.wallent_balance_error');
                 }
             }
+        } else {
+            $message = __('messages.payment_completed');
+            $activity_data = [
+                'activity_type' => 'payment_message_status',
+                'payment_status' => str_replace("_", " ", ucfirst($data['payment_status'])),
+                'booking_id' => $booking->id,
+                'booking' => $booking,
+            ];
+            saveBookingActivity($activity_data);
+            if ($result->payment_status == 'failed') {
+                $isSuccess = false;
+            }
         }
-        $message = __('messages.payment_completed');
-        $activity_data = [
-            'activity_type' => 'payment_message_status',
-            'payment_status' => str_replace("_", " ", ucfirst($data['payment_status'])),
-            'booking_id' => $booking->id,
-            'booking' => $booking,
-        ];
-        saveBookingActivity($activity_data);
-        if ($result->payment_status == 'failed') {
-            $isSuccess = false;
-        }
+
         return comman_message_response($message, 200, $isSuccess);
+    }
+
+    // I Wrote this route for connect to zarinpal
+    public function addPayment(Request $request)
+    {
+        try {
+            $data = $request->all();
+            $data['datetime'] = isset($request->datetime) ? date('Y-m-d H:i:s', strtotime($request->datetime)) : date('Y-m-d H:i:s');
+            $booking = Booking::find($request->booking_id);
+
+            $data['customer_id'] = $booking->customer_id;
+            $booking->updateBookingPrice();
+            $data['total_amount'] = $booking->total_amount;
+            $data['discount'] = $booking->discount;
+            $payment = Payment::create($data);
+            if (!empty($payment) && $payment->payment_status == 'advanced_paid') {
+                $booking->advance_paid_amount = $request->advance_payment_amount;
+                $booking->status = 'pending';
+            }
+            $booking->payment_id = $payment->id;
+            // $booking->total_amount = $result->total_amount;
+            $booking->update();
+            $isSuccess = true;
+            $customer = User::where('id', $booking->customer_id)->firstOrFail();
+            if ($request->payment_type == 'wallet') {
+                $wallet = Wallet::where('user_id', $booking->customer_id)->first();
+                if ($wallet !== null) {
+                    $wallet_amount = $wallet->amount;
+                    if ($wallet_amount >= $booking->total_amount) {
+                        $wallet->amount = $wallet->amount - $booking->total_amount;
+                        $wallet->update();
+                        $activity_data = [
+                            'activity_type' => 'paid_for_booking',
+                            'wallet' => $wallet,
+                            'booking_id' => $booking->id,
+                            'booking_amount' => $booking->total_amount,
+                        ];
+
+                        saveWalletHistory($activity_data);
+
+                        return comman_message_response("پرداخت توسط کیف پول کاربر انجام گرفت");
+                    } else {
+                        $message = __('messages.wallent_balance_error');
+                        return comman_message_response($message, 410, false);
+                    }
+                }
+            } else {
+                $activity_data = [
+                    'activity_type' => 'payment_message_status',
+                    'payment_status' => 'pending',
+                    'booking_id' => $booking->id,
+                    'booking' => $booking,
+                ];
+                saveBookingActivity($activity_data);
+
+
+                $callBackUrl = route('payment.verification', ['payment' => $booking->payment_id]);
+
+                $description = json_encode([
+                    'payment_id' => $payment->id,
+                    'booking_id' => $booking->id,
+                    'customer_id' => $booking->customer_id
+                ]);
+                $response = zarinpal()
+                    ->merchantId(env('ZARINPAL_MERCHANT_ID')) // تعیین مرچنت کد در حین اجرا - اختیاری
+                    ->amount($payment->total_amount) // مبلغ تراکنش
+                    ->request()
+                    ->description($description) // توضیحات تراکنش
+                    ->callbackUrl($callBackUrl) // آدرس برگشت پس از پرداخت
+                    ->mobile($customer->contact_number) // شماره موبایل مشتری - اختیاری
+                    ->email($customer->email ?? '') // ایمیل مشتری - اختیاری
+                    ->send();
+
+                if (!$response->success()) {
+                    $payment->payment_status = 'failed';
+                    $payment->save();
+                    return comman_message_response("خطا در اتصال به درگاه پرداخت", 200, false, [
+                        'error' => $response->error()->message(),
+                    ]);
+                }
+
+// ذخیره اطلاعات در دیتابیس
+// $response->authority();
+
+// هدایت مشتری به درگاه پرداخت
+                $res = $response->redirect();
+                $targetUrl = $res->getTargetUrl();
+
+                return comman_message_response("لینک اتصال به درگاه پرداخت", 200, true, [
+                    'url' => $targetUrl,
+                ]);
+            }
+
+        } catch (\Exception $exception) {
+            return comman_message_response($exception->getMessage(), 400, false);
+        }
+
+    }
+
+    public function paymentVerification(Payment $payment)
+    {
+        try {
+            $message = __('messages.payment_completed');
+
+            $authority = request()->query('Authority'); // دریافت کوئری استرینگ ارسال شده توسط زرین پال
+            $status = request()->query('Status'); // دریافت کوئری استرینگ ارسال شده توسط زرین پال
+
+            $response = zarinpal()
+                ->merchantId(env('ZARINPAL_MERCHANT_ID')) // تعیین مرچنت کد در حین اجرا - اختیاری
+                ->amount($payment->total_amount)
+                ->verification()
+                ->authority($authority)
+                ->send();
+
+            if (!$response->success()) {
+                $activity_data = [
+                    'activity_type' => 'payment_message_status',
+                    'payment_status' => 'failed',
+                    'booking_id' => $payment->booking_id,
+                    'booking' => $payment->booking()->first(),
+                ];
+                saveBookingActivity($activity_data);
+                return $response->error()->message();
+            }
+
+// دریافت هش شماره کارتی که مشتری برای پرداخت استفاده کرده است
+// $response->cardHash();
+
+// دریافت شماره کارتی که مشتری برای پرداخت استفاده کرده است (بصورت ماسک شده)
+// $response->cardPan();
+
+// پرداخت موفقیت آمیز بود
+// دریافت شماره پیگیری تراکنش و انجام امور مربوط به دیتابیس
+            $referenceId = $response->referenceId();
+
+            $activity_data = [
+                'activity_type' => 'payment_message_status',
+                'payment_status' => 'paid',
+                'booking_id' => $payment->booking_id,
+                'booking' => $payment->booking()->first(),
+            ];
+
+            $payment->other_transaction_detail = "refrencedID: " . $referenceId;
+            $payment->save();
+            saveBookingActivity($activity_data);
+
+            return $referenceId;
+
+
+        } catch (\Exception $exception) {
+            dd($exception);
+            abort(403);
+        }
+
     }
 
     public function paymentList(Request $request)

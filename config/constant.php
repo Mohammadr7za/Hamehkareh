@@ -84,4 +84,5 @@ return [
     'password_otp' => env('PASSWORD_SMS_ACCOUNT'),
     'sms_send_number' => env('SEND_NUMBER_SMS_ACCOUNT'),
     'dataTableRefreshTime' => env('Data_Table_Refresh_Time') ?? 90000,
+
 ];

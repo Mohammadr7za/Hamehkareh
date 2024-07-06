@@ -188,6 +188,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('cash/approve/{id}', [PaymentController::class, 'cashApprove'])->name('cash.approve');
 
     Route::post('save-payment', [App\Http\Controllers\API\PaymentController::class, 'savePayment'])->name('payment.save');
+    Route::get('add-payment', [App\Http\Controllers\API\PaymentController::class, 'addPayment'])->name('payment.add');
+    Route::get('payment-verification/{payment}', [App\Http\Controllers\API\PaymentController::class, 'paymentVerification'])->name('payment.verification');
 
     Route::get('user-change-password', [CustomerController::class, 'getChangePassword'])->name('user.getchangepassword');
     Route::post('user-change-password', [CustomerController::class, 'changePassword'])->name('user.changepassword');

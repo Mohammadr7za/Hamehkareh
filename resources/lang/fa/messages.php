@@ -470,7 +470,7 @@ return [
     'transfer_booking' => 'رزرو انتقال',
     'update_booking_status' => 'به روز رسانی وضعیت رزرو',
     'cancel_booking' => 'لغو رزرو',
-    'payment_message_status' => 'وضعیت پیام پرداخت',
+    'payment_message_status' => 'وضعیت پرداخت',
     'extra_charge' => 'هزینه های اضافی',
     'collect_cash' => 'جمع آوری وجه نقد از نمایندگی',
     'bank_name' => 'نام بانک',

@@ -85,6 +85,12 @@ class PaymentController extends Controller
             $booking->updateBookingPrice();
             $data['total_amount'] = $booking->total_amount;
             $data['discount'] = $booking->discount;
+
+
+            if ($booking->payment()->where('payment_status', 'paid')->count() > 0) {
+                return comman_message_response("این درخواست رزرو قبلا پرداخت شده است", 400, false);
+            }
+
             $payment = Payment::create($data);
             if (!empty($payment) && $payment->payment_status == 'advanced_paid') {
                 $booking->advance_paid_amount = $request->advance_payment_amount;
@@ -150,18 +156,23 @@ class PaymentController extends Controller
                     return comman_message_response("خطا در اتصال به درگاه پرداخت", 200, false, [
                         'error' => $response->error()->message(),
                     ]);
-                }
-
-// ذخیره اطلاعات در دیتابیس
+                } else {
+                    $payment->payment_status = 'pending';
+                    // ذخیره اطلاعات در دیتابیس
 // $response->authority();
 
 // هدایت مشتری به درگاه پرداخت
-                $res = $response->redirect();
-                $targetUrl = $res->getTargetUrl();
+                    $res = $response->redirect();
+                    $targetUrl = $res->getTargetUrl();
 
-                return comman_message_response("لینک اتصال به درگاه پرداخت", 200, true, [
-                    'url' => $targetUrl,
-                ]);
+
+                    $payment->save();
+
+
+                    return comman_message_response("لینک اتصال به درگاه پرداخت", 200, true, [
+                        'url' => $targetUrl,
+                    ]);
+                }
             }
 
         } catch (\Exception $exception) {
@@ -193,10 +204,13 @@ class PaymentController extends Controller
                     'booking' => $payment->booking()->first(),
                 ];
                 saveBookingActivity($activity_data);
-                return $response->error()->message();
-            }
-
-// دریافت هش شماره کارتی که مشتری برای پرداخت استفاده کرده است
+                $message = $response->error()->message();
+                $success = false;
+                $payment->other_transaction_detail = "authority: " . $authority;
+                $payment->payment_status = "failed";
+            } else {
+                $success = true;
+                // دریافت هش شماره کارتی که مشتری برای پرداخت استفاده کرده است
 // $response->cardHash();
 
 // دریافت شماره کارتی که مشتری برای پرداخت استفاده کرده است (بصورت ماسک شده)
@@ -204,24 +218,29 @@ class PaymentController extends Controller
 
 // پرداخت موفقیت آمیز بود
 // دریافت شماره پیگیری تراکنش و انجام امور مربوط به دیتابیس
-            $referenceId = $response->referenceId();
+                $referenceId = $response->referenceId();
 
-            $activity_data = [
-                'activity_type' => 'payment_message_status',
-                'payment_status' => 'paid',
-                'booking_id' => $payment->booking_id,
-                'booking' => $payment->booking()->first(),
-            ];
+                $activity_data = [
+                    'activity_type' => 'payment_message_status',
+                    'payment_status' => 'paid',
+                    'booking_id' => $payment->booking_id,
+                    'booking' => $payment->booking()->first(),
+                ];
 
-            $payment->other_transaction_detail = "refrencedID: " . $referenceId;
+                $payment->other_transaction_detail = "refrencedID: " . $referenceId;
+                $payment->payment_status = "paid";
+
+                saveBookingActivity($activity_data);
+
+            }
+
             $payment->save();
-            saveBookingActivity($activity_data);
 
-            return $referenceId;
+            $code = $payment->id;
+            return view('payment.callback', compact('message', 'code', 'success'));
 
 
         } catch (\Exception $exception) {
-            dd($exception);
             abort(403);
         }
 

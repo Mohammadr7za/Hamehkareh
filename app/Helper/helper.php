@@ -84,6 +84,7 @@ function sendOtpTokenSmsToUser($phoneNumbers, $token)
         dd($exception);
     }
 }
+
 function sendPasswordChangeSmsToUser($phoneNumbers)
 {
     try {
@@ -416,7 +417,7 @@ function saveBookingActivity($data)
         case "payment_message_status" :
             $data['activity_type'] = __('messages.payment_message_status');
 
-            $data['activity_message'] = __('messages.payment_message', ['status' => $data['payment_status']]);
+            $data['activity_message'] = __('messages.payment_message', ['status' => __('messages.' . $data['payment_status'])]);
 
             $activity_data = [
                 'activity_type' => $data['activity_type'],

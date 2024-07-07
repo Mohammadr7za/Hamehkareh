@@ -177,7 +177,7 @@ return [
     'razorpay' => 'Razorpay',
     'left' => 'چپ',
     'راست' => 'درست',
-    'pending' => 'در انتظار',
+    'pending' => 'منتظر',
     'paid' => 'پرداخت شده',
     'failed' => 'شکست خورد',
     'refunded' => 'بازپرداخت شده',

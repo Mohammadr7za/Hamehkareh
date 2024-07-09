@@ -78,7 +78,7 @@ class PaymentController extends Controller
     {
         try {
             $data = $request->all();
-            $data['datetime'] = isset($request->datetime) ? date('Y-m-d H:i:s', strtotime($request->datetime)) : date('Y-m-d H:i:s');
+            $data['datetime'] = date('Y-m-d H:i:s');
             $booking = Booking::find($request->booking_id);
 
             $data['customer_id'] = $booking->customer_id;
@@ -152,12 +152,14 @@ class PaymentController extends Controller
 
                 if (!$response->success()) {
                     $payment->payment_status = 'failed';
+                    $payment->other_transaction_detail = $payment->other_transaction_detail . '\\n failed occurred at: ' . date('Y-m-d H:i:s');
                     $payment->save();
                     return comman_message_response("خطا در اتصال به درگاه پرداخت", 200, false, [
                         'error' => $response->error()->message(),
                     ]);
                 } else {
                     $payment->payment_status = 'pending';
+                    $payment->other_transaction_detail = $payment->other_transaction_detail . '\\n pending to pay at: ' . date('Y-m-d H:i:s');
                     // ذخیره اطلاعات در دیتابیس
 // $response->authority();
 
@@ -175,10 +177,10 @@ class PaymentController extends Controller
                 }
             }
 
+            return comman_message_response('خطا', 400, false);
         } catch (\Exception $exception) {
             return comman_message_response($exception->getMessage(), 400, false);
         }
-
     }
 
     public function paymentVerification(Payment $payment)
@@ -206,7 +208,7 @@ class PaymentController extends Controller
                 saveBookingActivity($activity_data);
                 $message = $response->error()->message();
                 $success = false;
-                $payment->other_transaction_detail = "authority: " . $authority;
+                $payment->other_transaction_detail = $payment->other_transaction_detail . "\\n authority: " . $authority . " at: " . date('Y-m-d H:i:s');
                 $payment->payment_status = "failed";
             } else {
                 $success = true;
@@ -227,7 +229,7 @@ class PaymentController extends Controller
                     'booking' => $payment->booking()->first(),
                 ];
 
-                $payment->other_transaction_detail = "refrencedID: " . $referenceId;
+                $payment->other_transaction_detail = $payment->other_transaction_detail . "\\n refrencedID: " . $referenceId;
                 $payment->payment_status = "paid";
 
                 saveBookingActivity($activity_data);

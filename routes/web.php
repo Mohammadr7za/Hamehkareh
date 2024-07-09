@@ -187,7 +187,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('paymenthistory-index-data/{id}', [PaymentController::class, 'paymenthistory_index_data'])->name('paymenthistory.index_data');
     Route::get('cash/approve/{id}', [PaymentController::class, 'cashApprove'])->name('cash.approve');
 
-    Route::post('save-payment', [App\Http\Controllers\API\PaymentController::class, 'savePayment'])->name('payment.save');
+//    Route::post('save-payment', [App\Http\Controllers\API\PaymentController::class, 'savePayment'])->name('payment.save');
     Route::get('add-payment', [App\Http\Controllers\API\PaymentController::class, 'addPayment'])->name('payment.add');
     Route::get('payment-verification/{payment}', [App\Http\Controllers\API\PaymentController::class, 'paymentVerification'])->name('payment.verification');
 

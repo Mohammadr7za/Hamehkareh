@@ -142,6 +142,51 @@ class Booking extends Model
         return $query;
     }
 
+    public function scopeAllMyBooking($query)
+    {
+        $user = auth()->user();
+        if ($user->hasRole('admin') || $user->hasRole('manager')) {
+            return $query;
+        }
+
+        $query
+            ->OrWhere('provider_id', $user->id)
+            ->OrWhere('customer_id', $user->id)
+            ->OrWhereHas('handymanAdded', function ($q) use ($user) {
+                $q->where('handyman_id', $user->id);
+            });
+
+        return $query;
+    }
+
+    public function scopeUserBooking($query)
+    {
+        $user = auth()->user();
+
+        $query->where('customer_id', $user->id);
+
+        return $query;
+    }
+
+    public function scopeProviderBooking($query)
+    {
+        $user = auth()->user();
+
+        $query->where('provider_id', $user->id);
+
+        return $query;
+    }
+
+    public function scopeHandymanBooking($query)
+    {
+        $user = auth()->user();
+
+        $query->whereHas('handymanAdded', function ($q) use ($user) {
+            $q->where('handyman_id', $user->id);
+        });
+        return $query;
+    }
+
     public function categoryService()
     {
         return $this->belongsTo(Service::class, 'service_id', 'id')->with('category');

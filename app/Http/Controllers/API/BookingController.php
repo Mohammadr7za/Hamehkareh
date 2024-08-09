@@ -101,6 +101,290 @@ class BookingController extends Controller
 
         return comman_custom_response($response);
     }
+    public function getAllBookingList(Request $request)
+    {
+        $booking = Booking::allMyBooking()->with('customer', 'provider', 'service');
+
+        // if($request->has('status') && isset($request->status)){
+        //     $booking->where('status',$request->status);
+        // }
+
+        if ($request->has('status') && isset($request->status)) {
+
+            $status = explode(',', $request->status);
+            $booking->whereIn('status', $status);
+
+        }
+
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $booking->where(function ($query) use ($search) {
+                $query->where('id', 'LIKE', "%$search%")
+                    ->orWhereHas('service', function ($serviceQuery) use ($search) {
+                        $serviceQuery->where('name', 'LIKE', "%$search%");
+                    })
+                    ->orWhereHas('provider', function ($providerQuery) use ($search) {
+                        $providerQuery->where(function ($nameQuery) use ($search) {
+                            $nameQuery->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
+                                ->orWhere('email', 'LIKE', "%$search");
+                        });
+                    })
+                    ->orWhereHas('customer', function ($userQuery) use ($search) {
+                        $userQuery->where(function ($nameQuery) use ($search) {
+                            $nameQuery->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
+                                ->orWhere('email', 'LIKE', "%$search");
+                        });
+                    });
+            });
+        }
+
+
+        $per_page = config('constant.PER_PAGE_LIMIT');
+        if ($request->has('per_page') && !empty($request->per_page)) {
+            if (is_numeric($request->per_page)) {
+                $per_page = $request->per_page;
+            }
+            if ($request->per_page === 'all') {
+                $per_page = $booking->count();
+            }
+        }
+        $orderBy = 'desc';
+        if ($request->has('orderby') && !empty($request->orderby)) {
+            $orderBy = $request->orderby;
+        }
+
+        $booking = $booking->orderBy('updated_at', $orderBy)->paginate($per_page);
+        $items = BookingResource::collection($booking);
+
+        $response = [
+            'pagination' => [
+                'total_items' => $items->total(),
+                'per_page' => $items->perPage(),
+                'currentPage' => $items->currentPage(),
+                'totalPages' => $items->lastPage(),
+                'from' => $items->firstItem(),
+                'to' => $items->lastItem(),
+                'next_page' => $items->nextPageUrl(),
+                'previous_page' => $items->previousPageUrl(),
+            ],
+            'data' => $items,
+        ];
+
+        return comman_custom_response($response);
+    }
+    public function getUserBookingList(Request $request)
+    {
+        $booking = Booking::userBooking()->with('customer', 'provider', 'service');
+
+        // if($request->has('status') && isset($request->status)){
+        //     $booking->where('status',$request->status);
+        // }
+
+        if ($request->has('status') && isset($request->status)) {
+
+            $status = explode(',', $request->status);
+            $booking->whereIn('status', $status);
+
+        }
+
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $booking->where(function ($query) use ($search) {
+                $query->where('id', 'LIKE', "%$search%")
+                    ->orWhereHas('service', function ($serviceQuery) use ($search) {
+                        $serviceQuery->where('name', 'LIKE', "%$search%");
+                    })
+                    ->orWhereHas('provider', function ($providerQuery) use ($search) {
+                        $providerQuery->where(function ($nameQuery) use ($search) {
+                            $nameQuery->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
+                                ->orWhere('email', 'LIKE', "%$search");
+                        });
+                    })
+                    ->orWhereHas('customer', function ($userQuery) use ($search) {
+                        $userQuery->where(function ($nameQuery) use ($search) {
+                            $nameQuery->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
+                                ->orWhere('email', 'LIKE', "%$search");
+                        });
+                    });
+            });
+        }
+
+
+        $per_page = config('constant.PER_PAGE_LIMIT');
+        if ($request->has('per_page') && !empty($request->per_page)) {
+            if (is_numeric($request->per_page)) {
+                $per_page = $request->per_page;
+            }
+            if ($request->per_page === 'all') {
+                $per_page = $booking->count();
+            }
+        }
+        $orderBy = 'desc';
+        if ($request->has('orderby') && !empty($request->orderby)) {
+            $orderBy = $request->orderby;
+        }
+
+        $booking = $booking->orderBy('updated_at', $orderBy)->paginate($per_page);
+        $items = BookingResource::collection($booking);
+
+        $response = [
+            'pagination' => [
+                'total_items' => $items->total(),
+                'per_page' => $items->perPage(),
+                'currentPage' => $items->currentPage(),
+                'totalPages' => $items->lastPage(),
+                'from' => $items->firstItem(),
+                'to' => $items->lastItem(),
+                'next_page' => $items->nextPageUrl(),
+                'previous_page' => $items->previousPageUrl(),
+            ],
+            'data' => $items,
+        ];
+
+        return comman_custom_response($response);
+    }
+    public function getProviderBookingList(Request $request)
+    {
+        $booking = Booking::providerBooking()->with('customer', 'provider', 'service');
+
+        // if($request->has('status') && isset($request->status)){
+        //     $booking->where('status',$request->status);
+        // }
+
+        if ($request->has('status') && isset($request->status)) {
+
+            $status = explode(',', $request->status);
+            $booking->whereIn('status', $status);
+
+        }
+
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $booking->where(function ($query) use ($search) {
+                $query->where('id', 'LIKE', "%$search%")
+                    ->orWhereHas('service', function ($serviceQuery) use ($search) {
+                        $serviceQuery->where('name', 'LIKE', "%$search%");
+                    })
+                    ->orWhereHas('provider', function ($providerQuery) use ($search) {
+                        $providerQuery->where(function ($nameQuery) use ($search) {
+                            $nameQuery->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
+                                ->orWhere('email', 'LIKE', "%$search");
+                        });
+                    })
+                    ->orWhereHas('customer', function ($userQuery) use ($search) {
+                        $userQuery->where(function ($nameQuery) use ($search) {
+                            $nameQuery->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
+                                ->orWhere('email', 'LIKE', "%$search");
+                        });
+                    });
+            });
+        }
+
+
+        $per_page = config('constant.PER_PAGE_LIMIT');
+        if ($request->has('per_page') && !empty($request->per_page)) {
+            if (is_numeric($request->per_page)) {
+                $per_page = $request->per_page;
+            }
+            if ($request->per_page === 'all') {
+                $per_page = $booking->count();
+            }
+        }
+        $orderBy = 'desc';
+        if ($request->has('orderby') && !empty($request->orderby)) {
+            $orderBy = $request->orderby;
+        }
+
+        $booking = $booking->orderBy('updated_at', $orderBy)->paginate($per_page);
+        $items = BookingResource::collection($booking);
+
+        $response = [
+            'pagination' => [
+                'total_items' => $items->total(),
+                'per_page' => $items->perPage(),
+                'currentPage' => $items->currentPage(),
+                'totalPages' => $items->lastPage(),
+                'from' => $items->firstItem(),
+                'to' => $items->lastItem(),
+                'next_page' => $items->nextPageUrl(),
+                'previous_page' => $items->previousPageUrl(),
+            ],
+            'data' => $items,
+        ];
+
+        return comman_custom_response($response);
+    }
+    public function getHandymanBookingList(Request $request)
+    {
+        $booking = Booking::handymanBooking()->with('customer', 'provider', 'service');
+
+        // if($request->has('status') && isset($request->status)){
+        //     $booking->where('status',$request->status);
+        // }
+
+        if ($request->has('status') && isset($request->status)) {
+
+            $status = explode(',', $request->status);
+            $booking->whereIn('status', $status);
+
+        }
+
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $booking->where(function ($query) use ($search) {
+                $query->where('id', 'LIKE', "%$search%")
+                    ->orWhereHas('service', function ($serviceQuery) use ($search) {
+                        $serviceQuery->where('name', 'LIKE', "%$search%");
+                    })
+                    ->orWhereHas('provider', function ($providerQuery) use ($search) {
+                        $providerQuery->where(function ($nameQuery) use ($search) {
+                            $nameQuery->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
+                                ->orWhere('email', 'LIKE', "%$search");
+                        });
+                    })
+                    ->orWhereHas('customer', function ($userQuery) use ($search) {
+                        $userQuery->where(function ($nameQuery) use ($search) {
+                            $nameQuery->whereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%$search%"])
+                                ->orWhere('email', 'LIKE', "%$search");
+                        });
+                    });
+            });
+        }
+
+
+        $per_page = config('constant.PER_PAGE_LIMIT');
+        if ($request->has('per_page') && !empty($request->per_page)) {
+            if (is_numeric($request->per_page)) {
+                $per_page = $request->per_page;
+            }
+            if ($request->per_page === 'all') {
+                $per_page = $booking->count();
+            }
+        }
+        $orderBy = 'desc';
+        if ($request->has('orderby') && !empty($request->orderby)) {
+            $orderBy = $request->orderby;
+        }
+
+        $booking = $booking->orderBy('updated_at', $orderBy)->paginate($per_page);
+        $items = BookingResource::collection($booking);
+
+        $response = [
+            'pagination' => [
+                'total_items' => $items->total(),
+                'per_page' => $items->perPage(),
+                'currentPage' => $items->currentPage(),
+                'totalPages' => $items->lastPage(),
+                'from' => $items->firstItem(),
+                'to' => $items->lastItem(),
+                'next_page' => $items->nextPageUrl(),
+                'previous_page' => $items->previousPageUrl(),
+            ],
+            'data' => $items,
+        ];
+
+        return comman_custom_response($response);
+    }
 
     public function getBookingDetail(Request $request)
     {

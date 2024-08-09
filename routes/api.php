@@ -92,6 +92,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('provider-dashboard', [API\DashboardController::class, 'providerDashboard']);
     Route::get('admin-dashboard', [API\DashboardController::class, 'adminDashboard']);
     Route::get('booking-list', [API\BookingController::class, 'getBookingList']);
+    Route::get('all-booking-list', [API\BookingController::class, 'getAllBookingList']);
+    Route::get('user-booking-list', [API\BookingController::class, 'getUserBookingList']);
+    Route::get('provider-booking-list', [API\BookingController::class, 'getProviderBookingList']);
+    Route::get('handyman-booking-list', [API\BookingController::class, 'getHandymanBookingList']);
     Route::post('booking-detail', [API\BookingController::class, 'getBookingDetail']);
     Route::post('save-booking-rating', [API\BookingController::class, 'saveBookingRating']);
     Route::post('delete-booking-rating', [API\BookingController::class, 'deleteBookingRating']);

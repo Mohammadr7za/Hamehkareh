@@ -358,7 +358,7 @@ function saveBookingActivity($data)
                 'provider_id' => $data['booking']->provider_id,
                 'provider_name' => isset($data['booking']->provider) ? $data['booking']->provider->display_name : '',
             ];
-            $sendTo = ['admin', 'provider'];
+            $sendTo = ['provider'];
             break;
 
         case "assigned_booking":
@@ -399,7 +399,7 @@ function saveBookingActivity($data)
                 'old_status_label' => $old_status,
             ];
 
-            $sendTo = removeArrayValue(['admin', 'provider', 'handyman', 'user'], $role);
+            $sendTo = removeArrayValue(['provider', 'handyman', 'user'], $role);
             break;
         case "cancel_booking":
             $status = \App\Models\BookingStatus::bookingStatus($data['booking']->status);
@@ -412,7 +412,9 @@ function saveBookingActivity($data)
                 'status' => $data['booking']->status,
                 'status_label' => \App\Models\BookingStatus::bookingStatus($data['booking']->status),
             ];
-            $sendTo = removeArrayValue(['admin', 'provider', 'handyman', 'user'], $role);
+//            $sendTo = removeArrayValue(['admin', 'provider', 'handyman', 'user'], $role); // remove admin notificatino with sms
+
+            $sendTo = removeArrayValue(['provider', 'handyman', 'user'], $role);
             break;
         case "payment_message_status" :
             $data['activity_type'] = __('messages.payment_message_status');
@@ -424,7 +426,7 @@ function saveBookingActivity($data)
                 'payment_status' => $data['payment_status'],
                 'booking_id' => $data['booking_id'],
             ];
-            $sendTo = ['user'];
+            $sendTo = ['handyman', 'user'];
             break;
 
         default :

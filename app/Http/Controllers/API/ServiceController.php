@@ -32,6 +32,12 @@ class ServiceController extends Controller
     public function getServiceList(Request $request)
     {
 
+        $user = auth()->user();
+
+        if (!$user) {
+            abort(401);
+        }
+
         $service = Service::where('service_type', 'service')->with(['providers', 'category', 'serviceRating'])->orderBy('created_at', 'desc');
 
 
@@ -40,7 +46,7 @@ class ServiceController extends Controller
         $service = $service->whereNotIn('category_id', $category);
 
 
-        if (auth()->user() !== null && auth()->user()->hasRole('admin')) {
+        if ($user !== null && $user->hasRole('admin')) {
             $service = $service->withTrashed();
         } elseif (auth()->user() !== null && auth()->user()->hasRole('provider')) {
             $service = $service;
@@ -82,11 +88,13 @@ class ServiceController extends Controller
         if ($request->has('is_price_min') && $request->is_price_min != '' || $request->has('is_price_max') && $request->is_price_max != '') {
             $service->whereBetween('price', [$request->is_price_min, $request->is_price_max]);
         }
-        if ($request->has('city_id')) {
-            $service->whereHas('providers', function ($a) use ($request) {
-                $a->where('city_id', $request->city_id);
-            });
-        }
+
+        // add city id from authentication user
+//        if ($request->has('city_id')) {
+        $service->whereHas('providers', function ($a) use ($user) {
+            $a->where('city_id', $user->city_id);
+        });
+//        }
 
         if ($request->has('provider_id') && $request->provider_id != '') {
             $service->whereHas('providers', function ($a) use ($request) {
@@ -166,6 +174,10 @@ class ServiceController extends Controller
 
     public function getServiceListCombo(Request $request)
     {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401);
+        }
 
         $service = Service::where('service_type', 'service')->with(['providers', 'category', 'serviceRating'])
             ->orderBy('created_at', 'desc');
@@ -218,11 +230,12 @@ class ServiceController extends Controller
         if ($request->has('is_price_min') && $request->is_price_min != '' || $request->has('is_price_max') && $request->is_price_max != '') {
             $service->whereBetween('price', [$request->is_price_min, $request->is_price_max]);
         }
-        if ($request->has('city_id')) {
-            $service->whereHas('providers', function ($a) use ($request) {
-                $a->where('city_id', $request->city_id);
-            });
-        }
+
+//        if ($request->has('city_id')) {
+        $service->whereHas('providers', function ($a) use ($user) {
+            $a->where('city_id', $user->city_id);
+        });
+//        }
 
         if ($request->has('provider_id') && $request->provider_id != '') {
             $service->whereHas('providers', function ($a) use ($request) {
@@ -302,6 +315,11 @@ class ServiceController extends Controller
 
     public function getServiceListComboBaseOnCategories(Request $request)
     {
+        $user = auth()->user();
+        if (!$user) {
+            abort(401);
+        }
+
         $service = Service::where('service_type', 'service')->with(['providers', 'category', 'serviceRating'])
             ->orderBy('created_at', 'desc');
 
@@ -351,11 +369,12 @@ class ServiceController extends Controller
         if ($request->has('is_price_min') && $request->is_price_min != '' || $request->has('is_price_max') && $request->is_price_max != '') {
             $service->whereBetween('price', [$request->is_price_min, $request->is_price_max]);
         }
-        if ($request->has('city_id')) {
-            $service->whereHas('providers', function ($a) use ($request) {
-                $a->where('city_id', $request->city_id);
-            });
-        }
+
+//        if ($request->has('city_id')) {
+        $service->whereHas('providers', function ($a) use ($user) {
+            $a->where('city_id', $user->city_id);
+        });
+//        }
 
         if ($request->has('provider_id') && $request->provider_id != '') {
             $service->whereHas('providers', function ($a) use ($request) {

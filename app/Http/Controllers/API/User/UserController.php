@@ -320,7 +320,7 @@ class UserController extends Controller
     public function updateProfile(Request $request)
     {
         $user = \Auth::user();
-        if ($request->has('id') && !empty($request->id)) {
+        if ($request->has('id') && !empty($request->id) && $user->hasRole('admin')) {
             $user = User::where('id', $request->id)->first();
         }
         if ($user == null) {

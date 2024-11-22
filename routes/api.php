@@ -27,9 +27,7 @@ require __DIR__ . '/admin-api.php';
 Route::get('category-list', [API\CategoryController::class, 'getCategoryList']);
 //Route::get('category-full-list', [API\CategoryController::class, 'getCategoryFullList']);
 Route::get('subcategory-list', [API\SubCategoryController::class, 'getSubCategoryList']);
-Route::get('service-list', [API\ServiceController::class, 'getServiceList']);
-Route::get('service-list-combo', [API\ServiceController::class, 'getServiceListCombo']);
-Route::get('categories-service-list-combo', [API\ServiceController::class, 'getServiceListComboBaseOnCategories']);
+
 Route::get('type-list', [API\CommanController::class, 'getTypeList']);
 Route::get('blog-list', [API\BlogController::class, 'getBlogList']);
 Route::post('blog-detail', [API\BlogController::class, 'getBlogDetail']);
@@ -84,6 +82,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::resource('upload-files', Controllers\WorkSampleController::class)->middleware('optimizeImages');
     Route::get('upload-files/user/{id}', [Controllers\WorkSampleController::class,'getWorkSamplesByUserId']);
+
+    Route::get('service-list', [API\ServiceController::class, 'getServiceList']);
+    Route::get('service-list-combo', [API\ServiceController::class, 'getServiceListCombo']);
+    Route::get('categories-service-list-combo', [API\ServiceController::class, 'getServiceListComboBaseOnCategories']);
 
     Route::post('service-save', [App\Http\Controllers\ServiceController::class, 'store']);
     Route::post('service-delete/{id}', [App\Http\Controllers\ServiceController::class, 'destroy']);

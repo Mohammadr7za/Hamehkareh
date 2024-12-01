@@ -24,7 +24,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 */
 require __DIR__ . '/admin-api.php';
 
-Route::get('category-list', [API\CategoryController::class, 'getCategoryList']);
 //Route::get('category-full-list', [API\CategoryController::class, 'getCategoryFullList']);
 Route::get('subcategory-list', [API\SubCategoryController::class, 'getSubCategoryList']);
 
@@ -79,6 +78,8 @@ Route::post('service-reviews', [API\ServiceController::class, 'serviceReviewsLis
 Route::get('post-job-status', [API\PostJobRequestController::class, 'postRequestStatus']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
+
+    Route::get('category-list', [API\CategoryController::class, 'getCategoryList']);
 
     Route::resource('upload-files', Controllers\WorkSampleController::class)->middleware('optimizeImages');
     Route::get('upload-files/user/{id}', [Controllers\WorkSampleController::class,'getWorkSamplesByUserId']);

@@ -41,7 +41,7 @@ use App\Http\Controllers\TaxController;
 use App\Http\Controllers\UserServiceListController;
 use App\Http\Controllers\WalletController;
 use Illuminate\Support\Facades\Route;
-
+use App\Models\Payment;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +56,14 @@ use Illuminate\Support\Facades\Route;
 
 
 require __DIR__ . '/auth.php';
+
+// Route::get('payment-verification/{payment}', function(Payment $payment){
+//     dd($payment);
+    
+// } )->name('payment.verification');
+
+Route::get('payment-verification/{payment}', [App\Http\Controllers\API\PaymentController::class, 'paymentVerification'])->name('payment.verification');
+
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
 Route::get('request_provider', [\App\Http\Controllers\RequestProviderController::class, 'index'])->name('requestProvider');
 Route::post('request_provider', [RequestProviderController::class, 'store'])->name('requestProvider');
@@ -189,7 +197,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 
 //    Route::post('save-payment', [App\Http\Controllers\API\PaymentController::class, 'savePayment'])->name('payment.save');
     Route::get('add-payment', [App\Http\Controllers\API\PaymentController::class, 'addPayment'])->name('payment.add');
-    Route::get('payment-verification/{payment}', [App\Http\Controllers\API\PaymentController::class, 'paymentVerification'])->name('payment.verification');
+    
 
     Route::get('user-change-password', [CustomerController::class, 'getChangePassword'])->name('user.getchangepassword');
     Route::post('user-change-password', [CustomerController::class, 'changePassword'])->name('user.changepassword');

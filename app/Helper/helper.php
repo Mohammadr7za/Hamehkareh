@@ -1,7 +1,6 @@
 <?php
 
-use App\Helper\SendSMS;
-use \Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\File;
 use Nette\Utils\Random;
 
 function authSession($force = false)
@@ -343,7 +342,7 @@ function saveBookingActivity($data)
     $admin = \App\Models\AppSetting::first();
     date_default_timezone_set($admin->time_zone ?? 'UTC');
     $data['datetime'] = date('Y-m-d H:i:s');
-    $role = auth()->user()->user_type;
+    $role = auth()->user()->user_type ?? $data['userType'] ?? 'user';
     switch ($data['activity_type']) {
         case "add_booking":
             $customer_name = $data['booking']->customer->display_name;
@@ -1522,7 +1521,10 @@ function sendNotification($type, $user, $data)
         $message = $data['subject'] ?? '';
         $message .= " \n ";
         $message .= $data['message'] ?? '';
-        sendSmsToUser($user->contact_number, $message);
+
+        if ($data['type'] != 'به روز رسانی وضعیت رزرو') {
+            sendSmsToUser($user->contact_number, $message);
+        }
     }
 
     $childData = array(

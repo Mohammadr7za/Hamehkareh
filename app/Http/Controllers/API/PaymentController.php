@@ -183,7 +183,7 @@ class PaymentController extends Controller
         }
     }
 
-    public function paymentVerification(Payment $payment)
+   public function paymentVerification(Payment $payment)
     {
         try {
             $message = __('messages.payment_completed');
@@ -198,6 +198,7 @@ class PaymentController extends Controller
                 ->authority($authority)
                 ->send();
 
+$booking = $payment->booking()->first();
             if (!$response->success()) {
                 $activity_data = [
                     'activity_type' => 'payment_message_status',
@@ -226,12 +227,16 @@ class PaymentController extends Controller
                     'activity_type' => 'payment_message_status',
                     'payment_status' => 'paid',
                     'booking_id' => $payment->booking_id,
+                    'cardPan' => $response->cardPan(),
+                    'cardHash' => $response->cardHash(),
                     'booking' => $payment->booking()->first(),
+                    'userType' => 'user'
                 ];
 
                 $payment->other_transaction_detail = $payment->other_transaction_detail . "\\n refrencedID: " . $referenceId;
                 $payment->payment_status = "paid";
-
+                $booking->status = "paid";
+                $booking->save();
                 saveBookingActivity($activity_data);
 
             }
@@ -243,6 +248,7 @@ class PaymentController extends Controller
 
 
         } catch (\Exception $exception) {
+            dd($exception);
             abort(403);
         }
 

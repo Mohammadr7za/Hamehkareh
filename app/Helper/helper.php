@@ -1724,48 +1724,61 @@ function bookingstatus($status)
 //    $statusName = __('messages.' . $status);
     $statusName = $status;
     switch ($status) {
-        case 'Pending':
+        case 'pending':
             $html = '<span class="badge badge-warning ">' . $statusName . '</span>';
 
             break;
 
-        case 'Accepted':
+        case 'accepted':
+        case 'accept':
             $html = '<span class="badge badge-primary">' . $statusName . '</span>';
 
             break;
 
 
-        case 'Ongoing':
+        case 'ongoing':
+        case 'on_going':
             $html = '<span class="badge badge-warning">' . $statusName . '</span>';
 
             break;
 
-        case 'In Progress':
+        case 'in_progress':
+        case 'inprogress':
             $html = '<span class="badge badge-info">' . $statusName . '</span>';
 
             break;
 
-        case 'Hold':
+        case 'hold':
             $html = '<span class="badge badge-dark text-white">' . $statusName . '</span>';
 
             break;
 
-        case 'Cancelled':
+        case 'cancelled':
+        case 'cancel':
             $html = '<span class="badge badge-light">' . $statusName . '</span>';
 
             break;
 
-        case 'Rejected':
+        case 'rejected':
+        case 'reject':
+        case 'fail':
+        case 'failed':
+        case 'pending_approval':
+        case 'pending approval':
             $html = '<span class="badge badge-light">' . $statusName . '</span>';
 
             break;
 
-        case 'Completed':
+        case 'completed':
+        case 'complete':
+        case 'paid':
+        case 'waiting':
             $html = '<span class="badge badge-success">' . $statusName . '</span>';
 
             break;
 
         case 'بلاتکلیف':
+        case 'در انتظار پرداخت':
             $html = '<span class="badge badge-warning ">' . $statusName . '</span>';
 
             break;
@@ -1777,8 +1790,7 @@ function bookingstatus($status)
 
 
         case 'در حال حرکت':
-            $html = '<span class="badge badge-warning">' . $statusName . '</span>';
-
+            $html = '<span class="badge badge-primary">' . $statusName . '</span>';
             break;
 
         case 'در حال انجام':
@@ -1810,12 +1822,15 @@ function bookingstatus($status)
             $html = '<span class="badge badge-success">' . $statusName . '</span>';
 
             break;
-        case 'در انتظار تایید':
-            $html = '<span class="badge badge-success">' . $statusName . '</span>';
 
-            break;
-        case 'در حال انتظار':
+        case 'تایید شده':
+        case 'پرداخت شده':
             $html = '<span class="badge badge-success">' . $statusName . '</span>';
+            break;
+
+        case 'در انتظار تایید':
+        case 'در حال انتظار':
+            $html = '<span class="badge badge-info">' . $statusName . '</span>';
 
             break;
 

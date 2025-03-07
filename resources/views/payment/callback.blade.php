@@ -91,7 +91,8 @@
 </body>
 <script>
     function redirectToApp() {
-        window.location.replace('market://Hamekareh?action=up');
+        // window.location.replace('market://Hamekareh?action=up');
+        window.location.replace('hamekare_moshtari://payment?action=up');
     };
 </script>
 </html>

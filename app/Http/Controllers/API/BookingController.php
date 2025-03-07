@@ -101,6 +101,7 @@ class BookingController extends Controller
 
         return comman_custom_response($response);
     }
+
     public function getAllBookingList(Request $request)
     {
         $booking = Booking::allMyBooking()->with('customer', 'provider', 'service');
@@ -172,6 +173,7 @@ class BookingController extends Controller
 
         return comman_custom_response($response);
     }
+
     public function getUserBookingList(Request $request)
     {
         $booking = Booking::userBooking()->with('customer', 'provider', 'service');
@@ -243,6 +245,7 @@ class BookingController extends Controller
 
         return comman_custom_response($response);
     }
+
     public function getProviderBookingList(Request $request)
     {
         $booking = Booking::providerBooking()->with('customer', 'provider', 'service');
@@ -314,6 +317,7 @@ class BookingController extends Controller
 
         return comman_custom_response($response);
     }
+
     public function getHandymanBookingList(Request $request)
     {
         $booking = Booking::handymanBooking()->with('customer', 'provider', 'service');
@@ -560,6 +564,12 @@ class BookingController extends Controller
         }
         if ($data['status'] == 'cancelled') {
             $activity_type = 'cancel_booking';
+        }
+
+        if ($data['status'] == 'cancelled') {
+            if ($bookingdata->status == 'completed' || $bookingdata->status == 'waiting' || $bookingdata->status == 'paid') {
+                return comman_message_response("این رزرو امکان انصراف ندارد", 200, false);
+            }
         }
 
         if ($data['status'] == 'rejected') {

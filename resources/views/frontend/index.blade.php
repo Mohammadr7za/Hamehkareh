@@ -700,13 +700,14 @@
                 <a href="#">یوتیوب</a>
                 <a href="#">اینستاگرام</a>
             </div>
+
             <div class="col-lg-3 col-sm-6 col-md-6 footer-text">
                 <h3> ای نماد</h3>
                 <a referrerpolicy='origin' target='_blank'
                    href='https://trustseal.enamad.ir/?id=614199&Code=N83TYPy9cpwJ60yNngVmToRbGE0hZjoY'><img
                         referrerpolicy='origin'
                         src='https://trustseal.enamad.ir/logo.aspx?id=614199&Code=N83TYPy9cpwJ60yNngVmToRbGE0hZjoY'
-                        alt='' style='cursor:pointer' code='N83TYPy9cpwJ60yNngVmToRbGE0hZjoY'>لینک ای نماد</a>
+                        alt='' style='cursor:pointer' code='N83TYPy9cpwJ60yNngVmToRbGE0hZjoY'></a>
             </div>
 
             {{--                <h3>ویژگی های ما</h3>--}}

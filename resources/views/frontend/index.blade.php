@@ -732,7 +732,8 @@
 </div>
 <!--  COPYRIGHT AREA END -->
 <!-- Optional JavaScript -->
-<script src="Content/PublicTheme/js/jquery-1.12.4.min.js"></script>
+<script src="Content/PublicTheme/js/jquery-3.7.1.min.js"></script>
+<script src="Content/PublicTheme/js/jquery-migrate-3.4.1.js"></script>
 <script src="Content/PublicTheme/js/bootstrap.min.js"></script>
 <script src="Content/PublicTheme/js/slick.min.js"></script>
 <script src="Content/PublicTheme/js/killercarousel.js"></script>

@@ -1,0 +1,26 @@
+info:
+  name: Login with mobile
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{baseUrl}}/login-with-mobile?mobile=09384515622&password=JohnDoe"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: mobile
+      value: "09384515622"
+      type: query
+    - name: password
+      value: JohnDoe
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

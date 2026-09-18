@@ -1,0 +1,21 @@
+info:
+  name: user me
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{baseUrl}}/user"
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

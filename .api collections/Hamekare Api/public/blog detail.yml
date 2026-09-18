@@ -1,0 +1,26 @@
+info:
+  name: blog detail
+  type: http
+  seq: 12
+
+http:
+  method: POST
+  url: "{{baseUrl}}/blog-detail?blog_id=1&customer_id=1"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: blog_id
+      value: "1"
+      type: query
+    - name: customer_id
+      value: "1"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

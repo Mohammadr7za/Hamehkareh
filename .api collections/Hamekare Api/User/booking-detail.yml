@@ -1,0 +1,25 @@
+info:
+  name: booking-detail
+  type: http
+  seq: 12
+
+http:
+  method: POST
+  url: "{{baseUrl}}/booking-detail?booking_id=353"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: booking_id
+      value: "353"
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

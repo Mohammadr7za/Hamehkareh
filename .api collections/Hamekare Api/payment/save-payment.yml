@@ -1,0 +1,35 @@
+info:
+  name: save-payment
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/save-payment?datetime=2024-10-10 00:12:13&booking_id=289&payment_status=paid&payment_type=cash"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: datetime
+      value: 2024-10-10 00:12:13
+      type: query
+    - name: booking_id
+      value: "289"
+      type: query
+    - name: payment_status
+      value: paid
+      type: query
+      description: pending,failed,paid
+    - name: payment_type
+      value: cash
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

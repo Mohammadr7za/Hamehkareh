@@ -1,0 +1,23 @@
+info:
+  name: city list
+  type: http
+  seq: 9
+
+http:
+  method: POST
+  url: "{{baseUrl}}/city-list?state_id=42"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: state_id
+      value: "42"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

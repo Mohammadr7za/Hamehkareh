@@ -1,0 +1,41 @@
+info:
+  name: Send Sms
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: https://niksms.com/fa/publicapi/ptpsms?username=0917091111&password=@Hamekare&message=سلام، جهت تست پنل 12&numbers=09384515622&sendernumber=50002660
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: username
+      value: "0917091111"
+      type: query
+    - name: password
+      value: "@Hamekare"
+      type: query
+    - name: message
+      value: سلام، جهت تست پنل 12
+      type: query
+    - name: numbers
+      value: "09384515622"
+      type: query
+    - name: sendernumber
+      value: "50002660"
+      type: query
+    - name: datetime
+      value: "null"
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

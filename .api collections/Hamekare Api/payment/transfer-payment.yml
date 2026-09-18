@@ -1,0 +1,21 @@
+info:
+  name: transfer-payment
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}/transfer-payment"
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

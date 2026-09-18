@@ -1,0 +1,21 @@
+info:
+  name: Request Otp
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: "{{baseUrl}}/request_otp"
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

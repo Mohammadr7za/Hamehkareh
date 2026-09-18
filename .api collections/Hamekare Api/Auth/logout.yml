@@ -1,0 +1,21 @@
+info:
+  name: logout
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{baseUrl}}/logout"
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,0 +1,25 @@
+info:
+  name: handyman-update-available-status
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/handyman-update-available-status?is_available=1"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: is_available
+      value: "1"
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

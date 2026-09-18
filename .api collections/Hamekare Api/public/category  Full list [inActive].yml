@@ -1,0 +1,24 @@
+info:
+  name: category  Full list [inActive]
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{baseUrl}}/category-full-list"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: is_featured
+      value: "1"
+      type: query
+      disabled: true
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

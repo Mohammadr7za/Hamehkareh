@@ -1,0 +1,31 @@
+info:
+  name: book ing
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/booking-save?service_id=110&date=2024-01-01&display_name=11111"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: service_id
+      value: "110"
+      type: query
+    - name: date
+      value: 2024-01-01
+      type: query
+    - name: display_name
+      value: "11111"
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

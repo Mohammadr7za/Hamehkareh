@@ -1,0 +1,23 @@
+info:
+  name: state list
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: "{{baseUrl}}/state-list?country_id=1"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: country_id
+      value: "1"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

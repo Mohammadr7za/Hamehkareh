@@ -1,0 +1,58 @@
+info:
+  name: booking-save
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/booking-save?service_id=126&date=2024-09-12 10:20:10&address=3123&quantity=1&description=11asdasd&latitude=123&longitude=4444&coordinates=12"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: service_id
+      value: "126"
+      type: query
+    - name: date
+      value: 2024-09-12 10:20:10
+      type: query
+    - name: address
+      value: "3123"
+      type: query
+    - name: booking_address_id
+      value: ""
+      type: query
+      disabled: true
+    - name: coupon_id
+      value: qwezz
+      type: query
+      disabled: true
+    - name: provider_id
+      value: "123"
+      type: query
+      disabled: true
+    - name: quantity
+      value: "1"
+      type: query
+    - name: description
+      value: 11asdasd
+      type: query
+    - name: latitude
+      value: "123"
+      type: query
+    - name: longitude
+      value: "4444"
+      type: query
+    - name: coordinates
+      value: "12"
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

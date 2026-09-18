@@ -83,6 +83,7 @@ return [
     'username_otp' => env('USERNAME_SMS_ACCOUNT'),
     'password_otp' => env('PASSWORD_SMS_ACCOUNT'),
     'sms_send_number' => env('SEND_NUMBER_SMS_ACCOUNT'),
+    'sms_panel_api_key' => env('SMS_PANEL_API_KEY'),
     'dataTableRefreshTime' => env('Data_Table_Refresh_Time') ?? 90000,
 
 ];

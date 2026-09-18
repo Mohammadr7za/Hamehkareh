@@ -1,0 +1,8 @@
+name: DEV
+variables:
+  - name: baseUrl
+    value: http://localhost:8000/api
+    description: ""
+  - name: token
+    value: 478|MrSlOi1JhF4ZXC1YNLgSGjpcsyQlu9CAeV04j1PK
+    description: ""

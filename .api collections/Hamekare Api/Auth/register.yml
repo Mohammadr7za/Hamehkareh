@@ -1,0 +1,43 @@
+info:
+  name: register
+  type: http
+  seq: 9
+
+http:
+  method: POST
+  url: "{{baseUrl}}/register?contact_number=09900992670&password=12345678&first_name=MohammadReza&last_name=Behnia&user_type=user"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: contact_number
+      value: "09900992670"
+      type: query
+    - name: password
+      value: "12345678"
+      type: query
+    - name: first_name
+      value: MohammadReza
+      type: query
+    - name: last_name
+      value: Behnia
+      type: query
+    - name: user_type
+      value: user
+      type: query
+    - name: user_type
+      value: handyman
+      type: query
+      disabled: true
+    - name: user_type
+      value: provider
+      type: query
+      disabled: true
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

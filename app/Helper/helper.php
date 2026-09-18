@@ -23,91 +23,260 @@ function authSession($force = false)
 }
 
 // Modir Payamank
+//function sendSmsToUser($phoneNumbers, $message)
+//{
+//    if (isset($phoneNumbers)) {
+//        $url = "https://edge.ippanel.com/v1/api/send";
+//
+//        $rcpt_nm = array('', $phoneNumbers);
+//        $param = array
+//        (
+//            'uname' => config('constant.username_otp'),
+//            'pass' => config('constant.password_otp'),
+//            'from' => config('constant.sms_send_number') ?? '+98event',
+//            'message' => $message,
+//            'to' => json_encode($rcpt_nm),
+//            'op' => 'send'
+//        );
+//
+//        $handler = curl_init($url);
+//        curl_setopt($handler, CURLOPT_CUSTOMREQUEST, "POST");
+//        curl_setopt($handler, CURLOPT_POSTFIELDS, $param);
+//        curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
+//        $response2 = curl_exec($handler);
+//
+//        $response2 = json_decode($response2);
+//        $res_code = $response2[0] ?? null;
+//        $res_data = $response2[1] ?? null;
+//
+//        if ($res_code == 0) {
+//            return true;
+//        }
+//    }
+//
+//    return false;
+//}
+
+// The new One
 function sendSmsToUser($phoneNumbers, $message)
 {
-    if (isset($phoneNumbers)) {
-        $url = "https://ippanel.com/services.jspd";
-
-        $rcpt_nm = array('', $phoneNumbers);
-        $param = array
-        (
-            'uname' => config('constant.username_otp'),
-            'pass' => config('constant.password_otp'),
-            'from' => config('constant.sms_send_number') ?? '+98event',
-            'message' => $message,
-            'to' => json_encode($rcpt_nm),
-            'op' => 'send'
-        );
-
-        $handler = curl_init($url);
-        curl_setopt($handler, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($handler, CURLOPT_POSTFIELDS, $param);
-        curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
-        $response2 = curl_exec($handler);
-
-        $response2 = json_decode($response2);
-        $res_code = $response2[0] ?? null;
-        $res_data = $response2[1] ?? null;
-
-        if ($res_code == 0) {
-            return true;
-        }
+    if (empty($phoneNumbers)) {
+        return false;
     }
 
-    return false;
+    try {
+        $apiKey = config('constant.sms_panel_api_key');
+        $fromNumber = config('constant.sms_send_number') ?? '+983000505';
+
+        // اطمینان از قرار گرفتن شماره‌ها در قالب یک آرایه
+        $recipients = is_array($phoneNumbers) ? array_values(array_filter($phoneNumbers)) : [$phoneNumbers];
+
+        $payload = [
+            "sending_type" => "webservice",
+            "from_number"  => $fromNumber,
+            "message"      => $message,
+            "params"       => [
+                "recipients" => $recipients
+            ]
+        ];
+
+        $handler = curl_init('https://edge.ippanel.com/v1/api/send');
+        curl_setopt_array($handler, [
+            CURLOPT_POST           => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json',
+                'Authorization: ' . $apiKey
+            ],
+            CURLOPT_TIMEOUT        => 15
+        ]);
+
+        $response = curl_exec($handler);
+        $httpCode = curl_getinfo($handler, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($handler);
+        curl_close($handler);
+
+        if ($curlError) {
+            return false;
+        }
+
+        // بررسی وضعیت موفقیت بر اساس HTTP Status Code
+        if ($httpCode >= 200 && $httpCode < 300) {
+            return true;
+        }
+
+        return false;
+
+    } catch (Exception $exception) {
+        // dd($exception);
+        return false;
+    }
 }
 
+
+//function sendOtpTokenSmsToUser($phoneNumbers, $token)
+//{
+//    try {
+//        $username = config('constant.username_otp');
+//        $password = config('constant.password_otp');
+//        $from = config('constant.sms_send_number') ?? '+98event';
+//        $pattern_code = "zgzl1li61zhvkhr";
+//        $to = array($phoneNumbers);
+//        $input_data = array("code" => $token);
+//        $url = "https://ippanel.com/patterns/pattern?username=" . $username . "&password=" . urlencode($password) . "&from=$from&to=" . json_encode($to) . "&input_data=" . urlencode(json_encode($input_data)) . "&pattern_code=$pattern_code";
+//        $handler = curl_init($url);
+//        curl_setopt($handler, CURLOPT_CUSTOMREQUEST, "POST");
+//        curl_setopt($handler, CURLOPT_POSTFIELDS, $input_data);
+//        curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
+//        $response = curl_exec($handler);
+//
+//        if ($response != null && $response > 0) {
+//            return true;
+//        }
+//
+//        return false;
+//
+//    } catch (Exception $exception) {
+//        dd($exception);
+//    }
+//}
+
+// The New one
 function sendOtpTokenSmsToUser($phoneNumbers, $token)
 {
     try {
-        $username = config('constant.username_otp');
-        $password = config('constant.password_otp');
-        $from = config('constant.sms_send_number') ?? '+98event';
-        $pattern_code = "zgzl1li61zhvkhr";
-        $to = array($phoneNumbers);
-        $input_data = array("code" => $token);
-        $url = "https://ippanel.com/patterns/pattern?username=" . $username . "&password=" . urlencode($password) . "&from=$from&to=" . json_encode($to) . "&input_data=" . urlencode(json_encode($input_data)) . "&pattern_code=$pattern_code";
-        $handler = curl_init($url);
-        curl_setopt($handler, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($handler, CURLOPT_POSTFIELDS, $input_data);
-        curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($handler);
+        $apiKey = config('constant.sms_panel_api_key'); // یا توکن احراز هویت شما
+        $fromNumber = config('constant.sms_send_number') ?? '+983000505';
+        $patternCode = "ai2qakhcdal9n7r";
 
-        if ($response != null && $response > 0) {
+        // تبدیل شماره/شماره‌ها به آرایه و اطمینان از فرمت استاندارد
+        $recipients = is_array($phoneNumbers) ? array_values($phoneNumbers) : [$phoneNumbers];
+
+        $payload = [
+            "sending_type" => "pattern",
+            "from_number"  => $fromNumber,
+            "code"         => $patternCode,
+            "recipients"   => $recipients,
+            "params"       => [
+                "code" => (string) $token
+            ]
+        ];
+
+        $handler = curl_init('https://edge.ippanel.com/v1/api/send');
+        curl_setopt_array($handler, [
+            CURLOPT_POST           => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json',
+                'Authorization: ' . $apiKey // اگر کلید بدون پیشوند نیاز است: $apiKey، در غیر این صورت معمولاً به صورت Bearer $apiKey یا مستقیم ارسال می‌شود
+            ],
+            CURLOPT_TIMEOUT        => 15
+        ]);
+
+        $response = curl_exec($handler);
+        $httpCode = curl_getinfo($handler, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($handler);
+        curl_close($handler);
+
+        if ($curlError) {
+            // در صورت نیاز به لاگ خطا: error_log($curlError);
+            return false;
+        }
+
+        $result = json_decode($response, true);
+
+        // بررسی کد وضعیت HTTP (کدهای 200 یا 201 نشان‌دهنده موفقیت هستند)
+        if ($httpCode >= 200 && $httpCode < 300) {
             return true;
         }
 
         return false;
 
     } catch (Exception $exception) {
-        dd($exception);
+        // dd($exception); // در محیط پروداکشن ترجیحاً لاگ شود
+        return false;
     }
 }
+//function sendPasswordChangeSmsToUser($phoneNumbers)
+//{
+//    try {
+//        $username = config('constant.username_otp');
+//        $password = config('constant.password_otp');
+//        $from = config('constant.sms_send_number') ?? '+98event';
+//        $pattern_code = "dolfur0ucur7f88";
+//        $to = array($phoneNumbers);
+//        $url = "https://ippanel.com/patterns/pattern?username=" . $username . "&password=" . urlencode($password) . "&from=$from&to=" . json_encode($to) . "&pattern_code=$pattern_code";
+//        $handler = curl_init($url);
+//        curl_setopt($handler, CURLOPT_CUSTOMREQUEST, "POST");
+//        curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
+//        $response = curl_exec($handler);
+//
+//        if ($response != null && $response > 0) {
+//            return true;
+//        }
+//
+//        return false;
+//
+//    } catch (Exception $exception) {
+//        dd($exception);
+//    }
+//}
 
+// The New One
 function sendPasswordChangeSmsToUser($phoneNumbers)
 {
     try {
-        $username = config('constant.username_otp');
-        $password = config('constant.password_otp');
-        $from = config('constant.sms_send_number') ?? '+98event';
-        $pattern_code = "dolfur0ucur7f88";
-        $to = array($phoneNumbers);
-        $url = "https://ippanel.com/patterns/pattern?username=" . $username . "&password=" . urlencode($password) . "&from=$from&to=" . json_encode($to) . "&pattern_code=$pattern_code";
-        $handler = curl_init($url);
-        curl_setopt($handler, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($handler);
+        $apiKey = config('constant.sms_panel_api_key');
+        $fromNumber = config('constant.sms_send_number') ?? '+983000505';
+        $patternCode = "dolfur0ucur7f88";
 
-        if ($response != null && $response > 0) {
+        // تبدیل به آرایه یکدست
+        $recipients = is_array($phoneNumbers) ? array_values($phoneNumbers) : [$phoneNumbers];
+
+        $payload = [
+            "sending_type" => "pattern",
+            "from_number"  => $fromNumber,
+            "code"         => $patternCode,
+            "recipients"   => $recipients,
+            "params"       => (object) [] // پترن بدون متغیر (ارسال آبجکت خالی {})
+        ];
+
+        $handler = curl_init('https://edge.ippanel.com/v1/api/send');
+        curl_setopt_array($handler, [
+            CURLOPT_POST           => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json',
+                'Authorization: ' . $apiKey
+            ],
+            CURLOPT_TIMEOUT        => 15
+        ]);
+
+        $response = curl_exec($handler);
+        $httpCode = curl_getinfo($handler, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($handler);
+        curl_close($handler);
+
+        if ($curlError) {
+            return false;
+        }
+
+        // بررسی موفقیت‌آمیز بودن ارسال با کد وضعیت HTTP 2xx
+        if ($httpCode >= 200 && $httpCode < 300) {
             return true;
         }
 
         return false;
 
     } catch (Exception $exception) {
-        dd($exception);
+        // dd($exception);
+        return false;
     }
 }
+
 
 
 // NikSMS
@@ -688,7 +857,7 @@ function duration($start = '', $end = '', $type = '')
     }
 }
 
-function removeArrayValue($array = [], $find)
+function removeArrayValue($array = [], $find = '')
 {
     foreach (array_keys($array, $find) as $key) {
         unset($array[$key]);

@@ -1,0 +1,21 @@
+info:
+  name: notification-list
+  type: http
+  seq: 19
+
+http:
+  method: POST
+  url: "{{baseUrl}}/notification-list"
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

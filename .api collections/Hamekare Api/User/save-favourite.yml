@@ -1,0 +1,28 @@
+info:
+  name: save-favourite
+  type: http
+  seq: 15
+
+http:
+  method: POST
+  url: "{{baseUrl}}/save-favourite?service_id=125&user_id=3"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: service_id
+      value: "125"
+      type: query
+    - name: user_id
+      value: "3"
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

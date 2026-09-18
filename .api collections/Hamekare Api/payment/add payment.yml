@@ -1,0 +1,29 @@
+info:
+  name: add payment
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/add-payment?booking_id=363&payment_type=zarinpal"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: booking_id
+      value: "363"
+      type: query
+    - name: payment_type
+      value: zarinpal
+      type: query
+      description: stripe, cash
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

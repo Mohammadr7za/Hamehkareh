@@ -1,0 +1,28 @@
+info:
+  name: work samples file
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/upload-files"
+  headers:
+    - name: Accept
+      value: application/json
+  body:
+    type: multipart-form
+    data:
+      - name: file
+        type: file
+        value:
+          - /C:/Users/Theo/Pictures/axe2.jpg
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

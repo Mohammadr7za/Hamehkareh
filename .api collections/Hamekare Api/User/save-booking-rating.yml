@@ -1,0 +1,41 @@
+info:
+  name: save-booking-rating
+  type: http
+  seq: 13
+
+http:
+  method: POST
+  url: "{{baseUrl}}/save-booking-rating?id=4&review=salam nazarate&rating=1&booking_id=111&service_id=68"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: id
+      value: "4"
+      type: query
+    - name: review
+      value: salam nazarate
+      type: query
+    - name: rating
+      value: "1"
+      type: query
+    - name: booking_id
+      value: "111"
+      type: query
+    - name: service_id
+      value: "68"
+      type: query
+    - name: customer_id
+      value: "111"
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

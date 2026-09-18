@@ -1,0 +1,40 @@
+info:
+  name: update-profile_1
+  type: http
+  seq: 18
+
+http:
+  method: POST
+  url: "{{baseUrl}}/update-profile"
+  headers:
+    - name: Accept
+      value: application/json
+  body:
+    type: multipart-form
+    data:
+      - name: skills
+        type: text
+        value: test skills
+      - name: description
+        type: text
+        value: test description
+      - name: why_choose_me
+        type: text
+        value: why cvhoose me
+      - name: profile_image
+        type: file
+        value:
+          - /C:/Users/Theo/Pictures/axe.jpg
+      - name: display_name
+        type: text
+        value: Adddmin admin
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

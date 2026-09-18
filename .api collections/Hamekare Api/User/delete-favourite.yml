@@ -1,0 +1,21 @@
+info:
+  name: delete-favourite
+  type: http
+  seq: 16
+
+http:
+  method: POST
+  url: "{{baseUrl}}/delete-favourite"
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

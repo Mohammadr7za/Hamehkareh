@@ -1,0 +1,40 @@
+info:
+  name: update-profile
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/update-profile?why_choose_me_reason=1223131&why_choose_me_title=12321312"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: why_choose_me_reason
+      value: "1223131"
+      type: query
+    - name: why_choose_me_title
+      value: "12321312"
+      type: query
+  body:
+    type: multipart-form
+    data:
+      - name: profile_image
+        type: file
+        value: []
+      - name: why_choose_me_title
+        type: text
+        value: asdasdas
+      - name: why_choose_me_reason
+        type: text
+        value: ""
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

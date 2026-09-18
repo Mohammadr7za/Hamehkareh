@@ -1,0 +1,21 @@
+info:
+  name: user-favourite-service
+  type: http
+  seq: 21
+
+http:
+  method: GET
+  url: "{{baseUrl}}/user-favourite-service"
+  headers:
+    - name: Accept
+      value: application/json
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

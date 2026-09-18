@@ -186,6 +186,9 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/malhal/laravel-geographical" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/spatie/laravel-image-optimizer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/pishran/zarinpal" />
+      <excludeFolder url="file://$MODULE_DIR$/bootstrap/cache" />
+      <excludeFolder url="file://$MODULE_DIR$/storage/app" />
+      <excludeFolder url="file://$MODULE_DIR$/storage/framework" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

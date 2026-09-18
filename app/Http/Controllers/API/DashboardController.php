@@ -42,15 +42,14 @@ class DashboardController extends Controller
 {
     public function dashboardDetail(Request $request)
     {
-        
         $per_page = 6;
 
         $slider = SliderResource::collection(Slider::where('status',1)->paginate($per_page));
 
         $category = CategoryResource::collection(Category::where('status',1)->where('is_featured',1)->orderBy('name','asc')->paginate(8));
-        
+
         $service = Service::where('status',1)->where('service_type','service');
-        
+
         if ($request->has('city_id') && !empty($request->city_id)) {
             $service->whereHas('providers', function ($a) use ($request) {
                 $a->where('city_id', $request->city_id);
@@ -66,7 +65,7 @@ class DashboardController extends Controller
             });
         }
         $service = $service->orderBy('id','desc')->paginate($per_page);
-        
+
         $service = ServiceResource::collection($service);
         if(default_earning_type() === 'subscription'){
             $provider = User::where('user_type','provider')->where('status',1)->where('is_subscribe',1);
@@ -86,18 +85,18 @@ class DashboardController extends Controller
         $general_settings->site_logo = getSingleMedia(settingSession('get'),'site_logo',null);
 
 
-        $paypal_configuration = false;        
+        $paypal_configuration = false;
         if ($request->has('latitude') && !empty($request->latitude) && $request->has('longitude') && !empty($request->longitude)) {
             $get_distance = getSettingKeyValue('DISTANCE','DISTANCE_RADIOUS');
             $get_unit = getSettingKeyValue('DISTANCE','DISTANCE_TYPE');
-            
+
             $locations = Service::locationService($request->latitude,$request->longitude,$get_distance,$get_unit);
             $service_in_location = ProviderServiceAddressMapping::whereIn('provider_address_id',$locations)->get()->pluck('service_id');
             $service = Service::with('providerServiceAddress')->whereIn('id',$service_in_location)->get();
             $service = ServiceResource::collection($service);
         }
         $privacy_policy = Setting::where('type','privacy_policy')->where('key','privacy_policy')->first();
-        
+
         $term_conditions = Setting::where('type','terms_condition')->where('key','terms_condition')->first();
         $app_download = null;
         $app_download =AppDownload::first();
@@ -125,7 +124,7 @@ class DashboardController extends Controller
         if ($request->has('latitude') && !empty($request->latitude) && $request->has('longitude') && !empty($request->longitude)) {
             $get_distance = getSettingKeyValue('DISTANCE','DISTANCE_RADIOUS');
             $get_unit = getSettingKeyValue('DISTANCE','DISTANCE_TYPE');
-            
+
             $locations = Service::locationService($request->latitude,$request->longitude,$get_distance,$get_unit);
             $service_in_location = ProviderServiceAddressMapping::whereIn('provider_address_id',$locations)->get()->pluck('service_id');
             $featured_service = Service::with('providerServiceAddress')->whereIn('id',$service_in_location)->where('is_featured',1) ->get();
@@ -142,7 +141,7 @@ class DashboardController extends Controller
             });
         }
         $discount_service = $discount_service->orderBy('discount','desc')->paginate($per_page);
-      
+
         $discount_service = ServiceResource::collection($discount_service);
 
         $top_rated_service =BookingRatingResource::collection(BookingRating::orderBy('rating','desc')->limit(5)->get());
@@ -228,18 +227,18 @@ class DashboardController extends Controller
                 $a->where('city_id', $request->city_id);
             });
         }
-        
+
         $service = $service->orderBy('id','desc')->paginate($per_page);
         $service = ServiceResource::collection($service);
 
         $category = CategoryResource::collection(Category::orderBy('name','asc')->paginate($per_page));
-        
+
         $handyman = User::myUsers();
         $handyman = $handyman->paginate($per_page);
 
         $handyman = UserResource::collection($handyman);
 
-      
+
         $providerEarning    = ProviderPayout::where('provider_id',$provider->id)->sum('amount') ?? 0;
 
         $revenuedata        = ProviderPayout::selectRaw('sum(amount) as total , DATE_FORMAT(created_at , "%m") as month' )
@@ -252,7 +251,7 @@ class DashboardController extends Controller
             $revenueData = 0;
             foreach($revenuedata as $revenue){
                 if((int)$revenue['month'] == $i){
-                    
+
                     $data['revenueData'][] = [
                         $i => (int)$revenue['total']
                     ];
@@ -275,7 +274,7 @@ class DashboardController extends Controller
         $get_earning_type = default_earning_type();
         $provider_wallet = Wallet::where('user_id',$provider->id)->where('status',1)->first();
         $privacy_policy = Setting::where('type','privacy_policy')->where('key','privacy_policy')->first();
-        
+
         $term_conditions = Setting::where('type','terms_condition')->where('key','terms_condition')->first();
         $general_settings = AppSetting::first();
         $language_option =settingSession('get')->language_option;
@@ -341,9 +340,9 @@ class DashboardController extends Controller
             'is_advanced_payment_allowed' =>$is_advanced_allowed,
             //'is_digital_service_allowed' =>$is_digital_service_allowed,
          ];
- 
+
          return comman_custom_response($response);
-         
+
     }
     public function handymanDashboard(Request $request){
         $handyman = User::find(auth()->user()->id);
@@ -380,7 +379,7 @@ class DashboardController extends Controller
             $revenueData = 0;
             foreach($revenuedata as $revenue){
                 if((int)$revenue['month'] == $i){
-                    
+
                     $data['revenueData'][] = [
                         $i => (int)$revenue['total']
                     ];
@@ -396,7 +395,7 @@ class DashboardController extends Controller
         $configurations = Setting::with('country')->get();
         $payment_settings = PaymentGatewayResource::collection(PaymentGateway::where('status',1)->get());
         $privacy_policy = Setting::where('type','privacy_policy')->where('key','privacy_policy')->first();
-        
+
         $term_conditions = Setting::where('type','terms_condition')->where('key','terms_condition')->first();
         $general_settings = AppSetting::first();
         $language_option =settingSession('get')->language_option;
@@ -449,7 +448,7 @@ class DashboardController extends Controller
         $notification = count($admin->unreadNotifications);
         $general_settings = AppSetting::first();
         $privacy_policy = Setting::where('type','privacy_policy')->where('key','privacy_policy')->first();
-        
+
         $term_conditions = Setting::where('type','terms_condition')->where('key','terms_condition')->first();
         $general_settings = AppSetting::first();
         $language_option =settingSession('get')->language_option;
@@ -468,7 +467,7 @@ class DashboardController extends Controller
         // if($is_digital_service_allowed !== null){
         //     $is_digital_service_allowed = $is_digital_service_allowed->value;
         // }
-    
+
         $response = [
             'status'                        => true,
             'total_booking'                 => Booking::myBooking()->count(),
@@ -493,12 +492,12 @@ class DashboardController extends Controller
             //'is_digital_service_allowed'    => $is_digital_service_allowed,
 
          ];
- 
+
          return comman_custom_response($response);
     }
-    public function configurations(Request $request){  
-        
-      
+    public function configurations(Request $request){
+
+
 
         $configurations = Setting::with('country')->get();
 
@@ -540,10 +539,10 @@ class DashboardController extends Controller
 
         if($request->has('is_authenticated') && $request->is_authenticated ==0){
 
-            $response = [   
-            
+            $response = [
+
                 'other_settings'=> $other_setting ? json_decode($other_setting->value) : null,
-            
+
                ];
 
          }else{
@@ -564,9 +563,9 @@ class DashboardController extends Controller
             ];
 
         }
-       
 
-       
+
+
         return comman_custom_response($response);
     }
 }

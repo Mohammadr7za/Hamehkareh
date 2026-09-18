@@ -1,0 +1,26 @@
+info:
+  name: login with email
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/login?email=demo@provider.com&password=12345678"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: email
+      value: demo@provider.com
+      type: query
+    - name: password
+      value: "12345678"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

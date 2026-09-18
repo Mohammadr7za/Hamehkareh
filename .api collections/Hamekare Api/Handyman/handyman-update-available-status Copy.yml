@@ -1,0 +1,31 @@
+info:
+  name: handyman-update-available-status Copy
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}/handyman-update-gps?latitude=777777.11111313&longitude=999999.22123213213&coordinates=9991.254212312321"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: latitude
+      value: "777777.11111313"
+      type: query
+    - name: longitude
+      value: "999999.22123213213"
+      type: query
+    - name: coordinates
+      value: "9991.254212312321"
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

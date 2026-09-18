@@ -1,0 +1,25 @@
+info:
+  name: service-detail
+  type: http
+  seq: 10
+
+http:
+  method: POST
+  url: "{{baseUrl}}/service-detail?service_id=1"
+  headers:
+    - name: Accept
+      value: application/json
+  params:
+    - name: service_id
+      value: "1"
+      type: query
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

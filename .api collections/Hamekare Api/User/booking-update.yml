@@ -1,0 +1,66 @@
+info:
+  name: booking-update
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}/booking-update"
+  headers:
+    - name: Accept
+      value: application/json
+  body:
+    type: json
+    data: "{\r
+
+      \    \"id\": 353,\r
+
+      \    \"start_at\": \"2024-11-11 10:10:00\",\r
+
+      \    // \"end_at\": \"2024-11-11 10:10:10\",\r
+
+      \    \"status\": \"hold\",\r
+
+      \    \"reason\": \"reason of cancelled\",\r
+
+      \    // \"coupon_id\": \"7\",\r
+
+      \    \"quantity\": \"3\",\r
+
+      \    \"duration_diff\": \"1\",\r
+
+      \    \"extra_charges\": [\r
+
+      \        {\r
+
+      \            \"title\": 273,\r
+
+      \            \"qty\": 273,\r
+
+      \            \"price\": 273\r
+
+      \        },\r
+
+      \        {\r
+
+      \            \"title\": \"تست\",\r
+
+      \            \"qty\": 1,\r
+
+      \            \"price\": 100000\r
+
+      \        }\r
+
+      \    ]\r
+
+      }"
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

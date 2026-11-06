@@ -5,7 +5,7 @@ $auth_user= authSession();
 {{ Form::open(['route' => ['booking.destroy', $booking->id], 'method' => 'delete','data--submit'=>'booking'.$booking->id]) }}
 <div class="d-flex justify-content-end align-items-center">
 @if(!$booking->trashed())
-    @if($auth_user->can('booking delete') && !$booking->trashed())
+    @if($auth_user->hasAnyRole(['admin', 'manager']) && !$booking->trashed())
     <a class="mr-3" href="{{ route('booking.destroy', $booking->id) }}" data--submit="booking{{$booking->id}}" 
         data--confirmation='true'
         data--ajax="true"
@@ -17,7 +17,7 @@ $auth_user= authSession();
     </a>
     @endif
 @endif
-@if(auth()->user()->hasAnyRole(['admin']) && $booking->trashed())
+@if($auth_user->hasAnyRole(['admin', 'manager']) && $booking->trashed())
     <a class="mr-2" href="{{ route('booking.action',['id' => $booking->id, 'type' => 'restore']) }}"
         title="{{ __('messages.restore_form_title',['form' => __('messages.booking') ]) }}"
         data--submit="confirm_form"

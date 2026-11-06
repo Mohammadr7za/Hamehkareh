@@ -51,7 +51,7 @@ class BookingController extends Controller
                 $query->where('status', $filter['column_status']);
             }
         }
-        if (auth()->user()->hasAnyRole(['admin'])) {
+        if (auth()->user()->hasAnyRole(['admin', 'manager'])) {
             $query->withTrashed();
         }
 
@@ -138,6 +138,14 @@ class BookingController extends Controller
         $ids = explode(',', $request->rowIds);
 
         $actionType = $request->action_type;
+
+        if (in_array($actionType, ['delete', 'restore', 'permanently-delete'], true)
+            && !auth()->user()->hasAnyRole(['admin', 'manager'])) {
+            return response()->json([
+                'status' => false,
+                'message' => 'You are not authorized to manage deleted bookings.',
+            ], 403);
+        }
 
         $message = 'Bulk Action Updated';
         switch ($actionType) {
@@ -506,6 +514,13 @@ class BookingController extends Controller
      */
     public function destroy($id)
     {
+        if (!auth()->user()->hasAnyRole(['admin', 'manager'])) {
+            return response()->json([
+                'status' => false,
+                'message' => 'You are not authorized to delete bookings.',
+            ], 403);
+        }
+
         if (demoUserPermission()) {
             return redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
         }
@@ -583,6 +598,13 @@ class BookingController extends Controller
 
     public function action(Request $request)
     {
+        if (!auth()->user()->hasAnyRole(['admin', 'manager'])) {
+            return response()->json([
+                'status' => false,
+                'message' => 'You are not authorized to manage deleted bookings.',
+            ], 403);
+        }
+
         $id = $request->id;
         $type = $request->type;
         $booking_data = Booking::withTrashed()->where('id', $id)->first();

@@ -526,7 +526,7 @@ function saveBookingActivity($data)
                 'provider_id' => $data['booking']->provider_id,
                 'provider_name' => isset($data['booking']->provider) ? $data['booking']->provider->display_name : '',
             ];
-            $sendTo = ['provider'];
+            $sendTo = ['provider', 'user'];
             break;
 
         case "assigned_booking":
@@ -567,7 +567,9 @@ function saveBookingActivity($data)
                 'old_status_label' => $old_status,
             ];
 
-            $sendTo = removeArrayValue(['provider', 'handyman', 'user'], $role);
+            $sendTo = $data['booking']->status === 'completed'
+                ? ['provider']
+                : removeArrayValue(['provider', 'handyman', 'user'], $role);
             break;
         case "cancel_booking":
             $status = \App\Models\BookingStatus::bookingStatus($data['booking']->status);
@@ -624,7 +626,7 @@ function saveBookingActivity($data)
                 $handymans = $data['booking']->handymanAdded->pluck('handyman_id');
                 foreach ($handymans as $id) {
                     $user = \App\Models\User::getUserByKeyValue('id', $id);
-                    sendNotification('provider', $user, $notification_data);
+                    sendNotification('handyman', $user, $notification_data);
                 }
                 break;
             case 'user':

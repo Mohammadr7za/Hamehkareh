@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: "{{baseUrl}}/login-with-mobile?mobile=09384515622&password=JohnDoe"
+  url: "{{baseUrl}}/login-with-mobile?mobile=09384515622&password=#TheGrey12"
   headers:
     - name: Accept
       value: application/json
@@ -14,7 +14,7 @@ http:
       value: "09384515622"
       type: query
     - name: password
-      value: JohnDoe
+      value: "#TheGrey12"
       type: query
   auth: inherit
 

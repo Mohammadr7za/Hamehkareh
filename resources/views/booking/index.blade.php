@@ -31,11 +31,12 @@
                               class="form-disabled d-flex gap-3 align-items-center">
                             @csrf
                             <select name="action_type" class="form-control select2" id="quick-action-type"
+                                    data-can-manage-bookings="{{ $auth_user->hasAnyRole(['admin', 'manager']) ? 'true' : 'false' }}"
                                     style="width:100%" disabled>
                                 <option value="">{{__('messages.no_action')}}</option>
-                                <option value="delete">{{__('messages.delete')}}</option>
-                                <option value="restore">{{__('messages.restore')}}</option>
-                                <option value="permanently-delete">{{__('messages.permanent_dlt')}}</option>
+                                 <option value="delete" @unless($auth_user->hasAnyRole(['admin', 'manager'])) disabled @endunless>{{__('messages.delete')}}</option>
+                                 <option value="restore" disabled>{{__('messages.restore')}}</option>
+                                 <option value="permanently-delete" disabled>{{__('messages.permanent_dlt')}}</option>
                             </select>
 
                             <button id="quick-action-apply" class="btn btn-primary" data-ajax="true"

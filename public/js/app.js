@@ -179,9 +179,10 @@ Index Of Script
       actionDropdown.options[3].disabled = false;
     }
     else if(dataType === 'booking'){
+      const canManageBookings = actionDropdown.dataset.canManageBookings === 'true';
       actionDropdown.options[2].disabled = true;  
       actionDropdown.options[3].disabled = true;
-      actionDropdown.options[1].disabled = false;
+      actionDropdown.options[1].disabled = !canManageBookings;
     }
     else if(dataType == null){
     }
@@ -205,8 +206,9 @@ Index Of Script
               actionDropdown.options[3].disabled = true;
             }
             else if(dataType === 'booking'){
-              actionDropdown.options[2].disabled = false;  
-              actionDropdown.options[3].disabled = false;
+              const canManageBookings = actionDropdown.dataset.canManageBookings === 'true';
+              actionDropdown.options[2].disabled = !canManageBookings;
+              actionDropdown.options[3].disabled = !canManageBookings;
               actionDropdown.options[1].disabled = true;
             }
             else if(dataType == null){
@@ -277,9 +279,10 @@ Index Of Script
       actionDropdown.options[3].disabled = false;
     }
     else if(dataType === 'booking'){
+      const canManageBookings = actionDropdown.dataset.canManageBookings === 'true';
       actionDropdown.options[2].disabled = true;  
       actionDropdown.options[3].disabled = true;
-      actionDropdown.options[1].disabled = false;
+      actionDropdown.options[1].disabled = !canManageBookings;
     }
     else if(dataType == null){
     }
@@ -303,8 +306,9 @@ Index Of Script
               actionDropdown.options[3].disabled = true;
             }
             else if(dataType === 'booking'){
-              actionDropdown.options[2].disabled = false;  
-              actionDropdown.options[3].disabled = false;
+              const canManageBookings = actionDropdown.dataset.canManageBookings === 'true';
+              actionDropdown.options[2].disabled = !canManageBookings;
+              actionDropdown.options[3].disabled = !canManageBookings;
               actionDropdown.options[1].disabled = true;
             }
             else if(dataType == null){

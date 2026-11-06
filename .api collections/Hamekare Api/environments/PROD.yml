@@ -1,0 +1,8 @@
+name: PROD
+variables:
+  - name: baseUrl
+    value: https://hamakareh.ir/api
+    description: ""
+  - name: token
+    value: 496|Twp4EjZx0amXEjhRmmS1fOHkD6vbgT0uLKuZPVsC
+    description: ""

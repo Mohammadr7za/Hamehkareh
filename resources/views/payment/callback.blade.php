@@ -48,7 +48,7 @@
                         <div class="chip" style="color: var(--app-color);"> موفقیت آمیز
                         </div>
 
-                        <p>کاربر عزیز پرداخت شما با موفقیت انجام شد</p>
+                        <p>{{ $message }}</p>
                         @if ($code)
                             <p>کد پیگیری: {{$code}}</p>
                         @endif
@@ -58,7 +58,7 @@
                     <div style="padding: 0px 15% ; margin-top:80px;">
                         <div class="chip" style="color: var(--app-color);">خطا</div>
 
-                        <p>خطایی در عملیات رخ داده است</p>
+                        <p>{{ $message }}</p>
                         <p>جهت پیگیری می توانید با پشتیبانی تماس بگیرید</p>
                         @if ($code)
                             <p>کد پیگیری: {{$code}}</p>
@@ -91,8 +91,7 @@
 </body>
 <script>
     function redirectToApp() {
-        // window.location.replace('market://Hamekareh?action=up');
-        window.location.replace('hamekare_moshtari://payment?action=up');
-    };
+        window.location.replace(@json($appUrl . (strpos($appUrl, '?') === false ? '?' : '&') . 'payment_id=' . $payment->uuid));
+    }
 </script>
 </html>

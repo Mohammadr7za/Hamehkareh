@@ -37,4 +37,9 @@ return [
         'ONESIGNAL_REST_API_KEY_PROVIDER' => env('ONESIGNAL_REST_API_KEY_PROVIDER'),
     ],
 
+    'zarinpal' => [
+        'mobile_success_url' => env('MOBILE_PAYMENT_SUCCESS_URL', 'hamekare_moshtari://payment/success'),
+        'mobile_failed_url' => env('MOBILE_PAYMENT_FAILED_URL', 'hamekare_moshtari://payment/failed'),
+    ],
+
 ];

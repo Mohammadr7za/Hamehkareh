@@ -62,7 +62,8 @@ require __DIR__ . '/auth.php';
     
 // } )->name('payment.verification');
 
-Route::get('payment-verification/{payment}', [App\Http\Controllers\API\PaymentController::class, 'paymentVerification'])->name('payment.verification');
+Route::get('payment-verification/{payment}', [App\Http\Controllers\API\PaymentController::class, 'paymentVerification'])
+    ->middleware('throttle:60,1')->name('payment.verification');
 
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
 Route::get('request_provider', [\App\Http\Controllers\RequestProviderController::class, 'index'])->name('requestProvider');
@@ -190,15 +191,13 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::get('cash-payment-list', [PaymentController::class, 'cashDatatable'])->name('cash.list');
     Route::get('cash-index-data', [PaymentController::class, 'cash_index_data'])->name('cash.index_data');
     Route::get('payment-index-data', [PaymentController::class, 'index_data'])->name('payment.index_data');
+    Route::post('payment/{payment}/verify', [PaymentController::class, 'recheck'])->name('payment.recheck');
     Route::post('payment-bulk-action', [PaymentController::class, 'bulk_action'])->name('payment.bulk-action');
     Route::get('cash/history/{id?}', [PaymentController::class, 'cashIndex'])->name('cash.index');
     Route::get('paymenthistory-index-data/{id}', [PaymentController::class, 'paymenthistory_index_data'])->name('paymenthistory.index_data');
     Route::get('cash/approve/{id}', [PaymentController::class, 'cashApprove'])->name('cash.approve');
 
 //    Route::post('save-payment', [App\Http\Controllers\API\PaymentController::class, 'savePayment'])->name('payment.save');
-    Route::get('add-payment', [App\Http\Controllers\API\PaymentController::class, 'addPayment'])->name('payment.add');
-    
-
     Route::get('user-change-password', [CustomerController::class, 'getChangePassword'])->name('user.getchangepassword');
     Route::post('user-change-password', [CustomerController::class, 'changePassword'])->name('user.changepassword');
     Route::group(['middleware' => ['permission:user list']], function () {

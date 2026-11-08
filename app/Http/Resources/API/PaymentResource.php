@@ -16,6 +16,7 @@ class PaymentResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'uuid' => $this->uuid,
             'booking_id' => $this->booking_id,
             'customer_id'   => $this->customer_id,
             'total_amount'  => $this->total_amount,
@@ -32,7 +33,13 @@ class PaymentResource extends JsonResource
             'booking_package'              => isset($this->booking) ? new BookingPackageResource($this->booking->bookingPackage) : null,
             'date'          => jdate($this->datetime),
             'advance_paid_amount'  => optional($this->booking)->advance_paid_amount == null ? 0:(double) optional($this->booking)->advance_paid_amount,
-            'txn_id' => $this->txn_id
+            'txn_id' => $this->txn_id,
+            'amount' => $this->amount,
+            'currency' => $this->currency,
+            'gateway' => $this->gateway,
+            'reference_id' => $this->reference_id,
+            'authority' => $this->authority,
+            'verified_at' => optional($this->verified_at)->toIso8601String(),
 
         ];
     }

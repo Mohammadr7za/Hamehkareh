@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use App\Models\PaymentHistory;
 use App\Models\Payment;
 use App\Models\AppSetting;
+use App\Jobs\SendPaymentReceiptSms;
+use App\Services\ZarinpalPaymentService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
 
 class PaymentController extends Controller
@@ -18,13 +22,10 @@ class PaymentController extends Controller
      */
     public function index(Request $request)
     {
-        $filter = [
-            'status' => $request->status,
-        ];
+        $this->authorizePaymentMonitoring();
         $pageTitle = __('messages.list_form_title', ['form' => __('messages.payment')]);
         $assets = ['datatable'];
-
-        return view('payment.index', compact('pageTitle', 'assets', 'filter'));
+        return view('payment.index', compact('pageTitle', 'assets'));
     }
 
     public function cashIndex($id)
@@ -159,87 +160,108 @@ class PaymentController extends Controller
 
     public function index_data(DataTables $datatable, Request $request)
     {
-        $query = Payment::query()->orderByDesc('created_at');;
-        $filter = $request->filter;
+        $this->authorizePaymentMonitoring();
+        $query = Payment::query()->with([
+            'booking.service', 'booking.provider', 'customer', 'provider', 'handyman',
+            'booking.handymanAdded.handyman',
+        ])->orderByDesc('created_at');
 
-        if (isset($filter)) {
-            if (isset($filter['column_status'])) {
-                $query->where('status', $filter['column_status']);
+        $filters = (array) $request->input('filter', []);
+        if (!empty($filters['status'])) {
+            $query->where('payment_status', $filters['status']);
+        }
+        if (!empty($filters['date_from'])) {
+            $query->whereDate('created_at', '>=', $filters['date_from']);
+        }
+        if (!empty($filters['date_to'])) {
+            $query->whereDate('created_at', '<=', $filters['date_to']);
+        }
+
+        foreach (['customer', 'provider', 'handyman'] as $relation) {
+            if (!empty($filters[$relation])) {
+                $term = $filters[$relation];
+                $userFilter = function ($userQuery) use ($term) {
+                    $userQuery->where(function ($nested) use ($term) {
+                        $nested->where('display_name', 'like', '%' . $term . '%')
+                            ->orWhere('email', 'like', '%' . $term . '%')
+                            ->orWhere('contact_number', 'like', '%' . $term . '%');
+                    });
+                };
+                $query->where(function ($nested) use ($relation, $userFilter) {
+                    $nested->whereHas($relation, $userFilter);
+                    if ($relation === 'provider') {
+                        $nested->orWhereHas('booking.provider', $userFilter);
+                    } elseif ($relation === 'handyman') {
+                        $nested->orWhereHas('booking.handymanAdded.handyman', $userFilter);
+                    }
+                });
             }
         }
-        if (auth()->user()->hasAnyRole(['admin'])) {
-            $query->newQuery();
+
+        $search = trim((string) $request->input('query'));
+        if ($search !== '') {
+            $query->where(function ($nested) use ($search) {
+                $nested->where('id', $search)
+                    ->orWhere('uuid', 'like', '%' . $search . '%')
+                    ->orWhere('booking_id', 'like', '%' . $search . '%')
+                    ->orWhere('authority', 'like', '%' . $search . '%')
+                    ->orWhere('reference_id', 'like', '%' . $search . '%')
+                    ->orWhereHas('customer', function ($user) use ($search) {
+                        $user->where('display_name', 'like', '%' . $search . '%')
+                            ->orWhere('contact_number', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('provider', function ($user) use ($search) {
+                        $user->where('display_name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('handyman', function ($user) use ($search) {
+                        $user->where('display_name', 'like', '%' . $search . '%');
+                    });
+            });
         }
 
         return $datatable->eloquent($query)
-            ->addColumn('check', function ($row) {
-                return '<input type="checkbox" class="form-check-input select-table-row"  id="datatable-row-' . $row->id . '"  name="datatable_ids[]" value="' . $row->id . '" onclick="dataTableRowCheck(' . $row->id . ')">';
-            })
-            ->editColumn('booking_name', function ($query) {
-
-
-                return ($query->customer_id != null && isset($query->booking->service)) ? $query->booking->service->name : '-';
-            })
-            ->filterColumn('booking_name', function ($query, $keyword) {
-                $query->whereHas('booking.service', function ($q) use ($keyword) {
-                    $q->where('name', 'like', '%' . $keyword . '%');
-                });
+            ->editColumn('id', function ($payment) {
+                return '<a class="btn-link btn-link-hover" href="' . route('payment.show', $payment) . '">#' . $payment->id . '</a>';
             })
             ->editColumn('booking_id', function ($payment) {
-                return ($payment->booking_id != null && isset($payment->booking->service)) ? $payment->booking->id : '-';
-            })
-            ->filterColumn('booking_id', function ($query, $keyword) {
-                $query->whereHas('booking.service', function ($q) use ($keyword) {
-                    $q->where('id', 'like', '%' . $keyword . '%');
-                });
+                return '<a class="btn-link btn-link-hover" href="' . route('booking.show', $payment->booking_id) . '">#' . $payment->booking_id . '</a>';
             })
             ->editColumn('customer_id', function ($payment) {
-                return view('payment.user', compact('payment'));
+                return optional($payment->customer)->display_name ?: '-';
             })
-            ->filterColumn('customer_id', function ($query, $keyword) {
-                $query->whereHas('customer', function ($q) use ($keyword) {
-                    $q->where('display_name', 'like', '%' . $keyword . '%');
-                });
+            ->addColumn('provider_name', function ($payment) {
+                return optional($payment->provider)->display_name
+                    ?: optional(optional($payment->booking)->provider)->display_name
+                    ?: '-';
+            })
+            ->addColumn('handyman_name', function ($payment) {
+                if ($payment->handyman) {
+                    return $payment->handyman->display_name;
+                }
+                return optional($payment->booking)->handymanAdded
+                    ? $payment->booking->handymanAdded->pluck('handyman.display_name')->filter()->implode('، ')
+                    : '-';
             })
             ->editColumn('payment_status', function ($query) {
-                return ucwords(str_replace('_', ' ', $query->payment_status));
+                $classes = ['paid' => 'success', 'pending' => 'warning', 'initiated' => 'info', 'failed' => 'danger', 'cancelled' => 'secondary'];
+                $class = $classes[$query->payment_status] ?? 'secondary';
+                return '<span class="badge badge-' . $class . '">' . e($query->payment_status) . '</span>';
             })
             ->editColumn('total_amount', function ($query) {
-                return getPriceFormat($query->total_amount);
+                return number_format($query->amount ?: $query->total_amount) . ' ' . ($query->currency === 'IRR' ? 'ریال' : 'تومان');
             })
-            ->addColumn('action', function ($payment) {
-                return view('payment.action', compact('payment'))->render();
+            ->editColumn('datetime', function ($payment) {
+                return $payment->created_at ? jdate($payment->created_at) : '-';
             })
             ->addIndexColumn()
-            ->rawColumns(['action', 'check'])
+            ->rawColumns(['id', 'booking_id', 'payment_status'])
             ->toJson();
     }
 
     /* bulck action method */
     public function bulk_action(Request $request)
     {
-        $ids = explode(',', $request->rowIds);
-
-        $actionType = $request->action_type;
-
-        $message = 'Bulk Action Updated';
-        switch ($actionType) {
-            case 'change-status':
-                $branches = Payment::whereIn('id', $ids)->update(['status' => $request->status]);
-                $message = 'Bulk Category Status Updated';
-                break;
-
-            case 'delete':
-                Payment::whereIn('id', $ids)->delete();
-                $message = 'Bulk Category Deleted';
-                break;
-
-            default:
-                return response()->json(['status' => false, 'message' => 'Action Invalid']);
-                break;
-        }
-
-        return response()->json(['status' => true, 'message' => 'Bulk Action Updated']);
+        abort(405, 'رکوردهای مالی قابل حذف یا ویرایش گروهی نیستند.');
     }
 
     /**
@@ -269,9 +291,74 @@ class PaymentController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Payment $payment)
     {
-        //
+        $this->authorizePaymentMonitoring();
+        $payment->load([
+            'booking.service', 'booking.provider', 'booking.handymanAdded.handyman',
+            'customer', 'provider', 'handyman',
+        ]);
+        $pageTitle = 'جزئیات پرداخت #' . $payment->id;
+        return view('payment.show', compact('payment', 'pageTitle'));
+    }
+
+    public function recheck(Payment $payment, ZarinpalPaymentService $gateway)
+    {
+        $this->authorizePaymentMonitoring();
+        if ($payment->payment_status === 'paid') {
+            try {
+                SendPaymentReceiptSms::dispatch($payment->id)->afterCommit();
+            } catch (\Throwable $notificationException) {
+                Log::error('Admin payment receipt retry failed', ['payment_id' => $payment->id, 'exception' => $notificationException]);
+            }
+            return redirect()->back()->withSuccess('این پرداخت قبلاً تأیید شده است.');
+        }
+        if (!$payment->authority) {
+            return redirect()->back()->withErrors('این پرداخت Authority معتبر برای استعلام ندارد.');
+        }
+
+        try {
+            $response = $gateway->verify($payment, $payment->authority);
+            if (!$response['success']) {
+                $payment->forceFill([
+                    'failure_code' => (string) $response['code'],
+                    'failure_message' => $response['message'],
+                    'gateway_response' => $response['raw'],
+                ])->save();
+                return redirect()->back()->withErrors('زرین‌پال این پرداخت را تأیید نکرد: ' . $response['message']);
+            }
+
+            $payment = DB::transaction(function () use ($payment, $response) {
+                $locked = Payment::whereKey($payment->id)->lockForUpdate()->firstOrFail();
+                if ($locked->payment_status !== 'paid') {
+                    $locked->forceFill([
+                        'payment_status' => 'paid',
+                        'reference_id' => $response['reference_id'],
+                        'txn_id' => $response['reference_id'],
+                        'card_pan' => $response['card_pan'],
+                        'card_hash' => $response['card_hash'],
+                        'gateway_response' => $response['raw'],
+                        'verified_at' => now(),
+                        'failure_code' => null,
+                        'failure_message' => null,
+                    ])->save();
+                }
+                return $locked;
+            });
+
+            try {
+                SendPaymentReceiptSms::dispatch($payment->id)->afterCommit();
+            } catch (\Throwable $notificationException) {
+                Log::error('Admin payment recheck notification failed', [
+                    'payment_id' => $payment->id,
+                    'exception' => $notificationException,
+                ]);
+            }
+            return redirect()->back()->withSuccess('پرداخت با موفقیت از زرین‌پال تأیید شد.');
+        } catch (\Throwable $exception) {
+            Log::error('Admin Zarinpal recheck failed', ['payment_id' => $payment->id, 'exception' => $exception]);
+            return redirect()->back()->withErrors('ارتباط با زرین‌پال برای استعلام پرداخت ناموفق بود.');
+        }
     }
 
     /**
@@ -305,21 +392,12 @@ class PaymentController extends Controller
      */
     public function destroy($id)
     {
-        if (demoUserPermission()) {
-            return redirect()->back()->withErrors(trans('messages.demo_permission_denied'));
-        }
-        $document = Payment::find($id);
-        $msg = __('messages.msg_fail_to_delete', ['name' => __('messages.payment')]);
+        abort(405, 'رکوردهای مالی قابل حذف نیستند.');
+    }
 
-        if ($document != '') {
-
-            $document->delete();
-            $msg = __('messages.msg_deleted', ['name' => __('messages.payment')]);
-        }
-        if (request()->is('api/*')) {
-            return comman_message_response($msg);
-        }
-        return comman_custom_response(['message' => $msg, 'status' => true]);
+    private function authorizePaymentMonitoring()
+    {
+        abort_unless(auth()->user() && auth()->user()->hasAnyRole(['admin', 'manager']), 403);
     }
 
     public function cashApprove($id)

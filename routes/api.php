@@ -121,7 +121,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('logout', [API\User\UserController::class, 'logout']);
 
 //    Route::post('save-payment', [API\PaymentController::class, 'savePayment']);
-    Route::post('add-payment', [API\PaymentController::class, 'addPayment']);
+    Route::post('add-payment', [API\PaymentController::class, 'addPayment'])->middleware('throttle:10,1');
+    Route::post('bookings/{booking}/payments', [API\PaymentController::class, 'addBookingPayment'])->middleware('throttle:10,1');
+    Route::get('payments/{payment}', [API\PaymentController::class, 'paymentStatus'])->middleware('throttle:30,1');
     Route::get('payment-list', [API\PaymentController::class, 'paymentList']);
     Route::post('transfer-payment', [API\PaymentController::class, 'transferPayment']);
     Route::get('payment-history', [API\PaymentController::class, 'paymentHistory']);

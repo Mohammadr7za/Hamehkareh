@@ -14,6 +14,10 @@ use App\Models\PaymentHistory;
 use App\Http\Resources\API\PaymentResource;
 use App\Http\Resources\API\PaymentHistoryResource;
 use App\Http\Resources\API\GetCashPaymentHistoryResource;
+use App\Jobs\SendPaymentReceiptSms;
+use App\Services\ZarinpalPaymentService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Braintree;
 
 class PaymentController extends Controller
@@ -73,185 +77,245 @@ class PaymentController extends Controller
         return comman_message_response($message, 200, $isSuccess);
     }
 
-    // I Wrote this route for connect to zarinpal
-    public function addPayment(Request $request)
+    public function addPayment(Request $request, ZarinpalPaymentService $gateway)
     {
+        $request->validate(['booking_id' => 'required|integer|exists:bookings,id']);
+        $payment = null;
+
         try {
-            $data = $request->all();
-            $data['datetime'] = date('Y-m-d H:i:s');
-            $booking = Booking::find($request->booking_id);
+            $payment = DB::transaction(function () use ($request) {
+                $booking = Booking::whereKey($request->booking_id)->lockForUpdate()->firstOrFail();
+                $user = $request->user();
 
-            $data['customer_id'] = $booking->customer_id;
-            $booking->updateBookingPrice();
-            $data['total_amount'] = $booking->total_amount;
-            $data['discount'] = $booking->discount;
-
-
-            if ($booking->payment()->where('payment_status', 'paid')->count() > 0) {
-                return comman_message_response("این درخواست رزرو قبلا پرداخت شده است", 400, false);
-            }
-
-            $payment = Payment::create($data);
-            if (!empty($payment) && $payment->payment_status == 'advanced_paid') {
-                $booking->advance_paid_amount = $request->advance_payment_amount;
-                $booking->status = 'pending';
-            }
-            $booking->payment_id = $payment->id;
-            // $booking->total_amount = $result->total_amount;
-            $booking->update();
-            $isSuccess = true;
-            $customer = User::where('id', $booking->customer_id)->firstOrFail();
-            if ($request->payment_type == 'wallet') {
-                $wallet = Wallet::where('user_id', $booking->customer_id)->first();
-                if ($wallet !== null) {
-                    $wallet_amount = $wallet->amount;
-                    if ($wallet_amount >= $booking->total_amount) {
-                        $wallet->amount = $wallet->amount - $booking->total_amount;
-                        $wallet->update();
-                        $activity_data = [
-                            'activity_type' => 'paid_for_booking',
-                            'wallet' => $wallet,
-                            'booking_id' => $booking->id,
-                            'booking_amount' => $booking->total_amount,
-                        ];
-
-                        saveWalletHistory($activity_data);
-
-                        return comman_message_response("پرداخت توسط کیف پول کاربر انجام گرفت");
-                    } else {
-                        $message = __('messages.wallent_balance_error');
-                        return comman_message_response($message, 410, false);
-                    }
+                if (!$user || !$user->hasRole('user') || (int) $booking->customer_id !== (int) $user->id) {
+                    abort(403, 'شما اجازه پرداخت این رزرو را ندارید.');
                 }
-            } else {
-                $activity_data = [
-                    'activity_type' => 'payment_message_status',
-                    'payment_status' => 'pending',
+                if ($booking->status !== 'completed') {
+                    abort(422, 'پرداخت فقط پس از اتمام کار امکان‌پذیر است.');
+                }
+
+                $paid = Payment::where('booking_id', $booking->id)
+                    ->where('payment_status', 'paid')->lockForUpdate()->first();
+                if ($paid) {
+                    abort(409, 'این رزرو قبلاً پرداخت شده است.');
+                }
+
+                $active = Payment::where('booking_id', $booking->id)
+                    ->whereIn('payment_status', ['initiated', 'pending'])
+                    ->where('created_at', '>=', now()->subMinutes(30))
+                    ->latest('id')->lockForUpdate()->first();
+                if ($active) {
+                    return $active->setAttribute('reuse_only', true);
+                }
+
+                $booking->updateBookingPrice();
+                $booking->refresh();
+                $amount = (int) round($booking->total_amount);
+                if ($amount < 1000) {
+                    abort(422, 'مبلغ قابل پرداخت معتبر نیست.');
+                }
+
+                $handymanId = $booking->handymanAdded()->value('handyman_id');
+                if (!$handymanId) {
+                    abort(422, 'برای این رزرو متخصصی ثبت نشده است.');
+                }
+
+                $payment = Payment::create([
+                    'customer_id' => $booking->customer_id,
+                    'provider_id' => $booking->provider_id,
+                    'handyman_id' => $handymanId,
                     'booking_id' => $booking->id,
-                    'booking' => $booking,
-                ];
-                saveBookingActivity($activity_data);
-
-
-                $callBackUrl = route('payment.verification', ['payment' => $booking->payment_id]);
-
-                $description = json_encode([
-                    'payment_id' => $payment->id,
-                    'booking_id' => $booking->id,
-                    'customer_id' => $booking->customer_id
+                    'datetime' => now(),
+                    'discount' => $booking->discount ?: 0,
+                    'total_amount' => $amount,
+                    'amount' => $amount,
+                    'currency' => config('zarinpal.currency', 'IRT'),
+                    'payment_type' => 'zarinpal',
+                    'gateway' => 'zarinpal',
+                    'payment_status' => 'initiated',
+                    'requested_at' => now(),
                 ]);
-                $response = zarinpal()
-                    ->merchantId(env('ZARINPAL_MERCHANT_ID')) // تعیین مرچنت کد در حین اجرا - اختیاری
-                    ->amount($payment->total_amount) // مبلغ تراکنش
-                    ->request()
-                    ->description($description) // توضیحات تراکنش
-                    ->callbackUrl($callBackUrl) // آدرس برگشت پس از پرداخت
-                    ->mobile($customer->contact_number) // شماره موبایل مشتری - اختیاری
-                    ->email($customer->email ?? '') // ایمیل مشتری - اختیاری
-                    ->send();
 
-                if (!$response->success()) {
-                    $payment->payment_status = 'failed';
-                    $payment->other_transaction_detail = $payment->other_transaction_detail . '\\n failed occurred at: ' . date('Y-m-d H:i:s');
-                    $payment->save();
-                    return comman_message_response("خطا در اتصال به درگاه پرداخت", 200, false, [
-                        'error' => $response->error()->message(),
-                    ]);
-                } else {
-                    $payment->payment_status = 'pending';
-                    $payment->other_transaction_detail = $payment->other_transaction_detail . '\\n pending to pay at: ' . date('Y-m-d H:i:s');
-                    // ذخیره اطلاعات در دیتابیس
-// $response->authority();
+                $booking->forceFill(['payment_id' => $payment->id])->save();
+                return $payment;
+            });
 
-// هدایت مشتری به درگاه پرداخت
-                    $res = $response->redirect();
-                    $targetUrl = $res->getTargetUrl();
-
-
-                    $payment->save();
-
-
-                    return comman_message_response("لینک اتصال به درگاه پرداخت", 200, true, [
-                        'url' => $targetUrl,
-                    ]);
+            if ($payment->getAttribute('reuse_only')) {
+                if ($payment->payment_status === 'pending' && $payment->gateway_url) {
+                    return $this->paymentInitiatedResponse($payment);
                 }
+                return comman_message_response('درخواست پرداخت در حال ایجاد است. چند لحظه دیگر دوباره بررسی کنید.', 409, false);
             }
 
-            return comman_message_response('خطا', 400, false);
-        } catch (\Exception $exception) {
-            return comman_message_response($exception->getMessage(), 400, false);
+            $payment->load('customer');
+            $response = $gateway->request(
+                $payment,
+                optional($payment->customer)->contact_number,
+                optional($payment->customer)->email
+            );
+
+            if (!$response['success']) {
+                $message = $response['message'];
+                $payment->forceFill([
+                    'payment_status' => 'failed',
+                    'failure_code' => (string) $response['code'],
+                    'failure_message' => $message,
+                    'gateway_response' => $response['raw'],
+                    'failed_at' => now(),
+                ])->save();
+                return comman_message_response('خطا در اتصال به درگاه پرداخت', 502, false);
+            }
+
+            $payment->forceFill([
+                'authority' => $response['authority'],
+                'gateway_url' => $response['gateway_url'],
+                'gateway_response' => $response['raw'],
+                'payment_status' => 'pending',
+            ])->save();
+
+            return $this->paymentInitiatedResponse($payment->fresh());
+        } catch (\Symfony\Component\HttpKernel\Exception\HttpException $exception) {
+            return comman_message_response($exception->getMessage(), $exception->getStatusCode(), false);
+        } catch (\Throwable $exception) {
+            if ($payment && $payment->exists && $payment->payment_status === 'initiated') {
+                $payment->forceFill([
+                    'payment_status' => 'failed',
+                    'failure_message' => 'خطا در ارتباط با درگاه پرداخت.',
+                    'failed_at' => now(),
+                ])->save();
+            }
+            Log::error('Zarinpal payment initiation failed', [
+                'booking_id' => $request->booking_id,
+                'exception' => $exception,
+            ]);
+            return comman_message_response('امکان ایجاد پرداخت وجود ندارد. لطفاً دوباره تلاش کنید.', 500, false);
         }
     }
 
-   public function paymentVerification(Payment $payment)
+    public function addBookingPayment(Request $request, Booking $booking, ZarinpalPaymentService $gateway)
     {
-        try {
-            $message = __('messages.payment_completed');
+        $request->merge(['booking_id' => $booking->id]);
+        return $this->addPayment($request, $gateway);
+    }
 
-            $authority = request()->query('Authority'); // دریافت کوئری استرینگ ارسال شده توسط زرین پال
-            $status = request()->query('Status'); // دریافت کوئری استرینگ ارسال شده توسط زرین پال
-
-            $response = zarinpal()
-                ->merchantId(env('ZARINPAL_MERCHANT_ID')) // تعیین مرچنت کد در حین اجرا - اختیاری
-                ->amount($payment->total_amount)
-                ->verification()
-                ->authority($authority)
-                ->send();
-
-$booking = $payment->booking()->first();
-            if (!$response->success()) {
-                $activity_data = [
-                    'activity_type' => 'payment_message_status',
-                    'payment_status' => 'failed',
-                    'booking_id' => $payment->booking_id,
-                    'booking' => $payment->booking()->first(),
-                ];
-                saveBookingActivity($activity_data);
-                $message = $response->error()->message();
-                $success = false;
-                $payment->other_transaction_detail = $payment->other_transaction_detail . "\\n authority: " . $authority . " at: " . date('Y-m-d H:i:s');
-                $payment->payment_status = "failed";
-            } else {
-                $success = true;
-                // دریافت هش شماره کارتی که مشتری برای پرداخت استفاده کرده است
-// $response->cardHash();
-
-// دریافت شماره کارتی که مشتری برای پرداخت استفاده کرده است (بصورت ماسک شده)
-// $response->cardPan();
-
-// پرداخت موفقیت آمیز بود
-// دریافت شماره پیگیری تراکنش و انجام امور مربوط به دیتابیس
-                $referenceId = $response->referenceId();
-
-                $activity_data = [
-                    'activity_type' => 'payment_message_status',
-                    'payment_status' => 'paid',
-                    'booking_id' => $payment->booking_id,
-                    'cardPan' => $response->cardPan(),
-                    'cardHash' => $response->cardHash(),
-                    'booking' => $payment->booking()->first(),
-                    'userType' => 'user'
-                ];
-
-                $payment->other_transaction_detail = $payment->other_transaction_detail . "\\n refrencedID: " . $referenceId;
-                $payment->payment_status = "paid";
-                $booking->status = "paid";
-                $booking->save();
-                saveBookingActivity($activity_data);
-
-            }
-
-            $payment->save();
-
-            $code = $payment->id;
-            return view('payment.callback', compact('message', 'code', 'success'));
-
-
-        } catch (\Exception $exception) {
-            dd($exception);
+    public function paymentStatus(Request $request, Payment $payment)
+    {
+        if ((int) $payment->customer_id !== (int) $request->user()->id) {
             abort(403);
         }
 
+        return comman_custom_response([
+            'id' => $payment->uuid,
+            'booking_id' => $payment->booking_id,
+            'status' => $payment->payment_status,
+            'amount' => $payment->amount,
+            'currency' => $payment->currency,
+            'reference_id' => $payment->reference_id,
+            'verified_at' => optional($payment->verified_at)->toIso8601String(),
+        ]);
+    }
+
+    public function paymentVerification(Payment $payment, ZarinpalPaymentService $gateway)
+    {
+        $authority = (string) request()->query('Authority', '');
+        $status = strtoupper((string) request()->query('Status', ''));
+
+        if ($payment->payment_status === 'paid') {
+            $this->dispatchPaymentReceipt($payment);
+            return $this->callbackView($payment, true, 'پرداخت قبلاً با موفقیت تأیید شده است.');
+        }
+        if (!$authority || !$payment->authority || !hash_equals((string) $payment->authority, $authority)) {
+            Log::warning('Zarinpal callback authority mismatch', ['payment_id' => $payment->id]);
+            return $this->callbackView($payment, false, 'اطلاعات بازگشت درگاه معتبر نیست.');
+        }
+        if ($status !== 'OK') {
+            $payment->forceFill([
+                'payment_status' => 'cancelled',
+                'failure_message' => 'پرداخت توسط کاربر لغو شد.',
+                'failed_at' => now(),
+            ])->save();
+            return $this->callbackView($payment, false, 'پرداخت لغو شد.');
+        }
+
+        try {
+            $response = $gateway->verify($payment, $authority);
+            if (!$response['success']) {
+                $message = $response['message'];
+                $payment->forceFill([
+                    'payment_status' => 'failed',
+                    'failure_code' => (string) $response['code'],
+                    'failure_message' => $message,
+                    'gateway_response' => $response['raw'],
+                    'failed_at' => now(),
+                ])->save();
+                return $this->callbackView($payment, false, 'پرداخت توسط زرین‌پال تأیید نشد.');
+            }
+
+            $payment = DB::transaction(function () use ($payment, $response) {
+                $locked = Payment::whereKey($payment->id)->lockForUpdate()->firstOrFail();
+                if ($locked->payment_status === 'paid') {
+                    return $locked;
+                }
+
+                $locked->forceFill([
+                    'payment_status' => 'paid',
+                    'reference_id' => $response['reference_id'],
+                    'txn_id' => $response['reference_id'],
+                    'card_pan' => $response['card_pan'],
+                    'card_hash' => $response['card_hash'],
+                    'gateway_response' => $response['raw'],
+                    'verified_at' => now(),
+                    'failure_code' => null,
+                    'failure_message' => null,
+                ])->save();
+
+                return $locked;
+            });
+
+            $this->dispatchPaymentReceipt($payment);
+            return $this->callbackView($payment, true, 'پرداخت با موفقیت انجام شد.');
+        } catch (\Throwable $exception) {
+            Log::error('Zarinpal verification failed', [
+                'payment_id' => $payment->id,
+                'exception' => $exception,
+            ]);
+            return $this->callbackView($payment, false, 'خطا در تأیید پرداخت. لطفاً وضعیت را از برنامه بررسی کنید.');
+        }
+    }
+
+    private function paymentInitiatedResponse(Payment $payment)
+    {
+        return comman_message_response('لینک اتصال به درگاه پرداخت', 200, true, [
+            'payment_id' => $payment->uuid,
+            'booking_id' => $payment->booking_id,
+            'amount' => $payment->amount,
+            'currency' => $payment->currency,
+            'url' => $payment->gateway_url,
+            'gateway_url' => $payment->gateway_url,
+            'expires_at' => $payment->created_at->copy()->addMinutes(30)->toIso8601String(),
+        ]);
+    }
+
+    private function callbackView(Payment $payment, $success, $message)
+    {
+        $code = $payment->reference_id ?: $payment->uuid;
+        $appUrl = $success
+            ? config('services.zarinpal.mobile_success_url')
+            : config('services.zarinpal.mobile_failed_url');
+
+        return view('payment.callback', compact('message', 'code', 'success', 'payment', 'appUrl'));
+    }
+
+    private function dispatchPaymentReceipt(Payment $payment)
+    {
+        try {
+            SendPaymentReceiptSms::dispatch($payment->id)->afterCommit();
+        } catch (\Throwable $notificationException) {
+            Log::error('Payment receipt notification dispatch failed', [
+                'payment_id' => $payment->id,
+                'exception' => $notificationException,
+            ]);
+        }
     }
 
     public function paymentList(Request $request)

@@ -13,11 +13,21 @@ class AddLongAndLatToUser extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->double('latitude')->nullable();
-            $table->double('longitude')->nullable();
-            $table->string('coordinates')->nullable();
-        });
+        if (!Schema::hasColumn('users', 'latitude')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->double('latitude')->nullable();
+            });
+        }
+        if (!Schema::hasColumn('users', 'longitude')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->double('longitude')->nullable();
+            });
+        }
+        if (!Schema::hasColumn('users', 'coordinates')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('coordinates')->nullable();
+            });
+        }
     }
 
     /**
@@ -27,10 +37,12 @@ class AddLongAndLatToUser extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('latitude');
-            $table->dropColumn('longitude');
-            $table->dropColumn('coordinates');
-        });
+        foreach (['latitude', 'longitude', 'coordinates'] as $column) {
+            if (Schema::hasColumn('users', $column)) {
+                Schema::table('users', function (Blueprint $table) use ($column) {
+                    $table->dropColumn($column);
+                });
+            }
+        }
     }
 }

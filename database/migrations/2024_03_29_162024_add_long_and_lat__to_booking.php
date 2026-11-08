@@ -13,11 +13,21 @@ class AddLongAndLatToBooking extends Migration
      */
     public function up()
     {
-        Schema::table('bookings', function (Blueprint $table) {
-            $table->double('latitude')->nullable();
-            $table->double('longitude')->nullable();
-            $table->string('coordinates')->nullable();
-        });
+        if (!Schema::hasColumn('bookings', 'latitude')) {
+            Schema::table('bookings', function (Blueprint $table) {
+                $table->double('latitude')->nullable();
+            });
+        }
+        if (!Schema::hasColumn('bookings', 'longitude')) {
+            Schema::table('bookings', function (Blueprint $table) {
+                $table->double('longitude')->nullable();
+            });
+        }
+        if (!Schema::hasColumn('bookings', 'coordinates')) {
+            Schema::table('bookings', function (Blueprint $table) {
+                $table->string('coordinates')->nullable();
+            });
+        }
     }
 
     /**
@@ -27,10 +37,12 @@ class AddLongAndLatToBooking extends Migration
      */
     public function down()
     {
-        Schema::table('bookings', function (Blueprint $table) {
-            $table->dropColumn('latitude');
-            $table->dropColumn('longitude');
-            $table->dropColumn('coordinates');
-        });
+        foreach (['latitude', 'longitude', 'coordinates'] as $column) {
+            if (Schema::hasColumn('bookings', $column)) {
+                Schema::table('bookings', function (Blueprint $table) use ($column) {
+                    $table->dropColumn($column);
+                });
+            }
+        }
     }
 }

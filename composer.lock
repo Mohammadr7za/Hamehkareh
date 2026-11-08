@@ -5316,20 +5316,20 @@
         },
         {
             "name": "pishran/zarinpal",
-            "version": "v4.3.4",
+            "version": "v4.3.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pishran/Zarinpal.git",
-                "reference": "1c58eb636b11ec0f07fbd0147b26a3ea86e66858"
+                "reference": "557417ca1ad6a8f0d4cb53c94ed81e20d0470329"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pishran/Zarinpal/zipball/1c58eb636b11ec0f07fbd0147b26a3ea86e66858",
-                "reference": "1c58eb636b11ec0f07fbd0147b26a3ea86e66858",
+                "url": "https://api.github.com/repos/pishran/Zarinpal/zipball/557417ca1ad6a8f0d4cb53c94ed81e20d0470329",
+                "reference": "557417ca1ad6a8f0d4cb53c94ed81e20d0470329",
                 "shasum": ""
             },
             "require": {
-                "laravel/framework": "^7.0|^8.0|^9.0|^10.0|^11.0",
+                "laravel/framework": "^7.0|^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
                 "php": "^7.2|^8.0"
             },
             "type": "library",
@@ -5369,9 +5369,9 @@
             ],
             "support": {
                 "issues": "https://github.com/pishran/Zarinpal/issues",
-                "source": "https://github.com/pishran/Zarinpal/tree/v4.3.4"
+                "source": "https://github.com/pishran/Zarinpal/tree/v4.3.7"
             },
-            "time": "2024-03-27T07:33:29+00:00"
+            "time": "2026-05-01T16:44:24+00:00"
         },
         {
             "name": "psr/clock",
@@ -12330,12 +12330,12 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^7.3|^8.0"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
 }

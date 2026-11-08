@@ -1,197 +1,66 @@
 <x-master-layout>
-    <head>
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script type="text/javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-    </head>
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card card-block card-stretch">
-                    <div class="card-body p-0">
-                        <div class="d-flex justify-content-between align-items-center p-3">
-                            <h5 class="font-weight-bold">{{ $pageTitle ?? trans('messages.list') }}</h5>
-                        </div>
-
+        <div class="card card-block card-stretch">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <h5 class="font-weight-bold mb-0">{{ $pageTitle ?? 'پرداخت‌ها' }}</h5>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" id="reset-filters">پاک کردن فیلترها</button>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-2 mb-2"><label>از تاریخ</label><input type="date" id="date-from" class="form-control"></div>
+                    <div class="col-md-2 mb-2"><label>تا تاریخ</label><input type="date" id="date-to" class="form-control"></div>
+                    <div class="col-md-2 mb-2">
+                        <label>وضعیت</label>
+                        <select id="payment-status" class="form-control">
+                            <option value="">همه</option><option value="initiated">ایجاد شده</option>
+                            <option value="pending">در انتظار پرداخت</option><option value="paid">پرداخت موفق</option>
+                            <option value="failed">ناموفق</option><option value="cancelled">لغو شده</option>
+                        </select>
                     </div>
+                    <div class="col-md-2 mb-2"><label>مشتری</label><input type="text" id="customer-filter" class="form-control" placeholder="نام، موبایل یا ایمیل"></div>
+                    <div class="col-md-2 mb-2"><label>متخصص</label><input type="text" id="handyman-filter" class="form-control" placeholder="نام، موبایل یا ایمیل"></div>
+                    <div class="col-md-2 mb-2"><label>نمایندگی</label><input type="text" id="provider-filter" class="form-control" placeholder="نام، موبایل یا ایمیل"></div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            <div class="row justify-content-between">
-                <div>
-                    <div class="col-md-12">
-                        <form action="{{ route('payment.bulk-action') }}" id="quick-action-form"
-                              class="form-disabled d-flex gap-3 align-items-center">
-                            @csrf
-                            <select name="action_type" class="form-control select2" id="quick-action-type"
-                                    style="width:100%" disabled>
-                                <option value="">{{__('messages.no_action')}}</option>
-
-                                <option value="delete">{{__('messages.delete')}}</option>
-                            </select>
-
-
-                            <button id="quick-action-apply" class="btn btn-primary" data-ajax="true"
-                                    data--submit="{{ route('payment.bulk-action') }}"
-                                    data-datatable="reload" data-confirmation='true'
-                                    data-title="{{ __('payment',['form'=>  __('payment') ]) }}"
-                                    title="{{ __('payment',['form'=>  __('payment') ]) }}"
-                                    data-message='{{ __("Do you want to perform this action?") }}'
-                                    disabled>{{__('messages.apply')}}</button>
-                    </div>
-
-                    </form>
-                </div>
-                <div class="d-flex justify-content-end">
-
-                    <div class="input-group ml-2">
-                        <span class="input-group-text" id="addon-wrapping"><i class="fas fa-search"></i></span>
-                        <input type="text" class="form-control dt-search" placeholder="Search..." aria-label="Search"
-                               aria-describedby="addon-wrapping" aria-controls="dataTableBuilder">
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table id="datatable" class="table table-striped border">
-                    </table>
-                </div>
-            </div>
-        </div>
+        <div class="card"><div class="card-body">
+            <div class="d-flex justify-content-end mb-3"><div class="input-group" style="max-width:420px">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control dt-search" placeholder="شناسه، رزرو، Authority یا کد پیگیری">
+            </div></div>
+            <div class="table-responsive"><table id="datatable" class="table table-striped border w-100"></table></div>
+        </div></div>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-
-            window.renderedDataTable = $('#datatable').DataTable({
-                processing: true,
-                serverSide: true,
-                autoWidth: false,
-                responsive: true,
-                dom: '<"row align-items-center"><"table-responsive my-3" rt><"row align-items-center" <"col-md-6" l><"col-md-6" p>><"clear">',
-                ajax: {
-                    "type": "GET",
-                    "url": '{{ route("payment.index_data")}}',
-                    "data": function (d) {
-                        d.search = {
-                            value: $('.dt-search').val()
-                        };
-                        d.filter = {
-                            column_status: $('#column_status').val()
-                        }
-                    },
-                },
+        document.addEventListener('DOMContentLoaded', function () {
+            const table = $('#datatable').DataTable({
+                processing: true, serverSide: true, autoWidth: false, responsive: true, searching: false,
+                dom: '<"table-responsive my-3"rt><"row align-items-center"<"col-md-6"l><"col-md-6"p>><"clear">',
+                ajax: { type: 'GET', url: '{{ route("payment.index_data") }}', data: function (data) {
+                    data.query = $('.dt-search').val();
+                    data.filter = { date_from: $('#date-from').val(), date_to: $('#date-to').val(),
+                        status: $('#payment-status').val(), customer: $('#customer-filter').val(),
+                        handyman: $('#handyman-filter').val(), provider: $('#provider-filter').val() };
+                }},
                 columns: [
-                    {
-                        name: 'check',
-                        data: 'check',
-                        title: '<input type="checkbox" class="form-check-input" name="select_all_table" id="select-all-table" onclick="selectAllTable(this)">',
-                        exportable: false,
-                        orderable: false,
-                        searchable: false,
-                    },
-                    {
-                        data: 'id',
-                        name: 'id',
-                        title: "{{__('messages.id')}}",
-                    },
-                    {
-                        data: 'booking_id',
-                        name: 'booking_id',
-                        title: "{{__('messages.service')}}",
-                        orderable: false,
-                    },
-                    {
-                        data: 'booking_name',
-                        name: 'booking_name',
-                        title: "{{__('messages.service')}}",
-                        orderable: false,
-                    },
-                    {
-                        data: 'customer_id',
-                        name: 'customer_id',
-                        title: "{{__('messages.user')}}"
-                    },
-                    {
-                        data: 'payment_type',
-                        name: 'payment_type',
-                        title: "{{__('messages.payment_type')}}"
-                    },
-                    {
-                        data: 'payment_status',
-                        name: 'payment_status',
-                        title: "{{__('messages.status')}}"
-                    },
-                    {
-                        data: 'datetime',
-                        name: 'datetime',
-                        title: "{{__('messages.datetime')}}"
-                    },
-                    {
-                        data: 'total_amount',
-                        name: 'total_amount',
-                        title: "{{__('messages.total_amount')}}"
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        searchable: false,
-                        title: "{{__('messages.action')}}"
-                    }
-
+                    {data:'id',name:'id',title:'پرداخت'}, {data:'booking_id',name:'booking_id',title:'رزرو',orderable:false},
+                    {data:'customer_id',name:'customer_id',title:'مشتری',orderable:false},
+                    {data:'provider_name',name:'provider_name',title:'نمایندگی',orderable:false},
+                    {data:'handyman_name',name:'handyman_name',title:'متخصص',orderable:false},
+                    {data:'payment_status',name:'payment_status',title:'وضعیت'},
+                    {data:'reference_id',name:'reference_id',title:'کد پیگیری',defaultContent:'-'},
+                    {data:'datetime',name:'datetime',title:'تاریخ'}, {data:'total_amount',name:'total_amount',title:'مبلغ'}
                 ]
-
+            });
+            let timer;
+            $('.dt-search,#customer-filter,#handyman-filter,#provider-filter').on('input', function () {
+                clearTimeout(timer); timer = setTimeout(function () { table.ajax.reload(); }, 400);
+            });
+            $('#date-from,#date-to,#payment-status').on('change', function () { table.ajax.reload(); });
+            $('#reset-filters').on('click', function () {
+                $('#date-from,#date-to,#payment-status,#customer-filter,#handyman-filter,#provider-filter,.dt-search').val('');
+                table.ajax.reload();
             });
         });
-
-        function resetQuickAction() {
-            const actionValue = $('#quick-action-type').val();
-            console.log(actionValue)
-            if (actionValue != '') {
-                $('#quick-action-apply').removeAttr('disabled');
-
-                if (actionValue == 'change-status') {
-                    $('.quick-action-field').addClass('d-none');
-                    $('#change-status-action').removeClass('d-none');
-                } else {
-                    $('.quick-action-field').addClass('d-none');
-                }
-            } else {
-                $('#quick-action-apply').attr('disabled', true);
-                $('.quick-action-field').addClass('d-none');
-            }
-        }
-
-        $('#quick-action-type').change(function () {
-            resetQuickAction()
-        });
-
-        $(document).on('update_quick_action', function () {
-
-        })
-
-        $(document).on('click', '[data-ajax="true"]', function (e) {
-            e.preventDefault();
-            const button = $(this);
-            const confirmation = button.data('confirmation');
-
-            if (confirmation === 'true') {
-                const message = button.data('message');
-                if (confirm(message)) {
-                    const submitUrl = button.data('submit');
-                    const form = button.closest('form');
-                    form.attr('action', submitUrl);
-                    form.submit();
-                }
-            } else {
-                const submitUrl = button.data('submit');
-                const form = button.closest('form');
-                form.attr('action', submitUrl);
-                form.submit();
-            }
-        });
-
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 </x-master-layout>

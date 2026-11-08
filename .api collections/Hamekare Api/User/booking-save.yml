@@ -5,16 +5,16 @@ info:
 
 http:
   method: POST
-  url: "{{baseUrl}}/booking-save?service_id=126&date=2024-09-12 10:20:10&address=3123&quantity=1&description=11asdasd&latitude=123&longitude=4444&coordinates=12"
+  url: "{{baseUrl}}/booking-save?service_id=155&date=2026-12-12 10:20:10&address=3123&quantity=1&description=11asdasd&latitude=123&longitude=4444&coordinates=12"
   headers:
     - name: Accept
       value: application/json
   params:
     - name: service_id
-      value: "126"
+      value: "155"
       type: query
     - name: date
-      value: 2024-09-12 10:20:10
+      value: 2026-12-12 10:20:10
       type: query
     - name: address
       value: "3123"
